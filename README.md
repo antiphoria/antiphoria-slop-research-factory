@@ -1,6 +1,12 @@
 
 # README
 
+## Disclaimer
+
+The software must be used in a **research setting only** and **for artistic purposes**.
+
+## Badges to fill the inner void
+
 [![CI Tests](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-tests.yml)
 [![CI Trivy](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-trivy.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-trivy.yml)
 [![CI CodeAudit](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-codeaudit.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-codeaudit.yml)
