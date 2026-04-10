@@ -6,7 +6,7 @@ The tree in D-9 is collapsed here into **packages** and **primary runtime edges*
 
 ```mermaid
 flowchart TB
-  Orchestrator[engine_orchestrator]
+  Orchestrator[engine_orchestrator_LangGraph]
   Routing[engine_routing]
   Recovery[engine_recovery]
   NodeImpl[nodes_genesis_generator_verifier_reviser_finalize_human_gate]
@@ -34,7 +34,7 @@ flowchart TB
 
 | Diagram node | Directory | Spec hooks |
 |--------------|-----------|------------|
-| `engine_*` | `engine/` | D-0 §4C, D-2 §8.4, D-5 §10 |
+| `engine_*` | `engine/` | D-0 §7 (LangGraph), §4C, D-2 §8.4, D-5 §10 |
 | `nodes_*` | `nodes/` | D-5 §5.x |
 | `seal_*` | `seal/` | D-5 §3, §7 |
 | `llm_*` | `llm/` | D-0 §4A, D-3, D-5 §6 |
@@ -45,7 +45,7 @@ flowchart TB
 
 **Notes**
 
-- **Orchestrator** drives the graph (D-0 §2.2); **routing** applies verdict demotion and next-node choice; **recovery** re-verifies the chain before resume (D-5 §10).
+- **Orchestrator** compiles and runs the **LangGraph** for D-0 §2.2; **routing** applies verdict demotion and next-node choice; **recovery** re-verifies the chain before resume (D-5 §10).
 - **nodes/base** implements PRE-SEAL → INFERENCE → POST-SEAL → YIELD (D-5 §4; D-0 §2.3).
 - **Verifier** uses **tools** and **verification**; **finalize** drives **output** (HAI Card, paper YAML, provenance report).
 - **seal** should remain the only path that invokes the external `slop-cli` binary (D-5 §16).

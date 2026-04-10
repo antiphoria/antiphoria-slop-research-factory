@@ -7,7 +7,7 @@ Mermaid diagrams derived from the specification suite in [`glascannon-ai-draft/`
 | Document | View | Primary spec anchors |
 |----------|------|----------------------|
 | [c4-context.md](c4-context.md) | System context (C4 L1) | D-0 §1–§2, D-1 §4 (trust framing) |
-| [c4-containers.md](c4-containers.md) | Containers / deployment (C4 L2) | D-0 §7, §10.1, D-9 §2, §9 |
+| [c4-containers.md](c4-containers.md) | Containers / deployment (C4 L2) | D-0 §7 (LangGraph), §10.1, D-9 §2, §9 |
 | [c4-components.md](c4-components.md) | Major packages (C4 L3) | D-9 §3, D-0 §2.1 |
 | [trust-boundaries.md](trust-boundaries.md) | TB1–TB4 | D-1 §4 |
 

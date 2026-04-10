@@ -1,6 +1,12 @@
 
 # README
 
+[![CI Tests](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-tests.yml)
+[![CI Trivy](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-trivy.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-trivy.yml)
+[![CI CodeAudit](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-codeaudit.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-codeaudit.yml)
+[![Gitleaks](https://github.com/antiphoria/antiphoria-slop-provenance/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/gitleaks.yml)
+
+
 ## Architecture diagrams
 
 Rendered **Mermaid** views (C4-style context, containers, components, trust boundaries) live under [`docs/architecture/`](docs/architecture/README.md). They track the specification drafts in [`glascannon-ai-draft/`](glascannon-ai-draft/).

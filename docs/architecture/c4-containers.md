@@ -4,7 +4,7 @@
 
 ## Tier 1 — single Python process (default)
 
-Phase 1: one **factory process** (orchestrator, nodes, LLM client, seal wrapper), **workspace** on local disk, and **slop-cli** as a separate binary on the host invoked by the factory. No Redis or queue required (D-9 §2, D-0 §10.1).
+Phase 1: one **factory process** (**LangGraph** orchestrator, nodes, LLM client, seal wrapper), **workspace** on local disk, and **slop-cli** as a separate binary on the host invoked by the factory. No Redis or queue required (D-9 §2, D-0 §10.1).
 
 ```mermaid
 flowchart TB
