@@ -32,13 +32,17 @@ REF_RE = re.compile(
 
 
 def load_markdown(path: Path) -> str:
+    """Decode spec files: UTF-8 (with BOM) first, then strict UTF-8, then Latin-1 (per-byte)."""
     raw = path.read_bytes()
-    for enc in ("utf-8-sig", "utf-8", "latin-1"):
-        try:
-            return raw.decode(enc)
-        except UnicodeDecodeError:
-            continue
-    return raw.decode("utf-8", errors="replace")
+    try:
+        return raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        pass
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError:
+        pass
+    return raw.decode("latin-1")
 
 
 def build_section_index(text: str) -> dict[str, tuple[int, str]]:
