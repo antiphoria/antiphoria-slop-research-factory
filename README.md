@@ -4,8 +4,15 @@
 [![CI Tests](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-tests.yml)
 [![CI Trivy](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-trivy.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-trivy.yml)
 [![CI CodeAudit](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-codeaudit.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-codeaudit.yml)
-[![Gitleaks](https://github.com/antiphoria/antiphoria-slop-provenance/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/gitleaks.yml)
+[![Gitleaks](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/gitleaks.yml)
 
+## Manual workflow runs
+
+These workflows define **`workflow_dispatch`**, so you can run them without a push:
+
+1. Open **[Actions](https://github.com/antiphoria/antiphoria-slop-research-factory/actions)** for this repository.
+2. Select the workflow in the left sidebar (**CI Tests**, **CI Trivy**, **CI CodeAudit**, or **Gitleaks**).
+3. Use **Run workflow** (branch dropdown, then the green button).
 
 ## Architecture diagrams
 

@@ -24,7 +24,6 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-
 # D-0 §11  |  D-12 §1 (ignored: only d0–d9)  |  optional comma/paren after ref
 REF_RE = re.compile(
     r"D-([0-9])\s*(?:\u00a7|§)\s*([0-9]+(?:\.[0-9]+)?|[0-9]+[A-Z])\b",
@@ -171,7 +170,9 @@ def main() -> int:
             by_status[status].append(row)
 
     # De-duplicate identical (source, target, ref) for cleaner reports
-    dedup_key = lambda r: (r["source_file"], r["target_doc"], r["ref"])
+    def dedup_key(r):
+        return (r["source_file"], r["target_doc"], r["ref"])
+
     seen: set[tuple[str, str, str]] = set()
     unique_findings: list[dict] = []
     for r in findings:
@@ -191,7 +192,9 @@ def main() -> int:
         "ok": ok_n,
         "missing": miss_n,
         "bad_doc_id": bad_n,
-        "findings": sorted(unique_findings, key=lambda x: (x["target_doc"], x["ref"], x["source_file"])),
+        "findings": sorted(
+            unique_findings, key=lambda x: (x["target_doc"], x["ref"], x["source_file"])
+        ),
     }
 
     if args.json:
@@ -245,7 +248,9 @@ def main() -> int:
             print("\n--- Issues ---")
             for r in report["findings"]:
                 if r["status"] != "ok":
-                    print(f"  {r['source_file']}: {r['match']} -> {r['target_doc']} [{r['status']}] {r.get('resolved') or ''}")
+                    print(
+                        f"  {r['source_file']}: {r['match']} -> {r['target_doc']} [{r['status']}] {r.get('resolved') or ''}"
+                    )
 
     if args.strict and (miss_n or bad_n):
         return 1
