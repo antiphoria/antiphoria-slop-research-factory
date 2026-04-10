@@ -1,4 +1,4 @@
-# C4 Level 3 — Major components (`src/antiphoria/`)
+# C4 Level 3 — Major components (`src/slop_research_factory/`)
 
 **Aligned with:** D-9 §3 (repository structure), D-0 §2.1 (layers), D-5 §4 (four-phase node protocol).
 

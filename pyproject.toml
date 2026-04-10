@@ -7,7 +7,7 @@ name = "antiphoria-slop-research-factory"
 version = "0.1.0"
 description = "Generator–Verifier–Reviser research factory with cryptographic provenance (slop-cli)."
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 requires-python = ">=3.12"
 dependencies = [
     "litellm>=1.40.0",
@@ -38,7 +38,7 @@ production = [
     "streamlit>=1.35.0",
 ]
 
-# D-9 §4: `antiphoria = "antiphoria.cli:main"` — add [project.scripts] once `src/antiphoria/cli.py` exists.
+# D-9 §4: `antiphoria = "slop_research_factory.cli:main"` — add [project.scripts] once `src/slop_research_factory/cli.py` exists.
 
 [tool.setuptools.packages.find]
 where = ["src"]
