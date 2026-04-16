@@ -58,7 +58,7 @@ def _seal(
     parent_hash: str | None = None,
     timestamp: datetime = TS_1,
     node_name: NodeName = NodeName.GENERATOR,
-    seal_type: SealType = SealType.POST,
+    seal_type: SealType = SealType.POST_SEAL,
     step_index: int = 0,
     metadata: ProvenanceMetadata | None = None,
     raw_seal_output: str = "",
