@@ -55,7 +55,7 @@ def _request(**overrides: object) -> HumanRescueRequest:
         run_id="run-001",
         created_at=TS_1,
         rescue_reason=REASON_MAX_REJ,
-        node_name=NodeName.VERIFIER,
+        node_name=NodeName.VERIFICATION,
         step_index=4,
         cycle_count=3,
         rejection_count=3,
@@ -90,7 +90,7 @@ class TestHumanRescueRequestConstruction:
         assert req.run_id == "run-001"
         assert req.created_at == TS_1
         assert req.rescue_reason == REASON_MAX_REJ
-        assert req.node_name is NodeName.VERIFIER
+        assert req.node_name is NodeName.VERIFICATION
         assert req.step_index == 4
         assert req.cycle_count == 3
         assert req.rejection_count == 3

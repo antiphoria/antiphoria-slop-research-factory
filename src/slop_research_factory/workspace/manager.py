@@ -274,7 +274,7 @@ class WorkspaceManager:
         """Format step directory name.
 
         Returns ``'{step_index:04d}_{node_name}'``,
-        e.g. ``'0002_verifier'``.
+        e.g. ``'0002_VERIFICATION'`` (uses :attr:`NodeName.value`).
         """
         return f"{step_index:04d}_{node_name.value}"
 

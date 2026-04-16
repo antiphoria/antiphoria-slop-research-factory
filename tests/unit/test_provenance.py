@@ -209,7 +209,7 @@ class TestSealRecordConstruction:
         assert s.content_hash == HASH_A
         assert s.parent_hash is None
         assert s.node_name is NodeName.GENERATOR
-        assert s.seal_type is SealType.POST
+        assert s.seal_type is SealType.POST_SEAL
         assert s.step_index == 0
 
     def test_create_chained_seal(self) -> None:

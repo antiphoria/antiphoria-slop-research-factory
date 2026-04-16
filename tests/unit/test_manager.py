@@ -13,7 +13,7 @@ Covers:
     temp-file cleanup on failure.
   - JSON round-trip: sorted keys, indent, trailing newline.
   - State serialization round-trip (enums, config, counters).
-  - Config serialization round-trip (SealType enum, None optionals).
+  - Config serialization round-trip (CheckpointBackend enum, None optionals).
   - Brief round-trip.
   - Step artifact read/write.
   - Output file read/write.
@@ -33,9 +33,9 @@ import pytest
 
 from slop_research_factory.config import FactoryConfig
 from slop_research_factory.types.enums import (
+    CheckpointBackend,
     NodeName,
     RunStatus,
-    SealType,
 )
 from slop_research_factory.types.state import FactoryState
 from slop_research_factory.workspace.manager import (
@@ -76,8 +76,6 @@ def _make_config(**overrides: object) -> FactoryConfig:
         generator_model="claude-sonnet-4-20250514",
         verifier_model="claude-sonnet-4-20250514",
         reviser_model="claude-sonnet-4-20250514",
-        citation_extractor_model="claude-sonnet-4-20250514",
-        default_seal_type=SealType.CONTENT,
     )
     defaults.update(overrides)
     return FactoryConfig(**defaults)  # type: ignore[arg-type]
@@ -245,49 +243,49 @@ class TestWorkspaceManagerInitialize:
 class TestWorkspaceManagerStepDir:
     """Step directory naming and creation."""
 
-    def test_step_dir_name_genesis(self) -> None:
+    def test_step_dir_name_brief(self) -> None:
         name = WorkspaceManager.step_dir_name(
-            0, NodeName.GENESIS,
+            0, NodeName.BRIEF,
         )
-        assert name == "0000_genesis"
+        assert name == "0000_BRIEF"
 
     def test_step_dir_name_generator(self) -> None:
         name = WorkspaceManager.step_dir_name(
             1, NodeName.GENERATOR,
         )
-        assert name == "0001_generator"
+        assert name == "0001_GENERATOR"
 
-    def test_step_dir_name_verifier(self) -> None:
+    def test_step_dir_name_verification(self) -> None:
         name = WorkspaceManager.step_dir_name(
-            12, NodeName.VERIFIER,
+            12, NodeName.VERIFICATION,
         )
-        assert name == "0012_verifier"
+        assert name == "0012_VERIFICATION"
 
-    def test_step_dir_name_reviser(self) -> None:
+    def test_step_dir_name_generator_high_index(self) -> None:
         name = WorkspaceManager.step_dir_name(
-            99, NodeName.REVISER,
+            99, NodeName.GENERATOR,
         )
-        assert name == "0099_reviser"
+        assert name == "0099_GENERATOR"
 
     def test_step_dir_path(
         self, ws: WorkspaceManager,
     ) -> None:
-        path = ws.step_dir(3, NodeName.VERIFIER)
-        expected = ws.steps_dir / "0003_verifier"
+        path = ws.step_dir(3, NodeName.VERIFICATION)
+        expected = ws.steps_dir / "0003_VERIFICATION"
         assert path == expected
 
     def test_ensure_step_dir_creates(
         self, ws: WorkspaceManager,
     ) -> None:
-        path = ws.ensure_step_dir(0, NodeName.GENESIS)
+        path = ws.ensure_step_dir(0, NodeName.BRIEF)
         assert path.is_dir()
-        assert path.name == "0000_genesis"
+        assert path.name == "0000_BRIEF"
 
     def test_ensure_step_dir_idempotent(
         self, ws: WorkspaceManager,
     ) -> None:
-        p1 = ws.ensure_step_dir(0, NodeName.GENESIS)
-        p2 = ws.ensure_step_dir(0, NodeName.GENESIS)
+        p1 = ws.ensure_step_dir(0, NodeName.BRIEF)
+        p2 = ws.ensure_step_dir(0, NodeName.BRIEF)
         assert p1 == p2
         assert p1.is_dir()
 
@@ -299,21 +297,21 @@ class TestWorkspaceManagerStepDir:
     def test_list_step_dirs_sorted(
         self, ws: WorkspaceManager,
     ) -> None:
-        ws.ensure_step_dir(2, NodeName.VERIFIER)
-        ws.ensure_step_dir(0, NodeName.GENESIS)
+        ws.ensure_step_dir(2, NodeName.VERIFICATION)
+        ws.ensure_step_dir(0, NodeName.BRIEF)
         ws.ensure_step_dir(1, NodeName.GENERATOR)
         dirs = ws.list_step_dirs()
         names = [d.name for d in dirs]
         assert names == [
-            "0000_genesis",
-            "0001_generator",
-            "0002_verifier",
+            "0000_BRIEF",
+            "0001_GENERATOR",
+            "0002_VERIFICATION",
         ]
 
     def test_list_step_dirs_ignores_files(
         self, ws: WorkspaceManager,
     ) -> None:
-        ws.ensure_step_dir(0, NodeName.GENESIS)
+        ws.ensure_step_dir(0, NodeName.BRIEF)
         (ws.steps_dir / "stray_file.txt").write_text("x")
         dirs = ws.list_step_dirs()
         assert len(dirs) == 1
@@ -511,7 +509,7 @@ class TestWorkspaceManagerState:
             max_rejections=7,
             max_total_tokens=None,
             max_total_cost_usd=None,
-            default_seal_type=SealType.FULL,
+            checkpoint_backend=CheckpointBackend.POSTGRES,
         )
         state = _make_state(config=config)
         ws.write_state(state)
@@ -520,8 +518,8 @@ class TestWorkspaceManagerState:
         assert restored.config.max_total_tokens is None
         assert restored.config.max_total_cost_usd is None
         assert (
-            restored.config.default_seal_type
-            is SealType.FULL
+            restored.config.checkpoint_backend
+            is CheckpointBackend.POSTGRES
         )
 
     def test_counters_preserved(
@@ -612,17 +610,17 @@ class TestWorkspaceManagerConfig:
             restored.verifier_confidence_threshold == 0.8
         )
 
-    def test_seal_type_enum_roundtrip(
+    def test_checkpoint_backend_enum_roundtrip(
         self, ws: WorkspaceManager,
     ) -> None:
-        for seal_type in SealType:
+        for backend in CheckpointBackend:
             config = _make_config(
-                default_seal_type=seal_type,
+                checkpoint_backend=backend,
             )
             ws.write_config(config)
             restored = ws.read_config()
             assert (
-                restored.default_seal_type is seal_type
+                restored.checkpoint_backend is backend
             )
 
     def test_none_optional_fields(
@@ -644,16 +642,12 @@ class TestWorkspaceManagerConfig:
             generator_model="model-gen",
             verifier_model="model-ver",
             reviser_model="model-rev",
-            citation_extractor_model="model-cite",
         )
         ws.write_config(config)
         restored = ws.read_config()
         assert restored.generator_model == "model-gen"
         assert restored.verifier_model == "model-ver"
         assert restored.reviser_model == "model-rev"
-        assert (
-            restored.citation_extractor_model == "model-cite"
-        )
 
     def test_config_not_json_object_raises(
         self, ws: WorkspaceManager,
@@ -739,19 +733,19 @@ class TestWorkspaceManagerStepArtifact:
         self, ws: WorkspaceManager,
     ) -> None:
         ws.write_step_artifact(
-            5, NodeName.VERIFIER, "output.md", "# Draft",
+            5, NodeName.VERIFICATION, "output.md", "# Draft",
         )
-        step = ws.step_dir(5, NodeName.VERIFIER)
+        step = ws.step_dir(5, NodeName.VERIFICATION)
         assert step.is_dir()
 
     def test_returns_file_path(
         self, ws: WorkspaceManager,
     ) -> None:
         path = ws.write_step_artifact(
-            0, NodeName.GENESIS, "seal_pre.json", "{}",
+            0, NodeName.BRIEF, "seal_pre.json", "{}",
         )
         assert path.name == "seal_pre.json"
-        assert path.parent.name == "0000_genesis"
+        assert path.parent.name == "0000_BRIEF"
 
     def test_read_missing_artifact_raises(
         self, ws: WorkspaceManager,
@@ -835,7 +829,7 @@ class TestWorkspaceNotInitialized:
     ) -> None:
         with pytest.raises(WorkspaceNotInitializedError):
             ws_uninit.ensure_step_dir(
-                0, NodeName.GENESIS,
+                0, NodeName.BRIEF,
             )
 
     def test_list_step_dirs_raises(

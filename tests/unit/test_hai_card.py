@@ -367,7 +367,7 @@ class TestHaiCardConstruction:
                 ),
                 _usage(
                     model_id="model-b",
-                    node_name=NodeName.VERIFIER,
+                    node_name=NodeName.VERIFICATION,
                 ),
             ),
         )
