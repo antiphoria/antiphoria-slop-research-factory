@@ -1,0 +1,77 @@
+# src/slop_research_factory/prompts/reviser/user_template_v0.1.txt
+
+
+USER MESSAGE — REVISER NODE
+════════════════════════════
+<research_brief>
+Thesis: {brief.thesis}
+
+{if brief.constraints}
+Constraints: {brief.constraints}
+{/if}
+
+{if brief.domain}
+Domain: {brief.domain}
+{/if}
+
+{if brief.target_venue}
+Target venue: {brief.target_venue}
+{/if}
+</research_brief>
+
+<previous_draft>
+{current_draft}
+</previous_draft>
+
+<reviewer_critique>
+Verdict: {verifier_output.verdict}
+Critique hash: {critique_seal_hash}
+Cycle: {cycle_count} of {config.max_total_cycles}
+
+Summary
+{verifier_output.critique_summary}
+
+Itemized Issues
+{for i, entry in enumerate(verifier_output.critique_entries)}
+Issue {i+1} [{entry.severity}] — {entry.category}
+{if entry.location}Location: {entry.location}{/if}
+{entry.description}
+{if entry.suggested_fix}
+Suggested fix: {entry.suggested_fix}
+{/if}
+
+{/for}
+
+Reviewer's Resolution
+{verifier_output.resolution}
+</reviewer_critique>
+
+{if citation_check_results}
+<citation_verification>
+The following citations were checked by automated tools:
+
+{for check in citation_check_results}
+- "{check.citation.citation_text}": {check.result}
+
+  {if check.result == "NOT_FOUND"}
+  ⚠ This citation could not be verified. Remove it or
+    replace it with a verified reference.
+  {/if}
+  {if check.result == "METADATA_MISMATCH"}
+  ⚠ The citation exists but metadata does not match.
+    Correct the author/year/title.
+  {/if}
+  {if check.result == "VERIFIED"}
+  ✓ This citation has been verified. Remove any
+    [UNVERIFIED] tag if it is still present.
+  {/if}
+{/for}
+</citation_verification>
+{/if}
+
+Target length: approximately {config.target_length_words} words.
+
+Remaining revision budget: {config.max_revisions - state.revision_count}
+Remaining rejection budget: {config.max_rejections - state.rejection_count}
+
+Please produce the complete revised draft now.

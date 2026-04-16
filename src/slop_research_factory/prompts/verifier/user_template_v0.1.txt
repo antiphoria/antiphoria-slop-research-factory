@@ -1,0 +1,78 @@
+# src/slop_research_factory/prompts/verifier/user_template_v0.1.txt
+
+
+USER MESSAGE — VERIFIER NODE
+═════════════════════════════
+<research_brief>
+Thesis: {brief.thesis}
+
+{if brief.constraints}
+Constraints: {brief.constraints}
+{/if}
+
+{if brief.domain}
+Domain: {brief.domain}
+{/if}
+
+{if brief.target_venue}
+Target venue: {brief.target_venue}
+{/if}
+
+{if brief.key_references}
+Key references provided by the human author:
+{for ref in brief.key_references}
+- {ref}
+
+{/for}
+{/if}
+</research_brief>
+
+<candidate_draft>
+{current_draft}
+</candidate_draft>
+
+<evaluation_context>
+This is evaluation cycle {cycle_count} of a maximum
+{config.max_total_cycles}.
+
+{if cycle_count > 1}
+Previous verdict: {previous_verdict}
+Previous critique summary: {previous_critique_summary}
+
+The draft above is a REVISED version responding to the
+previous critique. Pay particular attention to whether
+the previously identified flaws have been addressed.
+
+The previous critique summary is advisory context, not a
+binding judgment. Evaluate the current draft independently.
+{/if}
+
+{if citation_check_results}
+AUTOMATED CITATION CHECK RESULTS (from external tools):
+
+{for check in citation_check_results}
+- Citation: "{check.citation.citation_text}"
+
+  Result: {check.result}
+  Confidence: {check.confidence}
+  {if check.notes}Note: {check.notes}{/if}
+{/for}
+
+Use these results to inform your confidence_citation_accuracy
+score. These checks are deterministic (DOI lookups) or
+tool-assisted (abstract retrieval) and are more reliable than
+your own citation memory.
+{/if}
+
+If the draft is dramatically shorter than the requested target
+length, treat that as a scope/completeness issue and mention it
+in your critique.
+</evaluation_context>
+
+Produce your evaluation as a JSON object conforming to the
+schema below. Output ONLY the JSON object — no preamble,
+no commentary, no markdown fencing.
+
+<output_schema>
+{verifier_output_json_schema}
+</output_schema>

@@ -1,0 +1,10 @@
+# src/slop_research_factory/prompts/citation_extractor/user_template_v0.1.txt
+
+
+USER MESSAGE — CITATION EXTRACTOR
+══════════════════════════════════
+{current_draft}
+
+Extract citations from the References section. For each entry,
+also search the body text for specific claims attributed to it.
+Output a JSON array.

@@ -1,0 +1,47 @@
+# src/slop_research_factory/prompts/generator/user_template_v0.1.txt
+
+
+USER MESSAGE — GENERATOR NODE (Cycle 1)
+═══════════════════════════════════════
+<research_brief>
+Thesis: {brief.thesis}
+
+{if brief.title_suggestion}
+Suggested title: {brief.title_suggestion}
+{/if}
+
+{if brief.outline}
+Outline:
+{for i, section in enumerate(brief.outline)}
+{i+1}. {section}
+{/for}
+{/if}
+
+{if brief.key_references}
+Key references to engage with:
+{for ref in brief.key_references}
+- {ref}
+
+{/for}
+
+(These references may be partial. Engage with whatever
+information is provided rather than rejecting incomplete entries.)
+{/if}
+
+{if brief.constraints}
+Constraints: {brief.constraints}
+{/if}
+
+{if brief.domain}
+Domain: {brief.domain}
+{/if}
+
+{if brief.target_venue}
+Target venue: {brief.target_venue}
+{/if}
+</research_brief>
+
+Target length: approximately {config.target_length_words} words.
+
+Please produce the draft now. Remember to flag any uncertain
+citations with [UNVERIFIED].
