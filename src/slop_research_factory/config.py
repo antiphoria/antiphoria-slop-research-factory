@@ -10,8 +10,21 @@ step and cannot be modified.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 
-from slop_research_factory.types.enums import CheckpointBackend
+
+# Defined here (not in types.enums) so config never imports ``types.*`` and
+# avoids circular imports: ``types.state`` imports ``FactoryConfig``.
+
+class CheckpointBackend(str, Enum):
+    """Checkpoint persistence backend (D-2 §4).
+
+    SQLITE   — JSON + local files (Phase 1 default).
+    POSTGRES — Database-backed (Phase 2).
+    """
+
+    SQLITE = "SQLITE"
+    POSTGRES = "POSTGRES"
 
 
 # -------------------------------------------------------------------

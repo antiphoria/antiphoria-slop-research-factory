@@ -7,7 +7,7 @@ Covers:
   - Construction and run_id validation.
   - Path properties.
   - Directory initialization (idempotent).
-  - Step directory naming, creation, listing.
+  - Step directory naming, creation, listing (``{i:04d}_{NodeName.value}``).
   - Atomic write: UTF-8, Unix newlines, overwrite safety,
 
     temp-file cleanup on failure.
@@ -241,7 +241,12 @@ class TestWorkspaceManagerInitialize:
 
 
 class TestWorkspaceManagerStepDir:
-    """Step directory naming and creation."""
+    """Step directory naming and creation.
+
+    Names match :meth:`WorkspaceManager.step_dir_name`: the suffix is
+    :attr:`NodeName.value` (uppercase), e.g. ``0001_GENERATOR``, not
+    ``0001_generator``.
+    """
 
     def test_step_dir_name_brief(self) -> None:
         name = WorkspaceManager.step_dir_name(

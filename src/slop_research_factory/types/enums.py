@@ -28,6 +28,8 @@ from __future__ import annotations
 
 from enum import Enum
 
+from slop_research_factory.config import CheckpointBackend
+
 __all__ = [
     "CheckpointBackend",
     "CitationCheckResult",
@@ -234,17 +236,7 @@ class ConfidenceTier(str, Enum):
 
 
 # ── D-2 §4  CheckpointBackend ───────────────────────────────────────
-
-
-class CheckpointBackend(str, Enum):
-    """Checkpoint persistence backend (D-2 §4).
-
-    SQLITE   — JSON + local files (Phase 1 default).
-    POSTGRES — Database-backed (Phase 2).
-    """
-
-    SQLITE = "SQLITE"
-    POSTGRES = "POSTGRES"
+# Re-export from config (canonical definition) — see module docstring above.
 
 
 # ── NodeName ─────────────────────────────────────────────────────────

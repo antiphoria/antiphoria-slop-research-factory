@@ -10,7 +10,12 @@ Every public write method guarantees:
 - **UTF-8 encoding** with **Unix newlines** (``\\n``).
 - **Deterministic JSON:** sorted keys, 2-space indent.
 
-Directory tree (D-2 §13)::
+Directory tree (D-2 §13).  Under ``steps/``, each directory name is
+``{step_index:04d}_{node_name}`` where ``node_name`` is
+:attr:`NodeName.value` (uppercase), e.g. ``0001_GENERATOR``,
+``0002_VERIFICATION`` — not lowercase slugs.
+
+::
 
     {base_dir}/
       {run_id}/
@@ -19,9 +24,9 @@ Directory tree (D-2 §13)::
         brief.json
         chain.json
         steps/
-          0000_genesis/
-          0001_generator/
-          0002_verifier/
+          0000_BRIEF/
+          0001_GENERATOR/
+          0002_VERIFICATION/
           ...
         rescue/
         output/
@@ -54,11 +59,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from slop_research_factory.config import FactoryConfig
-from slop_research_factory.types.enums import (
-    CheckpointBackend,
-    NodeName,
-)
+from slop_research_factory.config import CheckpointBackend, FactoryConfig
+from slop_research_factory.types.enums import NodeName
 from slop_research_factory.types.state import FactoryState
 
 __all__ = [

@@ -21,11 +21,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from slop_research_factory.config import FactoryConfig
-from slop_research_factory.types.enums import (
-    CheckpointBackend,
-    RunStatus,
-)
+from slop_research_factory.config import CheckpointBackend, FactoryConfig
+from slop_research_factory.types.enums import RunStatus
 
 __all__ = ["AppendOnlyList", "FactoryState"]
 
