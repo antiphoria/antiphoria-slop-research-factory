@@ -1,90 +1,136 @@
-# tests/test_types_init.py
-
+# tests/unit/test_types_init.py
 
 """
-Step 11: Verify all re-exports from ``types/__init__.py`` resolve.
+Verify public re-exports from ``slop_research_factory.types`` resolve.
 
 Confirms:
   - every name in ``__all__`` is importable from the package,
-  - ``__all__`` is complete, duplicate-free, and matches the
-    authoritative reference table below,
-  - each re-export is identity-equal (``is``) to its source
-    sub-module object,
-  - each name has the expected kind (enum / BaseModel / dataclass),
-  - ``FactoryConfig`` is correctly NOT in ``types/`` (it lives
-    in ``slop_research_factory.config``).
+  - ``__all__`` is duplicate-free and matches the reference table,
+  - re-exports are identity-equal (``is``) to the source submodule,
+  - kinds match (enum / BaseModel / dataclass / exception / function / str const).
+
+``FactoryConfig`` stays in ``slop_research_factory.config``, not ``types``.
 """
 from __future__ import annotations
 
 import dataclasses
 import enum
 import importlib
+import inspect
 import unittest
 
 from pydantic import BaseModel
 
-
 # ====================================================================
-# Authoritative reference table
-# ====================================================================
-# One entry per re-exported name → source sub-module.
-# An auditor can diff this against types/__init__.py and D-2
-# to confirm nothing is missing or extraneous.
+# Authoritative reference: name → source sub-module (for ``is`` checks)
+# Must match ``slop_research_factory.types.__init__.__all__`` (38 names).
 # ====================================================================
 
-_ENUM_SOURCE: dict[str, str] = {
+_ALL_SOURCE: dict[str, str] = {
+    # enums (11) — all ``str, Enum`` except CheckpointBackend (defined in config)
     "CheckpointBackend": "enums",
     "CitationCheckResult": "enums",
     "ConfidenceTier": "enums",
+    "HumanRescueAction": "enums",
+    "HumanReviewStatus": "enums",
+    "NodeName": "enums",
     "RunStatus": "enums",
+    "SealType": "enums",
     "StepType": "enums",
     "Verdict": "enums",
-}  # 6
-
-_PYDANTIC_SOURCE: dict[str, str] = {
+    # exception + callable from enums
+    "IllegalTransitionError": "enums",
+    "validate_status_transition": "enums",
+    # brief / inference / verifier output (Pydantic + dataclass)
+    "ResearchBrief": "brief",
+    "InferenceRecord": "inference",
     "CitationCheckEntry": "verifier_output",
     "CitationEntry": "verifier_output",
     "CritiqueEntry": "verifier_output",
-    "ResearchBrief": "brief",
     "VerifierOutput": "verifier_output",
-}  # 5
-
-_DATACLASS_SOURCE: dict[str, str] = {
+    # HAI card
+    "DEFAULT_DISCLAIMER": "hai_card",
+    "HaiCard": "hai_card",
+    "ModelUsageRecord": "hai_card",
+    "ProcessSummary": "hai_card",
+    "SECURITY_GUARANTEE": "hai_card",
+    "VerificationSummary": "hai_card",
+    # human rescue
+    "HumanRescueRequest": "human_rescue",
+    "HumanRescueResolution": "human_rescue",
+    # provenance
+    "ProvenanceChain": "provenance",
+    "ProvenanceChainError": "provenance",
+    "ProvenanceMetadata": "provenance",
+    "SealRecord": "provenance",
+    # state
+    "AppendOnlyList": "state",
+    "FactoryState": "state",
+    # tool types
     "CrossrefQuery": "tool_types",
     "CrossrefResult": "tool_types",
-    "FactoryState": "state",
-    "HAICardData": "provenance",
-    "HumanRescueRequest": "tool_types",
-    "HumanRescueResponse": "tool_types",
-    "InferenceRecord": "inference",
-    "ProvenanceManifest": "provenance",
-    "SealPayload": "provenance",
-    "SealedStepReceipt": "provenance",
     "SemanticScholarQuery": "tool_types",
     "SemanticScholarResult": "tool_types",
     "TavilyQuery": "tool_types",
     "TavilyResult": "tool_types",
-}  # 14
-
-_OTHER_SOURCE: dict[str, str] = {
-    "AppendOnlyList": "state",
-    "IllegalTransitionError": "enums",
-    "validate_status_transition": "enums",
-}  # 3
-
-_ALL_SOURCE: dict[str, str] = {
-    **_ENUM_SOURCE,
-    **_PYDANTIC_SOURCE,
-    **_DATACLASS_SOURCE,
-    **_OTHER_SOURCE,
 }
-assert len(_ALL_SOURCE) == 28, (  # structural self-check
-    f"Reference table has {len(_ALL_SOURCE)} entries, expected 28"
+
+_EXPECTED_ALL_LEN = 38
+
+assert len(_ALL_SOURCE) == _EXPECTED_ALL_LEN, (
+    f"Reference table has {len(_ALL_SOURCE)} entries, expected {_EXPECTED_ALL_LEN}"
 )
+
+_ENUM_NAMES: frozenset[str] = frozenset({
+    "CheckpointBackend",
+    "CitationCheckResult",
+    "ConfidenceTier",
+    "HumanRescueAction",
+    "HumanReviewStatus",
+    "NodeName",
+    "RunStatus",
+    "SealType",
+    "StepType",
+    "Verdict",
+})
+
+_PYDANTIC_NAMES: frozenset[str] = frozenset({
+    "ResearchBrief",
+    "CitationCheckEntry",
+    "CitationEntry",
+    "CritiqueEntry",
+    "VerifierOutput",
+})
+
+_DATACLASS_NAMES: frozenset[str] = frozenset({
+    "InferenceRecord",
+    "ModelUsageRecord",
+    "ProcessSummary",
+    "VerificationSummary",
+    "HaiCard",
+    "HumanRescueRequest",
+    "HumanRescueResolution",
+    "ProvenanceMetadata",
+    "SealRecord",
+    "FactoryState",
+    "CrossrefQuery",
+    "CrossrefResult",
+    "SemanticScholarQuery",
+    "SemanticScholarResult",
+    "TavilyQuery",
+    "TavilyResult",
+})
+
+_STR_CONST_NAMES: frozenset[str] = frozenset({
+    "DEFAULT_DISCLAIMER",
+    "SECURITY_GUARANTEE",
+})
 
 _SUBMODULES: tuple[str, ...] = (
     "brief",
     "enums",
+    "hai_card",
+    "human_rescue",
     "inference",
     "provenance",
     "state",
@@ -96,127 +142,51 @@ _TYPES_PKG = "slop_research_factory.types"
 
 
 # ====================================================================
-# Test classes
+# Tests
 # ====================================================================
 
 
 class TestAllImportsResolve(unittest.TestCase):
     """Smoke test: every name is importable from the package."""
 
-    def test_import_all_28_names(self) -> None:
-        """Single bulk import of every public name succeeds."""
-        from slop_research_factory.types import (
-            # Enums (6)
-            CheckpointBackend,
-            CitationCheckResult,
-            ConfidenceTier,
-            RunStatus,
-            StepType,
-            Verdict,
-            # Enum helpers (2)
-            IllegalTransitionError,
-            validate_status_transition,
-            # Input (1)
-            ResearchBrief,
-            # State (2)
-            AppendOnlyList,
-            FactoryState,
-            # Verifier output (4)
-            CitationCheckEntry,
-            CitationEntry,
-            CritiqueEntry,
-            VerifierOutput,
-            # Provenance (4)
-            HAICardData,
-            ProvenanceManifest,
-            SealPayload,
-            SealedStepReceipt,
-            # Inference (1)
-            InferenceRecord,
-            # Tools & human gate (8)
-            CrossrefQuery,
-            CrossrefResult,
-            HumanRescueRequest,
-            HumanRescueResponse,
-            SemanticScholarQuery,
-            SemanticScholarResult,
-            TavilyQuery,
-            TavilyResult,
-        )
-        # Reference every name so linters see them as used.
-        imported = [
-            CheckpointBackend,
-            CitationCheckResult,
-            ConfidenceTier,
-            RunStatus,
-            StepType,
-            Verdict,
-            IllegalTransitionError,
-            validate_status_transition,
-            ResearchBrief,
-            AppendOnlyList,
-            FactoryState,
-            CitationCheckEntry,
-            CitationEntry,
-            CritiqueEntry,
-            VerifierOutput,
-            HAICardData,
-            ProvenanceManifest,
-            SealPayload,
-            SealedStepReceipt,
-            InferenceRecord,
-            CrossrefQuery,
-            CrossrefResult,
-            HumanRescueRequest,
-            HumanRescueResponse,
-            SemanticScholarQuery,
-            SemanticScholarResult,
-            TavilyQuery,
-            TavilyResult,
-        ]
-        self.assertEqual(len(imported), 28)
+    def test_import_all_public_names(self) -> None:
+        """Bulk import of every ``__all__`` name succeeds."""
+        mod = importlib.import_module(_TYPES_PKG)
+        imported = []
+        for name in mod.__all__:
+            imported.append(getattr(mod, name))
+        self.assertEqual(len(imported), _EXPECTED_ALL_LEN)
 
 
 class TestDunderAll(unittest.TestCase):
     """``__all__`` is complete, duplicate-free, and consistent."""
 
-    def test_length_is_28(self) -> None:
-        """Exactly 28 names are declared."""
+    def test_length_matches_reference(self) -> None:
         mod = importlib.import_module(_TYPES_PKG)
-        self.assertEqual(len(mod.__all__), 28)
+        self.assertEqual(len(mod.__all__), _EXPECTED_ALL_LEN)
 
     def test_no_duplicates(self) -> None:
-        """No name appears twice."""
         mod = importlib.import_module(_TYPES_PKG)
-        self.assertEqual(
-            len(mod.__all__),
-            len(set(mod.__all__)),
-        )
+        self.assertEqual(len(mod.__all__), len(set(mod.__all__)))
 
     def test_matches_reference_table(self) -> None:
-        """__all__ contains exactly the 28 expected names."""
         mod = importlib.import_module(_TYPES_PKG)
-        self.assertEqual(
-            set(mod.__all__),
-            set(_ALL_SOURCE),
-        )
+        self.assertEqual(set(mod.__all__), set(_ALL_SOURCE))
 
     def test_every_name_is_a_module_attribute(self) -> None:
-        """``getattr(types, name)`` works for every entry."""
         mod = importlib.import_module(_TYPES_PKG)
         for name in mod.__all__:
             with self.subTest(name=name):
                 self.assertTrue(
                     hasattr(mod, name),
-                    f"{name!r} in __all__ but not "
-                    f"an attribute of the module",
+                    f"{name!r} in __all__ but not an attribute of the module",
                 )
 
     def test_no_public_type_missing_from_all(self) -> None:
-        """No un-underscored class in the namespace is absent."""
         mod = importlib.import_module(_TYPES_PKG)
         public_types = {
-            n for n in dir(mod)
+            n
+            for n in dir(mod)
             if not n.startswith("_")
             and isinstance(getattr(mod, n), type)
         }
@@ -230,11 +200,11 @@ class TestDunderAll(unittest.TestCase):
 
 
 class TestEnumReExports(unittest.TestCase):
-    """All six enums are real ``enum.Enum`` subclasses."""
+    """Enum members re-exported from ``types.enums``."""
 
     def test_are_enum_subclasses(self) -> None:
         mod = importlib.import_module(_TYPES_PKG)
-        for name in _ENUM_SOURCE:
+        for name in _ENUM_NAMES:
             with self.subTest(name=name):
                 cls = getattr(mod, name)
                 self.assertTrue(
@@ -243,23 +213,19 @@ class TestEnumReExports(unittest.TestCase):
                 )
 
     def test_identity_matches_source(self) -> None:
-        """Re-export ``is`` the same object as the source."""
         mod = importlib.import_module(_TYPES_PKG)
         src = importlib.import_module(f"{_TYPES_PKG}.enums")
-        for name in _ENUM_SOURCE:
+        for name in _ENUM_NAMES:
             with self.subTest(name=name):
-                self.assertIs(
-                    getattr(mod, name),
-                    getattr(src, name),
-                )
+                self.assertIs(getattr(mod, name), getattr(src, name))
 
 
 class TestPydanticReExports(unittest.TestCase):
-    """All five Pydantic models are ``BaseModel`` subclasses."""
+    """Pydantic ``BaseModel`` re-exports."""
 
     def test_are_basemodel_subclasses(self) -> None:
         mod = importlib.import_module(_TYPES_PKG)
-        for name in _PYDANTIC_SOURCE:
+        for name in _PYDANTIC_NAMES:
             with self.subTest(name=name):
                 cls = getattr(mod, name)
                 self.assertTrue(
@@ -269,23 +235,19 @@ class TestPydanticReExports(unittest.TestCase):
 
     def test_identity_matches_source(self) -> None:
         mod = importlib.import_module(_TYPES_PKG)
-        for name, sub in _PYDANTIC_SOURCE.items():
+        for name in _PYDANTIC_NAMES:
+            sub = _ALL_SOURCE[name]
             with self.subTest(name=name, source=sub):
-                src = importlib.import_module(
-                    f"{_TYPES_PKG}.{sub}"
-                )
-                self.assertIs(
-                    getattr(mod, name),
-                    getattr(src, name),
-                )
+                src = importlib.import_module(f"{_TYPES_PKG}.{sub}")
+                self.assertIs(getattr(mod, name), getattr(src, name))
 
 
 class TestDataclassReExports(unittest.TestCase):
-    """All 14 dataclasses pass ``dataclasses.is_dataclass``."""
+    """Frozen / plain dataclasses."""
 
     def test_are_dataclasses(self) -> None:
         mod = importlib.import_module(_TYPES_PKG)
-        for name in _DATACLASS_SOURCE:
+        for name in _DATACLASS_NAMES:
             with self.subTest(name=name):
                 cls = getattr(mod, name)
                 self.assertTrue(
@@ -295,15 +257,77 @@ class TestDataclassReExports(unittest.TestCase):
 
     def test_identity_matches_source(self) -> None:
         mod = importlib.import_module(_TYPES_PKG)
-        for name, sub in _DATACLASS_SOURCE.items():
+        for name in _DATACLASS_NAMES:
+            sub = _ALL_SOURCE[name]
             with self.subTest(name=name, source=sub):
-                src = importlib.import_module(
-                    f"{_TYPES_PKG}.{sub}"
-                )
-                self.assertIs(
-                    getattr(mod, name),
-                    getattr(src, name),
-                )
+                src = importlib.import_module(f"{_TYPES_PKG}.{sub}")
+                self.assertIs(getattr(mod, name), getattr(src, name))
+
+
+class TestExceptionReExports(unittest.TestCase):
+    """Exceptions."""
+
+    def test_provenance_chain_error(self) -> None:
+        mod = importlib.import_module(_TYPES_PKG)
+        src = importlib.import_module(f"{_TYPES_PKG}.provenance")
+        self.assertTrue(issubclass(mod.ProvenanceChainError, Exception))
+        self.assertIs(mod.ProvenanceChainError, src.ProvenanceChainError)
+
+    def test_illegal_transition_error(self) -> None:
+        mod = importlib.import_module(_TYPES_PKG)
+        src = importlib.import_module(f"{_TYPES_PKG}.enums")
+        self.assertTrue(issubclass(mod.IllegalTransitionError, Exception))
+        self.assertIs(mod.IllegalTransitionError, src.IllegalTransitionError)
+
+
+class TestFunctionReExport(unittest.TestCase):
+    """``validate_status_transition``."""
+
+    def test_is_same_object(self) -> None:
+        mod = importlib.import_module(_TYPES_PKG)
+        src = importlib.import_module(f"{_TYPES_PKG}.enums")
+        self.assertTrue(
+            inspect.isfunction(mod.validate_status_transition),
+        )
+        self.assertIs(
+            mod.validate_status_transition,
+            src.validate_status_transition,
+        )
+
+
+class TestStringConstants(unittest.TestCase):
+    """``DEFAULT_DISCLAIMER`` and ``SECURITY_GUARANTEE``."""
+
+    def test_are_non_empty_strings(self) -> None:
+        mod = importlib.import_module(_TYPES_PKG)
+        for name in _STR_CONST_NAMES:
+            with self.subTest(name=name):
+                val = getattr(mod, name)
+                self.assertIsInstance(val, str)
+                self.assertGreater(len(val), 0)
+
+    def test_identity_matches_hai_card(self) -> None:
+        mod = importlib.import_module(_TYPES_PKG)
+        src = importlib.import_module(f"{_TYPES_PKG}.hai_card")
+        self.assertIs(mod.DEFAULT_DISCLAIMER, src.DEFAULT_DISCLAIMER)
+        self.assertIs(mod.SECURITY_GUARANTEE, src.SECURITY_GUARANTEE)
+
+
+class TestProvenanceChainReExport(unittest.TestCase):
+    """``ProvenanceChain`` is a plain class (not a dataclass)."""
+
+    def test_is_not_dataclass(self) -> None:
+        from slop_research_factory.types import ProvenanceChain
+
+        self.assertFalse(dataclasses.is_dataclass(ProvenanceChain))
+
+    def test_identity_matches_provenance_module(self) -> None:
+        from slop_research_factory.types import ProvenanceChain
+        from slop_research_factory.types.provenance import (
+            ProvenanceChain as Src,
+        )
+
+        self.assertIs(ProvenanceChain, Src)
 
 
 class TestAppendOnlyListReExport(unittest.TestCase):
@@ -311,10 +335,12 @@ class TestAppendOnlyListReExport(unittest.TestCase):
 
     def test_is_list_subclass(self) -> None:
         from slop_research_factory.types import AppendOnlyList
+
         self.assertTrue(issubclass(AppendOnlyList, list))
 
     def test_is_not_dataclass(self) -> None:
         from slop_research_factory.types import AppendOnlyList
+
         self.assertFalse(dataclasses.is_dataclass(AppendOnlyList))
 
     def test_identity_matches_state_module(self) -> None:
@@ -322,28 +348,22 @@ class TestAppendOnlyListReExport(unittest.TestCase):
         from slop_research_factory.types.state import (
             AppendOnlyList as Src,
         )
+
         self.assertIs(AppendOnlyList, Src)
 
 
 class TestSubmodulesImportable(unittest.TestCase):
-    """Each of the seven sub-modules is directly importable."""
+    """Each sub-module used by re-exports is importable."""
 
-    def test_all_seven_submodules(self) -> None:
+    def test_all_submodules(self) -> None:
         for mod_name in _SUBMODULES:
             with self.subTest(module=mod_name):
-                mod = importlib.import_module(
-                    f"{_TYPES_PKG}.{mod_name}"
-                )
+                mod = importlib.import_module(f"{_TYPES_PKG}.{mod_name}")
                 self.assertIsNotNone(mod)
 
 
 class TestConfigSeparation(unittest.TestCase):
-    """``FactoryConfig`` lives in ``config.py``, NOT in ``types/``.
-
-    D-2 §4 defines FactoryConfig as a frozen dataclass in
-    ``slop_research_factory.config``.  It must never leak into
-    the ``types`` namespace so the two concerns stay separated.
-    """
+    """``FactoryConfig`` lives in ``config``, not ``types`` (D-2 §4)."""
 
     def test_factory_config_not_in_types_namespace(self) -> None:
         mod = importlib.import_module(_TYPES_PKG)
@@ -355,9 +375,8 @@ class TestConfigSeparation(unittest.TestCase):
 
     def test_factory_config_importable_from_config(self) -> None:
         from slop_research_factory.config import FactoryConfig
-        self.assertTrue(
-            dataclasses.is_dataclass(FactoryConfig),
-        )
+
+        self.assertTrue(dataclasses.is_dataclass(FactoryConfig))
 
 
 if __name__ == "__main__":
