@@ -11,9 +11,9 @@ Every public write method guarantees:
 - **Deterministic JSON:** sorted keys, 2-space indent.
 
 Directory tree (D-2 §13).  Under ``steps/``, each directory name is
-``{step_index:04d}_{node_name}`` where ``node_name`` is
-:attr:`NodeName.value` (uppercase), e.g. ``0001_GENERATOR``,
-``0002_VERIFICATION`` — not lowercase slugs.
+``{step_index:06d}_{node_name}`` where ``node_name`` is
+:attr:`NodeName.value` (uppercase), e.g. ``000001_GENERATOR``,
+``000002_VERIFICATION`` — not lowercase slugs.
 
 ::
 
@@ -35,11 +35,9 @@ Directory tree (D-2 §13).  Under ``steps/``, each directory name is
           manifest.json
           provenance_report.md
 
-Crash recovery depends on ``state.json`` being atomically
-updated.  The ``os.replace`` call is atomic on POSIX
-filesystems when source and destination reside on the same
-mount — ensured by writing the temp file into the same
-directory as the target.
+Crash recovery depends on ``state.json`` being updated via
+``os.replace`` from a temp file in the same directory (POSIX:
+atomic; Windows: best-effort — avoid cross-volume targets).
 
 Spec references:
     D-2 §13  Workspace layout.
@@ -54,12 +52,13 @@ import dataclasses
 import json
 import logging
 import os
+import sys
 import tempfile
 from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from slop_research_factory.config import CheckpointBackend, FactoryConfig
+from slop_research_factory.config import FactoryConfig, factory_config_from_mapping
 from slop_research_factory.types.enums import NodeName
 from slop_research_factory.types.state import FactoryState
 
@@ -71,10 +70,37 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
-# Characters that must never appear in a run_id.
+# Characters that must never appear in a run_id (path / stream hazards).
 
 _UNSAFE_RUN_ID_CHARS: frozenset[str] = frozenset(
-    "/\\\0",
+    r'/\\<>:"|?*' "\0",
+)
+
+_WIN_DEVICE_NAMES: frozenset[str] = frozenset(
+    {
+        "con",
+        "prn",
+        "aux",
+        "nul",
+        "com1",
+        "com2",
+        "com3",
+        "com4",
+        "com5",
+        "com6",
+        "com7",
+        "com8",
+        "com9",
+        "lpt1",
+        "lpt2",
+        "lpt3",
+        "lpt4",
+        "lpt5",
+        "lpt6",
+        "lpt7",
+        "lpt8",
+        "lpt9",
+    }
 )
 
 
@@ -118,29 +144,10 @@ def _deserialize_config(
 ) -> FactoryConfig:
     """Deserialize :class:`FactoryConfig` from a JSON dict.
 
-    Handles enum and tuple coercion. Unknown keys are
-    silently dropped for forward compatibility.
+    Unknown keys are dropped (forward compatibility) — see
+    :func:`slop_research_factory.config.factory_config_from_mapping`.
     """
-    known = {
-        f.name for f in dataclasses.fields(FactoryConfig)
-    }
-    kwargs: dict[str, Any] = {
-        k: v for k, v in data.items() if k in known
-    }
-
-    # Enum coercion
-    if "checkpoint_backend" in kwargs:
-        kwargs["checkpoint_backend"] = CheckpointBackend(
-            kwargs["checkpoint_backend"],
-        )
-
-    # JSON array > tuple
-    if "citation_check_sources" in kwargs:
-        kwargs["citation_check_sources"] = tuple(
-            kwargs["citation_check_sources"],
-        )
-
-    return FactoryConfig(**kwargs)
+    return factory_config_from_mapping(data)
 
 
 # ── WorkspaceManager ────────────────────────────────────
@@ -171,15 +178,13 @@ class WorkspaceManager:
         if not run_id or not run_id.strip():
             raise ValueError("run_id must be non-empty")
         if run_id in (".", ".."):
-            raise ValueError(
-                f"run_id must not be '.' or '..', "
-                f"got {run_id!r}"
-            )
+            raise ValueError(f"run_id must not be '.' or '..', got {run_id!r}")
         if _UNSAFE_RUN_ID_CHARS & set(run_id):
-            raise ValueError(
-                "run_id contains unsafe characters: "
-                f"{run_id!r}"
-            )
+            raise ValueError(f"run_id contains unsafe characters: {run_id!r}")
+        if sys.platform == "win32":
+            stem = run_id.split(".", 1)[0].lower()
+            if stem in _WIN_DEVICE_NAMES:
+                raise ValueError(f"run_id {run_id!r} is a reserved device name on Windows")
         self._base_dir = Path(base_dir)
         self._run_id = run_id
 
@@ -235,6 +240,11 @@ class WorkspaceManager:
         """Path to ``chain.json`` (provenance chain)."""
         return self.run_dir / "chain.json"
 
+    @property
+    def chain_dir(self) -> Path:
+        """Directory passed to the seal engine for step receipts."""
+        return self.run_dir / "chain"
+
     # ── Initialization ───────────────────────────────────
 
     def initialize(self) -> Path:
@@ -253,7 +263,8 @@ class WorkspaceManager:
         ):
             d.mkdir(parents=True, exist_ok=True)
         logger.info(
-            "Workspace initialized: %s", self.run_dir,
+            "Workspace initialized: %s",
+            self.run_dir,
         )
         return self.run_dir
 
@@ -261,9 +272,7 @@ class WorkspaceManager:
         """Raise if the run directory does not exist."""
         if not self.run_dir.is_dir():
             raise WorkspaceNotInitializedError(
-                f"Workspace not initialized: "
-                f"{self.run_dir}. "
-                f"Call initialize() first."
+                f"Workspace not initialized: {self.run_dir}. Call initialize() first."
             )
 
     # ── Step directories ─────────────────────────────────
@@ -275,10 +284,10 @@ class WorkspaceManager:
     ) -> str:
         """Format step directory name.
 
-        Returns ``'{step_index:04d}_{node_name}'``,
-        e.g. ``'0002_VERIFICATION'`` (uses :attr:`NodeName.value`).
+        Returns ``'{step_index:06d}_{node_name}'``,
+        e.g. ``'000002_VERIFICATION'`` (uses :attr:`NodeName.value`).
         """
-        return f"{step_index:04d}_{node_name.value}"
+        return f"{step_index:06d}_{node_name.value}"
 
     def step_dir(
         self,
@@ -312,10 +321,7 @@ class WorkspaceManager:
         self._require_initialized()
         if not self.steps_dir.is_dir():
             return []
-        return sorted(
-            p for p in self.steps_dir.iterdir()
-            if p.is_dir()
-        )
+        return sorted(p for p in self.steps_dir.iterdir() if p.is_dir())
 
     # ── Atomic I/O primitives ────────────────────────────
 
@@ -338,15 +344,20 @@ class WorkspaceManager:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         content = content.replace(
-            "\r\n", "\n",
+            "\r\n",
+            "\n",
         ).replace("\r", "\n")
 
         fd, tmp = tempfile.mkstemp(
-            dir=str(path.parent), prefix=".tmp_",
+            dir=str(path.parent),
+            prefix=".tmp_",
         )
         try:
             with os.fdopen(
-                fd, "w", encoding="utf-8", newline="\n",
+                fd,
+                "w",
+                encoding="utf-8",
+                newline="\n",
             ) as fh:
                 fh.write(content)
                 fh.flush()
@@ -403,16 +414,12 @@ class WorkspaceManager:
     # ── State persistence ────────────────────────────────
 
     def write_state(self, state: FactoryState) -> None:
-        """Atomically write ``state.json``.
-
-        Uses ``FactoryState.to_dict()`` for complete
-        serialization including all token counters,
-        timestamps, and content fields.
-        """
+        """Write ``state.json`` atomically (temp + fsync + replace)."""
         self._require_initialized()
         self.write_json(self.state_path, state.to_dict())
         logger.debug(
-            "State written: step=%d", state.step_index,
+            "State written: step=%d",
+            state.step_index,
         )
 
     def read_state(self) -> FactoryState:
@@ -425,9 +432,7 @@ class WorkspaceManager:
         self._require_initialized()
         data = self.read_json(self.state_path)
         if not isinstance(data, dict):
-            raise WorkspaceError(
-                "state.json must contain a JSON object"
-            )
+            raise WorkspaceError("state.json must contain a JSON object")
         return FactoryState.from_dict(data)
 
     # ── Config persistence ───────────────────────────────
@@ -436,7 +441,8 @@ class WorkspaceManager:
         """Atomically write ``config.json``."""
         self._require_initialized()
         self.write_json(
-            self.config_path, _serialize_config(config),
+            self.config_path,
+            _serialize_config(config),
         )
 
     def read_config(self) -> FactoryConfig:
@@ -451,9 +457,7 @@ class WorkspaceManager:
         self._require_initialized()
         data = self.read_json(self.config_path)
         if not isinstance(data, dict):
-            raise WorkspaceError(
-                "config.json must contain a JSON object"
-            )
+            raise WorkspaceError("config.json must contain a JSON object")
         return _deserialize_config(data)
 
     # ── Brief persistence ────────────────────────────────
@@ -478,9 +482,7 @@ class WorkspaceManager:
         self._require_initialized()
         data = self.read_json(self.brief_path)
         if not isinstance(data, dict):
-            raise WorkspaceError(
-                "brief.json must contain a JSON object"
-            )
+            raise WorkspaceError("brief.json must contain a JSON object")
         return data
 
     # ── Step artifact helpers ────────────────────────────
@@ -523,9 +525,7 @@ class WorkspaceManager:
             FileNotFoundError: If the file does not exist.
         """
         self._require_initialized()
-        path = (
-            self.step_dir(step_index, node_name) / filename
-        )
+        path = self.step_dir(step_index, node_name) / filename
         return self.read_text(path)
 
     # ── Output helpers ───────────────────────────────────
@@ -577,7 +577,8 @@ class WorkspaceManager:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         fd, tmp = tempfile.mkstemp(
-            dir=str(path.parent), prefix=".tmp_",
+            dir=str(path.parent),
+            prefix=".tmp_",
         )
         try:
             with os.fdopen(fd, "wb") as fh:
@@ -597,14 +598,3 @@ class WorkspaceManager:
         (D-5 §7).
         """
         return str(Path(path).relative_to(self.run_dir))
-
-    def write_state_atomic(
-        self,
-        state: FactoryState,
-    ) -> None:
-        """Alias for :meth:`write_state`.
-
-        Named explicitly for call sites that emphasize
-        the atomicity contract (D-5 §10).
-        """
-        self.write_state(state)

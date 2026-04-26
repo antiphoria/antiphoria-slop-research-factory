@@ -10,6 +10,8 @@ is needed to avoid circular references.
 
 # ── enums ────────────────────────────────────────────────
 
+# ── brief ────────────────────────────────────────────────
+from slop_research_factory.types.brief import ResearchBrief
 from slop_research_factory.types.enums import (
     CheckpointBackend,
     CitationCheckResult,
@@ -18,6 +20,7 @@ from slop_research_factory.types.enums import (
     HumanReviewStatus,
     IllegalTransitionError,
     NodeName,
+    RescueReason,
     RunStatus,
     SealType,
     StepType,
@@ -25,43 +28,26 @@ from slop_research_factory.types.enums import (
     validate_status_transition,
 )
 
-# ── brief ────────────────────────────────────────────────
-
-from slop_research_factory.types.brief import ResearchBrief
-
-# ── inference ────────────────────────────────────────────
-
-from slop_research_factory.types.inference import InferenceRecord
-
-# ── verifier output ──────────────────────────────────────
-
-from slop_research_factory.types.verifier_output import (
-    CitationCheckEntry,
-    CitationEntry,
-    CritiqueEntry,
-    VerifierOutput,
-)
-
 # ── hai card ─────────────────────────────────────────────
-
 from slop_research_factory.types.hai_card import (
     DEFAULT_DISCLAIMER,
+    SECURITY_GUARANTEE,
     HaiCard,
     ModelUsageRecord,
     ProcessSummary,
-    SECURITY_GUARANTEE,
     VerificationSummary,
 )
 
 # ── human rescue ─────────────────────────────────────────
-
 from slop_research_factory.types.human_rescue import (
     HumanRescueRequest,
     HumanRescueResolution,
 )
 
-# ── provenance ───────────────────────────────────────────
+# ── inference ────────────────────────────────────────────
+from slop_research_factory.types.inference import InferenceRecord
 
+# ── provenance ───────────────────────────────────────────
 from slop_research_factory.types.provenance import (
     ProvenanceChain,
     ProvenanceChainError,
@@ -70,14 +56,12 @@ from slop_research_factory.types.provenance import (
 )
 
 # ── state ────────────────────────────────────────────────
-
 from slop_research_factory.types.state import (
     AppendOnlyList,
     FactoryState,
 )
 
 # ── tool types ───────────────────────────────────────────
-
 from slop_research_factory.types.tool_types import (
     CrossrefQuery,
     CrossrefResult,
@@ -85,6 +69,14 @@ from slop_research_factory.types.tool_types import (
     SemanticScholarResult,
     TavilyQuery,
     TavilyResult,
+)
+
+# ── verifier output ──────────────────────────────────────
+from slop_research_factory.types.verifier_output import (
+    CitationCheckEntry,
+    CitationEntry,
+    CritiqueEntry,
+    VerifierOutput,
 )
 
 __all__ = [
@@ -96,6 +88,7 @@ __all__ = [
     "HumanReviewStatus",
     "IllegalTransitionError",
     "NodeName",
+    "RescueReason",
     "RunStatus",
     "SealType",
     "StepType",

@@ -14,10 +14,11 @@ Sealing contract (D-5 §5.3):
   whose ``content_hash`` covers the serialized query AND result
   together, ensuring the complete interaction is chained.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Literal
 
 __all__ = [
     "CrossrefQuery",
@@ -39,13 +40,18 @@ class CrossrefQuery:
     Endpoint: ``https://api.crossref.org/works/{doi}``
 
     At least one of *doi*, *query_title*, or *query_author*
-    should be non-None; the caller decides which lookup
-    strategy to use based on available citation metadata.
+    must be set.
     """
 
     doi: str | None = None
     query_title: str | None = None
     query_author: str | None = None
+
+    def __post_init__(self) -> None:
+        if not any((self.doi, self.query_title, self.query_author)):
+            raise ValueError(
+                "CrossrefQuery requires at least one of doi, query_title, query_author",
+            )
 
 
 @dataclass(frozen=True)
@@ -82,6 +88,12 @@ class SemanticScholarQuery:
     paper_id: str | None = None
     query_title: str | None = None
 
+    def __post_init__(self) -> None:
+        if not any((self.paper_id, self.query_title)):
+            raise ValueError(
+                "SemanticScholarQuery requires paper_id or query_title",
+            )
+
 
 @dataclass(frozen=True)
 class SemanticScholarResult:
@@ -116,8 +128,16 @@ class TavilyQuery:
     """
 
     query: str
-    search_depth: str = "basic"   # "basic" or "advanced"
+    search_depth: Literal["basic", "advanced"] = "basic"
     max_results: int = 5
+
+    def __post_init__(self) -> None:
+        if not self.query.strip():
+            raise ValueError("TavilyQuery.query must be non-empty")
+        if self.max_results < 1:
+            raise ValueError(
+                f"max_results must be >= 1, got {self.max_results}",
+            )
 
 
 @dataclass(frozen=True)

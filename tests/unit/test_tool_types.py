@@ -9,6 +9,7 @@ for all external tool types (Crossref, Semantic Scholar, Tavily).
 Human rescue types live in types/human_rescue.py and are
 tested separately.
 """
+
 from __future__ import annotations
 
 import json
@@ -25,7 +26,6 @@ from slop_research_factory.types.tool_types import (
     TavilyResult,
 )
 
-
 # ── Crossref types (D-2 §11.1) ──────────────────────────────
 
 
@@ -37,11 +37,9 @@ class TestCrossrefTypes:
         with pytest.raises(FrozenInstanceError):
             q.doi = "changed"  # type: ignore[misc]
 
-    def test_query_all_none_defaults(self) -> None:
-        q = CrossrefQuery()
-        assert q.doi is None
-        assert q.query_title is None
-        assert q.query_author is None
+    def test_query_all_none_rejected(self) -> None:
+        with pytest.raises(ValueError, match="at least one"):
+            CrossrefQuery()
 
     def test_result_frozen(self) -> None:
         r = CrossrefResult(found=True, doi="10.1234/x")
@@ -98,9 +96,14 @@ class TestSemanticScholarTypes:
         assert r.abstract == "We prove a theorem."
         assert r.citation_count == 42
 
+    def test_query_all_none_rejected(self) -> None:
+        with pytest.raises(ValueError, match="paper_id or query_title"):
+            SemanticScholarQuery()
+
     def test_result_json_roundtrip(self) -> None:
         r = SemanticScholarResult(
-            found=False, raw_response={},
+            found=False,
+            raw_response={},
         )
         loaded = json.loads(json.dumps(asdict(r)))
         assert loaded["found"] is False
@@ -126,12 +129,14 @@ class TestTavilyTypes:
     def test_result_with_entries(self) -> None:
         r = TavilyResult(
             query="test",
-            results=[{
-                "title": "Page",
-                "url": "https://example.com",
-                "content": "Some content.",
-                "score": 0.95,
-            }],
+            results=[
+                {
+                    "title": "Page",
+                    "url": "https://example.com",
+                    "content": "Some content.",
+                    "score": 0.95,
+                }
+            ],
             raw_response={"query": "test"},
         )
         assert len(r.results) == 1
@@ -144,8 +149,10 @@ class TestTavilyTypes:
 
     def test_result_json_roundtrip(self) -> None:
         entry = {
-            "title": "T", "url": "U",
-            "content": "C", "score": 0.5,
+            "title": "T",
+            "url": "U",
+            "content": "C",
+            "score": 0.5,
         }
         r = TavilyResult(
             query="q",

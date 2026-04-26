@@ -10,20 +10,26 @@ or Reviser invocation, written to disk as::
 
 Sealed as part of the POST-seal step (D-5 §5.2–§5.4).
 """
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+from typing import Any
+
+from slop_research_factory.types.hashing import is_valid_sha256_hex
 
 __all__ = ["InferenceRecord"]
 
 # ── Module-level constants ────────────────────────────────────
 
 # Allowed values for ``InferenceRecord.role`` (D-2 §9).
-_VALID_ROLES: frozenset[str] = frozenset({
-    "generator",
-    "verifier",
-    "reviser",
-})
+_VALID_ROLES: frozenset[str] = frozenset(
+    {
+        "generator",
+        "verifier",
+        "reviser",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -107,7 +113,7 @@ class InferenceRecord:
     error: str | None = None
     """Error message if the call ultimately failed."""
 
-    sampling_params: dict = field(default_factory=dict)
+    sampling_params: dict[str, Any] = field(default_factory=dict)
     """Sampling hyper-parameters, e.g.
     ``{"temperature": 0.0, "top_p": 1.0}``."""
 
@@ -120,42 +126,32 @@ class InferenceRecord:
             ValueError: Invalid *role* or negative numeric field.
         """
         if self.role not in _VALID_ROLES:
-            raise ValueError(
-                f"role must be one of {sorted(_VALID_ROLES)}, "
-                f"got {self.role!r}"
-            )
+            raise ValueError(f"role must be one of {sorted(_VALID_ROLES)}, got {self.role!r}")
         if self.step_index < 0:
-            raise ValueError(
-                f"step_index must be >= 0, "
-                f"got {self.step_index}"
-            )
+            raise ValueError(f"step_index must be >= 0, got {self.step_index}")
         if self.duration_seconds < 0.0:
-            raise ValueError(
-                f"duration_seconds must be >= 0.0, "
-                f"got {self.duration_seconds}"
-            )
+            raise ValueError(f"duration_seconds must be >= 0.0, got {self.duration_seconds}")
         if self.input_tokens < 0:
-            raise ValueError(
-                f"input_tokens must be >= 0, "
-                f"got {self.input_tokens}"
-            )
+            raise ValueError(f"input_tokens must be >= 0, got {self.input_tokens}")
         if self.output_tokens < 0:
-            raise ValueError(
-                f"output_tokens must be >= 0, "
-                f"got {self.output_tokens}"
-            )
-        if (
-            self.think_tokens is not None
-            and self.think_tokens < 0
+            raise ValueError(f"output_tokens must be >= 0, got {self.output_tokens}")
+        if self.think_tokens is not None and self.think_tokens < 0:
+            raise ValueError(f"think_tokens must be >= 0 or None, got {self.think_tokens}")
+        if self.retries < 0:
+            raise ValueError(f"retries must be >= 0, got {self.retries}")
+        for label, h in (
+            ("prompt_hash", self.prompt_hash),
+            ("response_hash", self.response_hash),
+            ("response_body_hash", self.response_body_hash),
+        ):
+            if not is_valid_sha256_hex(h):
+                raise ValueError(f"{label} must be 64-char lowercase hex SHA-256, got {h!r}")
+        if self.think_trace_hash is not None and not is_valid_sha256_hex(
+            self.think_trace_hash,
         ):
             raise ValueError(
-                f"think_tokens must be >= 0 or None, "
-                f"got {self.think_tokens}"
-            )
-        if self.retries < 0:
-            raise ValueError(
-                f"retries must be >= 0, "
-                f"got {self.retries}"
+                "think_trace_hash must be 64-char lowercase hex or None, "
+                f"got {self.think_trace_hash!r}"
             )
 
     # ── Convenience ───────────────────────────────────────

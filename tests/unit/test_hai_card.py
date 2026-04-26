@@ -23,7 +23,7 @@ Spec references:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -47,8 +47,8 @@ HASH_A = "a" * 64
 HASH_B = "b" * 64
 HASH_C = "c" * 64
 
-TS_1 = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-TS_2 = datetime(2025, 6, 15, 12, 0, 0, tzinfo=timezone.utc)
+TS_1 = datetime(2025, 1, 1, 0, 0, 0, tzinfo=UTC)
+TS_2 = datetime(2025, 6, 15, 12, 0, 0, tzinfo=UTC)
 TS_NAIVE = datetime(2025, 1, 1, 0, 0, 0)
 
 
@@ -133,7 +133,9 @@ class TestModelUsageRecord:
 
     def test_zero_tokens_accepted(self) -> None:
         m = _usage(
-            input_tokens=0, output_tokens=0, call_count=0,
+            input_tokens=0,
+            output_tokens=0,
+            call_count=0,
         )
         assert m.input_tokens == 0
 
@@ -148,19 +150,22 @@ class TestModelUsageRecord:
 
     def test_negative_input_tokens_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="input_tokens",
+            ValueError,
+            match="input_tokens",
         ):
             _usage(input_tokens=-1)
 
     def test_negative_output_tokens_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="output_tokens",
+            ValueError,
+            match="output_tokens",
         ):
             _usage(output_tokens=-1)
 
     def test_negative_call_count_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="call_count",
+            ValueError,
+            match="call_count",
         ):
             _usage(call_count=-1)
 
@@ -192,7 +197,8 @@ class TestProcessSummary:
 
     def test_negative_total_cycles_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="total_cycles",
+            ValueError,
+            match="total_cycles",
         ):
             _process(total_cycles=-1)
 
@@ -200,7 +206,8 @@ class TestProcessSummary:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="rejection_count",
+            ValueError,
+            match="rejection_count",
         ):
             _process(rejection_count=-1)
 
@@ -208,7 +215,8 @@ class TestProcessSummary:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="revision_count",
+            ValueError,
+            match="revision_count",
         ):
             _process(revision_count=-1)
 
@@ -249,13 +257,15 @@ class TestVerificationSummary:
 
     def test_confidence_negative_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="verdict_confidence",
+            ValueError,
+            match="verdict_confidence",
         ):
             _verification(verdict_confidence=-0.01)
 
     def test_confidence_above_1_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="verdict_confidence",
+            ValueError,
+            match="verdict_confidence",
         ):
             _verification(verdict_confidence=1.01)
 
@@ -263,7 +273,8 @@ class TestVerificationSummary:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="deterministic_passed",
+            ValueError,
+            match="deterministic_passed",
         ):
             _verification(
                 deterministic_passed=6,
@@ -274,7 +285,8 @@ class TestVerificationSummary:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="citations_verified",
+            ValueError,
+            match="citations_verified",
         ):
             _verification(
                 citations_verified=6,
@@ -285,7 +297,8 @@ class TestVerificationSummary:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="deterministic_passed",
+            ValueError,
+            match="deterministic_passed",
         ):
             _verification(deterministic_passed=-1)
 
@@ -293,7 +306,8 @@ class TestVerificationSummary:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="deterministic_total",
+            ValueError,
+            match="deterministic_total",
         ):
             _verification(deterministic_total=-1)
 
@@ -301,7 +315,8 @@ class TestVerificationSummary:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="citations_verified",
+            ValueError,
+            match="citations_verified",
         ):
             _verification(citations_verified=-1)
 
@@ -309,14 +324,16 @@ class TestVerificationSummary:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="citations_total",
+            ValueError,
+            match="citations_total",
         ):
             _verification(citations_total=-1)
 
     def test_zero_citations_accepted(self) -> None:
         """Tier 1 run: no citations extracted or verified."""
         v = _verification(
-            citations_verified=0, citations_total=0,
+            citations_verified=0,
+            citations_total=0,
         )
         assert v.citations_total == 0
 
@@ -336,9 +353,7 @@ class TestHaiCardConstruction:
         """All defaulted fields left at defaults."""
         card = _card()
         assert card.run_id == "test-run-001"
-        assert card.human_review_status is (
-            HumanReviewStatus.UNREVIEWED
-        )
+        assert card.human_review_status is (HumanReviewStatus.UNREVIEWED)
         assert card.human_reviewer is None
         assert card.human_review_timestamp is None
         assert card.human_review_notes == ""
@@ -352,9 +367,7 @@ class TestHaiCardConstruction:
             human_review_timestamp=TS_2,
             human_review_notes="Looks correct.",
         )
-        assert card.human_review_status is (
-            HumanReviewStatus.REVIEWED
-        )
+        assert card.human_review_status is (HumanReviewStatus.REVIEWED)
         assert card.human_reviewer == "Dr. A. Reviewer"
 
     def test_multiple_models(self) -> None:
@@ -413,13 +426,15 @@ class TestHaiCardHashValidation:
 
     def test_invalid_final_seal_hash(self) -> None:
         with pytest.raises(
-            ValueError, match="final_seal_hash",
+            ValueError,
+            match="final_seal_hash",
         ):
             _card(final_seal_hash="short")
 
     def test_invalid_output_hash(self) -> None:
         with pytest.raises(
-            ValueError, match="output_hash",
+            ValueError,
+            match="output_hash",
         ):
             _card(output_hash="X" * 64)
 
@@ -429,7 +444,8 @@ class TestHaiCardHashValidation:
 
     def test_long_hash_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="output_hash",
+            ValueError,
+            match="output_hash",
         ):
             _card(output_hash="b" * 65)
 
@@ -442,18 +458,18 @@ class TestHaiCardTimestampValidation:
 
     def test_naive_generated_at_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="generated_at",
+            ValueError,
+            match="generated_at",
         ):
             _card(generated_at=TS_NAIVE)
 
     def test_naive_review_timestamp_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="human_review_timestamp",
+            ValueError,
+            match="human_review_timestamp",
         ):
             _card(
-                human_review_status=(
-                    HumanReviewStatus.REVIEWED
-                ),
+                human_review_status=(HumanReviewStatus.REVIEWED),
                 human_reviewer="Dr. X",
                 human_review_timestamp=TS_NAIVE,
             )
@@ -467,66 +483,52 @@ class TestHaiCardHumanReview:
 
     def test_unreviewed_default(self) -> None:
         card = _card()
-        assert card.human_review_status is (
-            HumanReviewStatus.UNREVIEWED
-        )
+        assert card.human_review_status is (HumanReviewStatus.UNREVIEWED)
 
     def test_reviewed_requires_reviewer(self) -> None:
         with pytest.raises(
-            ValueError, match="human_reviewer",
+            ValueError,
+            match="human_reviewer",
         ):
             _card(
-                human_review_status=(
-                    HumanReviewStatus.REVIEWED
-                ),
+                human_review_status=(HumanReviewStatus.REVIEWED),
                 human_reviewer=None,
                 human_review_timestamp=TS_2,
             )
 
     def test_reviewed_requires_timestamp(self) -> None:
         with pytest.raises(
-            ValueError, match="human_review_timestamp",
+            ValueError,
+            match="human_review_timestamp",
         ):
             _card(
-                human_review_status=(
-                    HumanReviewStatus.REVIEWED
-                ),
+                human_review_status=(HumanReviewStatus.REVIEWED),
                 human_reviewer="Dr. X",
                 human_review_timestamp=None,
             )
 
     def test_reviewed_with_both_accepted(self) -> None:
         card = _card(
-            human_review_status=(
-                HumanReviewStatus.REVIEWED
-            ),
+            human_review_status=(HumanReviewStatus.REVIEWED),
             human_reviewer="Dr. X",
             human_review_timestamp=TS_2,
         )
-        assert card.human_review_status is (
-            HumanReviewStatus.REVIEWED
-        )
+        assert card.human_review_status is (HumanReviewStatus.REVIEWED)
 
     def test_contested_without_reviewer_accepted(
         self,
     ) -> None:
         """CONTESTED does not enforce reviewer fields."""
         card = _card(
-            human_review_status=(
-                HumanReviewStatus.CONTESTED
-            ),
+            human_review_status=(HumanReviewStatus.CONTESTED),
         )
-        assert card.human_review_status is (
-            HumanReviewStatus.CONTESTED
-        )
+        assert card.human_review_status is (HumanReviewStatus.CONTESTED)
 
     def test_contested_with_reviewer_accepted(
         self,
     ) -> None:
         card = _card(
-            human_review_status=(
-                HumanReviewStatus.CONTESTED
-            ),
+            human_review_status=(HumanReviewStatus.CONTESTED),
             human_reviewer="Dr. Y",
             human_review_timestamp=TS_2,
             human_review_notes="Disagree with methodology.",
@@ -546,24 +548,25 @@ class TestHaiCardSecurityGuarantee:
 
     def test_mismatch_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="byte-identical",
+            ValueError,
+            match="byte-identical",
         ):
             _card(security_guarantee="wrong text")
 
     def test_whitespace_diff_rejected(self) -> None:
         """Even a trailing space breaks byte-identity."""
         with pytest.raises(
-            ValueError, match="byte-identical",
+            ValueError,
+            match="byte-identical",
         ):
             _card(
-                security_guarantee=(
-                    SECURITY_GUARANTEE + " "
-                ),
+                security_guarantee=(SECURITY_GUARANTEE + " "),
             )
 
     def test_empty_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="byte-identical",
+            ValueError,
+            match="byte-identical",
         ):
             _card(security_guarantee="")
 
@@ -584,7 +587,8 @@ class TestHaiCardDisclaimerValidation:
 
     def test_empty_disclaimer_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="disclaimer",
+            ValueError,
+            match="disclaimer",
         ):
             _card(disclaimer="")
 
@@ -592,7 +596,8 @@ class TestHaiCardDisclaimerValidation:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="disclaimer",
+            ValueError,
+            match="disclaimer",
         ):
             _card(disclaimer="   \t\n  ")
 
@@ -609,25 +614,29 @@ class TestHaiCardTextValidation:
 
     def test_empty_brief_title_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="brief_title",
+            ValueError,
+            match="brief_title",
         ):
             _card(brief_title="")
 
     def test_whitespace_brief_title_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="brief_title",
+            ValueError,
+            match="brief_title",
         ):
             _card(brief_title="   ")
 
     def test_empty_output_license_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="output_license",
+            ValueError,
+            match="output_license",
         ):
             _card(output_license="")
 
     def test_empty_code_license_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="code_license",
+            ValueError,
+            match="code_license",
         ):
             _card(code_license="")
 
@@ -640,24 +649,28 @@ class TestHaiCardNonNegative:
 
     def test_negative_total_seals_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="total_seals",
+            ValueError,
+            match="total_seals",
         ):
             _card(total_seals=-1)
 
     def test_negative_input_tokens_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="total_input_tokens",
+            ValueError,
+            match="total_input_tokens",
         ):
             _card(total_input_tokens=-1)
 
     def test_negative_output_tokens_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="total_output_tokens",
+            ValueError,
+            match="total_output_tokens",
         ):
             _card(total_output_tokens=-1)
 
     def test_negative_cost_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="total_estimated_cost_usd",
+            ValueError,
+            match="total_estimated_cost_usd",
         ):
             _card(total_estimated_cost_usd=-0.01)

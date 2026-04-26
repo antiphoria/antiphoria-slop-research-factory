@@ -28,9 +28,7 @@ class TestResearchBrief(unittest.TestCase):
         """Minimal valid brief: only *thesis* is required."""
         brief = ResearchBrief(thesis="Prove the Riemann hypothesis.")
 
-        self.assertEqual(
-            brief.thesis, "Prove the Riemann hypothesis."
-        )
+        self.assertEqual(brief.thesis, "Prove the Riemann hypothesis.")
         self.assertIsNone(brief.title_suggestion)
         self.assertIsNone(brief.outline)
         self.assertIsNone(brief.key_references)
@@ -56,7 +54,8 @@ class TestResearchBrief(unittest.TestCase):
         )
         self.assertEqual(brief.title_suggestion, "A Title")
         self.assertEqual(
-            len(brief.outline), 3,  # type: ignore[arg-type]
+            len(brief.outline),
+            3,  # type: ignore[arg-type]
         )
         self.assertEqual(brief.domain, "number theory")
 

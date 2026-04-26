@@ -45,12 +45,12 @@ Spec references:
 
 from __future__ import annotations
 
-import re
 from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import datetime
 
 from slop_research_factory.types.enums import NodeName, SealType
+from slop_research_factory.types.hashing import SHA256_LOWERCASE_RE
 
 __all__ = [
     "ProvenanceChain",
@@ -60,10 +60,6 @@ __all__ = [
 ]
 
 # ── Constants ────────────────────────────────────────────
-
-# 64-character lowercase hexadecimal (SHA-256 digest).
-
-_SHA256_RE: re.Pattern[str] = re.compile(r"^[0-9a-f]{64}$")
 
 # ProvenanceMetadata fields validated as SHA-256 when set.
 
@@ -150,38 +146,14 @@ class ProvenanceMetadata:
     def __post_init__(self) -> None:
         for name in _METADATA_HASH_FIELDS:
             value = getattr(self, name)
-            if (
-                value is not None
-                and not _SHA256_RE.match(value)
-            ):
-                raise ValueError(
-                    f"{name} must be 64-char lowercase "
-                    f"hex or None, got {value!r}"
-                )
-        if (
-            self.input_tokens is not None
-            and self.input_tokens < 0
-        ):
-            raise ValueError(
-                f"input_tokens must be >= 0, "
-                f"got {self.input_tokens}"
-            )
-        if (
-            self.output_tokens is not None
-            and self.output_tokens < 0
-        ):
-            raise ValueError(
-                f"output_tokens must be >= 0, "
-                f"got {self.output_tokens}"
-            )
-        if (
-            self.critique_step is not None
-            and self.critique_step < 0
-        ):
-            raise ValueError(
-                f"critique_step must be >= 0, "
-                f"got {self.critique_step}"
-            )
+            if value is not None and not SHA256_LOWERCASE_RE.match(value):
+                raise ValueError(f"{name} must be 64-char lowercase hex or None, got {value!r}")
+        if self.input_tokens is not None and self.input_tokens < 0:
+            raise ValueError(f"input_tokens must be >= 0, got {self.input_tokens}")
+        if self.output_tokens is not None and self.output_tokens < 0:
+            raise ValueError(f"output_tokens must be >= 0, got {self.output_tokens}")
+        if self.critique_step is not None and self.critique_step < 0:
+            raise ValueError(f"critique_step must be >= 0, got {self.critique_step}")
 
 
 # ── SealRecord (D-2 §7.1) ───────────────────────────────
@@ -233,28 +205,18 @@ class SealRecord:
     def __post_init__(self) -> None:
         if not self.seal_id:
             raise ValueError("seal_id must be non-empty")
-        if not _SHA256_RE.match(self.content_hash):
+        if not SHA256_LOWERCASE_RE.match(self.content_hash):
             raise ValueError(
-                "content_hash must be 64-char lowercase "
-                f"hex, got {self.content_hash!r}"
+                f"content_hash must be 64-char lowercase hex, got {self.content_hash!r}"
             )
-        if (
-            self.parent_hash is not None
-            and not _SHA256_RE.match(self.parent_hash)
-        ):
+        if self.parent_hash is not None and not SHA256_LOWERCASE_RE.match(self.parent_hash):
             raise ValueError(
-                "parent_hash must be 64-char lowercase "
-                f"hex or None, got {self.parent_hash!r}"
+                f"parent_hash must be 64-char lowercase hex or None, got {self.parent_hash!r}"
             )
         if self.timestamp.tzinfo is None:
-            raise ValueError(
-                "timestamp must be timezone-aware (UTC)"
-            )
+            raise ValueError("timestamp must be timezone-aware (UTC)")
         if self.step_index < 0:
-            raise ValueError(
-                f"step_index must be >= 0, "
-                f"got {self.step_index}"
-            )
+            raise ValueError(f"step_index must be >= 0, got {self.step_index}")
 
 
 # ── ProvenanceChain (D-2 §7.2) ──────────────────────────
@@ -338,26 +300,28 @@ class ProvenanceChain:
                 )
         elif seal.parent_hash is not None:
             raise ProvenanceChainError(
-                "First seal must have parent_hash=None, "
-                f"got {seal.parent_hash!r}"
+                f"First seal must have parent_hash=None, got {seal.parent_hash!r}"
             )
         self._seals.append(seal)
 
     # ── Verification ─────────────────────────────────────
 
-    def verify_integrity(self) -> bool:
+    def verify_integrity(
+        self,
+    ) -> tuple[bool, int | None]:
         """Verify full chain parent-hash linkage.
 
-        Returns ``True`` for a valid chain (including empty).
-        Does **not** re-compute content hashes from files;
-        that is the seal engine's responsibility.
+        Returns ``(ok, first_bad_index)`` where *first_bad_index* is
+        ``None`` when *ok* is ``True`` (including the empty chain).
+        Does **not** re-compute content hashes from files; that is the
+        seal engine's job.
         """
         if not self._seals:
-            return True
+            return (True, None)
         if self._seals[0].parent_hash is not None:
-            return False
+            return (False, 0)
         for i in range(1, len(self._seals)):
             expected = self._seals[i - 1].content_hash
             if self._seals[i].parent_hash != expected:
-                return False
-        return True
+                return (False, i)
+        return (True, None)

@@ -11,6 +11,7 @@ Covers: E2-NE01 … E2-NE07, E2-NE14 (D-8 §4.4).
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -21,12 +22,12 @@ import pytest
 from slop_research_factory.nodes.generator_node import generator_node
 from slop_research_factory.types.enums import RunStatus
 
-
 # ──────────────────────────────────────────────────────────────────────────
 
 # Lightweight stubs — replace with project fixtures as Steps 1-5 mature.
 
 # ──────────────────────────────────────────────────────────────────────────
+
 
 @dataclass
 class StubConfig:
@@ -102,17 +103,25 @@ class StubLLMResponse:
     </details>
     # Draft Title
     Body text."""
-    raw_response: dict = field(default_factory=lambda: {
-        "id": "resp-001",
-        "model": "deepseek/deepseek-r1",
-        "choices": [{"message": {"content": """<details class="_chainOfThought_18ihl_344">
+    raw_response: dict = field(
+        default_factory=lambda: {
+            "id": "resp-001",
+            "model": "deepseek/deepseek-r1",
+            "choices": [
+                {
+                    "message": {
+                        "content": """<details class="_chainOfThought_18ihl_344">
   <summary>Reasoning</summary>
 
 
 reasoning
 </details>
-Body"""}}],
-    })
+Body"""
+                    }
+                }
+            ],
+        }
+    )
     input_tokens: int = 1100
     output_tokens: int = 7000
     think_tokens: int | None = 12400
@@ -152,20 +161,25 @@ class StubSealEngine:
 
     async def hash_file(self, file_path: str) -> str:
         self.hash_calls.append(file_path)
-        return f"hash_{Path(file_path).name}_{self._counter:04d}"
+        self._counter += 1
+        # Deterministic lowercase SHA-256 hex (matches InferenceRecord validation).
+        payload = f"{file_path}\0{self._counter}".encode()
+        return hashlib.sha256(payload).hexdigest()
 
     async def hash_bytes(self, data: bytes, workspace_path: str) -> str:
         self._counter += 1
-        return f"bytes_hash_{self._counter:04d}"
+        return hashlib.sha256(data + str(self._counter).encode()).hexdigest()
 
     async def seal(self, payload_path, prev_hash, receipt_path):
         self._counter += 1
         h = f"seal_{self._counter:04d}"
-        self.seal_calls.append({
-            "payload": payload_path,
-            "prev": prev_hash,
-            "receipt": receipt_path,
-        })
+        self.seal_calls.append(
+            {
+                "payload": payload_path,
+                "prev": prev_hash,
+                "receipt": receipt_path,
+            }
+        )
         return StubSealReceipt(self._counter, h, "stub")
 
 
@@ -179,6 +193,10 @@ class StubWorkspace:
 
     def drafts_path(self, filename: str) -> Path:
         return self.root / "drafts" / filename
+
+    @property
+    def chain_dir(self) -> Path:
+        return self.root / "chain"
 
     def chain_path(self, filename: str) -> Path:
         return self.root / "chain" / filename
@@ -201,8 +219,9 @@ class StubWorkspace:
             encoding="utf-8",
         )
 
-    def write_state_atomic(self, state) -> None:
+    def write_state(self, state) -> None:
         from dataclasses import asdict
+
         p = self.root / "state.json"
         tmp = self.root / "state.json.tmp"
         tmp.write_text(
@@ -214,8 +233,8 @@ class StubWorkspace:
 
 # Stub seal_step that delegates to the engine stubs.
 
-async def _stub_seal_step(seal_engine, state, step_type, content_file_paths,
-                          metadata, chain_dir):
+
+async def _stub_seal_step(seal_engine, state, step_type, content_file_paths, metadata, chain_dir):
     state.step_index += 1
     receipt = await seal_engine.seal("payload", state.latest_hash, "receipt")
     state.latest_hash = receipt.seal_hash
@@ -226,8 +245,12 @@ async def _stub_seal_step(seal_engine, state, step_type, content_file_paths,
 def _patch_seal_step(monkeypatch):
     """Patch seal_step at its source; generator imports it lazily."""
     import slop_research_factory.seal.helpers as helpers_mod
+
     monkeypatch.setattr(
-        helpers_mod, "seal_step", _stub_seal_step, raising=False,
+        helpers_mod,
+        "seal_step",
+        _stub_seal_step,
+        raising=False,
     )
 
 
@@ -236,6 +259,7 @@ def _patch_seal_step(monkeypatch):
 # Tests
 
 # ──────────────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def ws(tmp_path):
@@ -282,7 +306,10 @@ class TestGeneratorNodeHappyPath:
         engine = StubSealEngine()
         client = StubLLMClient()
         await generator_node(
-            state, seal_engine=engine, llm_client=client, workspace=ws,
+            state,
+            seal_engine=engine,
+            llm_client=client,
+            workspace=ws,
         )
         # seal_step was called for PRE before llm_client.complete
         assert len(engine.seal_calls) >= 1
@@ -468,9 +495,5 @@ class TestGeneratorRawResponseHash:
             workspace=ws,
         )
         # The engine's hash_calls should include the response file.
-        response_hashed = any(
-            "generator_response" in c for c in engine.hash_calls
-        )
-        assert response_hashed, (
-            "raw response file must be hashed via seal engine"
-        )
+        response_hashed = any("generator_response" in c for c in engine.hash_calls)
+        assert response_hashed, "raw response file must be hashed via seal engine"

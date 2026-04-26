@@ -64,6 +64,9 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]
 "**/tests/**/*.py" = ["S101"]
+"src/slop_research_factory/config.py" = ["UP042"]
+"src/slop_research_factory/types/enums.py" = ["UP042"]
+"tests/unit/test_state.py" = ["S108"]
 
 [tool.ruff.format]
 quote-style = "double"

@@ -8,18 +8,21 @@ No LLM calls, no network, no filesystem side-effects beyond tmpdir.
 
 from __future__ import annotations
 
+import pytest
+
+from slop_research_factory.prompts import load_prompt
 from slop_research_factory.prompts.generator_prompt import (
     GENERATOR_PROMPT_VERSION,
     render_generator_prompt,
     render_generator_user_message,
 )
 
-
 # ---------------------------------------------------------------------------
 
 # Minimal FactoryConfig stub (from Step 1)
 
 # ---------------------------------------------------------------------------
+
 
 class _StubConfig:
     """Bare-minimum config stand-in for prompt tests."""
@@ -40,13 +43,15 @@ def _make_brief(**overrides) -> dict:
 
 # ---------------------------------------------------------------------------
 
+
 class TestGeneratorSystemPrompt:
     def test_loads_without_error(self):
         """System prompt file can be loaded (E1-level: no network)."""
         # If the file doesn't exist in the test env, render_generator_prompt
         # would raise FileNotFoundError; this asserts the file is accessible.
         _sys, _usr, _audit = render_generator_prompt(
-            _make_brief(), _StubConfig(),
+            _make_brief(),
+            _StubConfig(),
         )
         assert len(_sys) > 200, "System prompt looks too short"
 
@@ -75,6 +80,7 @@ class TestGeneratorSystemPrompt:
 
 # ---------------------------------------------------------------------------
 
+
 class TestGeneratorUserMessage:
     def test_thesis_present(self):
         msg = render_generator_user_message(
@@ -97,12 +103,14 @@ class TestGeneratorUserMessage:
 
     def test_optional_title_suggestion(self):
         msg_with = render_generator_user_message(
-            _make_brief(title_suggestion="My Title"), _StubConfig(),
+            _make_brief(title_suggestion="My Title"),
+            _StubConfig(),
         )
         assert "My Title" in msg_with
 
         msg_without = render_generator_user_message(
-            _make_brief(), _StubConfig(),
+            _make_brief(),
+            _StubConfig(),
         )
         assert "Suggested title" not in msg_without
 
@@ -168,6 +176,7 @@ class TestGeneratorUserMessage:
 
 # ---------------------------------------------------------------------------
 
+
 class TestAuditText:
     def test_contains_both_sections(self):
         _, _, audit = render_generator_prompt(_make_brief(), _StubConfig())
@@ -177,3 +186,9 @@ class TestAuditText:
     def test_prompt_version_in_header(self):
         _, _, audit = render_generator_prompt(_make_brief(), _StubConfig())
         assert GENERATOR_PROMPT_VERSION in audit
+
+
+class TestLoadPromptVersionValidation:
+    def test_rejects_path_like_version(self) -> None:
+        with pytest.raises(ValueError, match="dotted numeric"):
+            load_prompt("generator", "system", version="../../etc/passwd")

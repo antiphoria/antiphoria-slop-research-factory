@@ -38,6 +38,7 @@ __all__ = [
     "HumanReviewStatus",
     "IllegalTransitionError",
     "NodeName",
+    "RescueReason",
     "RunStatus",
     "SealType",
     "StepType",
@@ -124,37 +125,49 @@ class IllegalTransitionError(Exception):
 # Any pair not listed here is illegal and must raise.
 
 _LEGAL_TRANSITIONS: dict[RunStatus, frozenset[RunStatus]] = {
-    RunStatus.INITIALIZING: frozenset({
-        RunStatus.GENERATING,
-        RunStatus.FAILED,
-        RunStatus.NO_OUTPUT,
-    }),
-    RunStatus.GENERATING: frozenset({
-        RunStatus.VERIFYING,
-        RunStatus.FAILED,
-        RunStatus.NO_OUTPUT,
-    }),
-    RunStatus.VERIFYING: frozenset({
-        RunStatus.REVISING,
-        RunStatus.AWAITING_HUMAN,
-        RunStatus.FINALIZING,
-        RunStatus.FAILED,
-    }),
-    RunStatus.REVISING: frozenset({
-        RunStatus.VERIFYING,
-        RunStatus.FAILED,
-        RunStatus.NO_OUTPUT,
-    }),
-    RunStatus.AWAITING_HUMAN: frozenset({
-        RunStatus.GENERATING,
-        RunStatus.REVISING,
-        RunStatus.FINALIZING,
-        RunStatus.NO_OUTPUT,
-    }),
-    RunStatus.FINALIZING: frozenset({
-        RunStatus.COMPLETED,
-        RunStatus.FAILED,
-    }),
+    RunStatus.INITIALIZING: frozenset(
+        {
+            RunStatus.GENERATING,
+            RunStatus.FAILED,
+            RunStatus.NO_OUTPUT,
+        }
+    ),
+    RunStatus.GENERATING: frozenset(
+        {
+            RunStatus.VERIFYING,
+            RunStatus.FAILED,
+            RunStatus.NO_OUTPUT,
+        }
+    ),
+    RunStatus.VERIFYING: frozenset(
+        {
+            RunStatus.REVISING,
+            RunStatus.AWAITING_HUMAN,
+            RunStatus.FINALIZING,
+            RunStatus.FAILED,
+        }
+    ),
+    RunStatus.REVISING: frozenset(
+        {
+            RunStatus.VERIFYING,
+            RunStatus.FAILED,
+            RunStatus.NO_OUTPUT,
+        }
+    ),
+    RunStatus.AWAITING_HUMAN: frozenset(
+        {
+            RunStatus.GENERATING,
+            RunStatus.REVISING,
+            RunStatus.FINALIZING,
+            RunStatus.NO_OUTPUT,
+        }
+    ),
+    RunStatus.FINALIZING: frozenset(
+        {
+            RunStatus.COMPLETED,
+            RunStatus.FAILED,
+        }
+    ),
     # Terminal states — zero outbound transitions.
     RunStatus.COMPLETED: frozenset(),
     RunStatus.FAILED: frozenset(),
@@ -175,8 +188,7 @@ def validate_status_transition(
     allowed = _LEGAL_TRANSITIONS.get(current, frozenset())
     if target not in allowed:
         raise IllegalTransitionError(
-            f"Illegal status transition: "
-            f"{current.value} -> {target.value}"
+            f"Illegal status transition: {current.value} -> {target.value}"
         )
 
 
@@ -222,10 +234,7 @@ class ConfidenceTier(str, Enum):
             ValueError: If *confidence* is outside [0.0, 1.0].
         """
         if not (0.0 <= confidence <= 1.0):
-            raise ValueError(
-                f"confidence must be in [0.0, 1.0], "
-                f"got {confidence}"
-            )
+            raise ValueError(f"confidence must be in [0.0, 1.0], got {confidence}")
         if confidence >= 0.8:
             return cls.HIGH
         if confidence >= 0.5:
@@ -237,6 +246,19 @@ class ConfidenceTier(str, Enum):
 
 # ── D-2 §4  CheckpointBackend ───────────────────────────────────────
 # Re-export from config (canonical definition) — see module docstring above.
+
+
+# ── Human rescue routing (D-2 §4, D-2 §12) ────────────────────────────
+
+
+class RescueReason(str, Enum):
+    """Why the pipeline escalated to the human rescue queue."""
+
+    MAX_REJECTIONS_EXCEEDED = "max_rejections_exceeded"
+    MAX_REVISIONS_EXCEEDED = "max_revisions_exceeded"
+    MAX_TOTAL_TOKENS_EXCEEDED = "max_total_tokens_exceeded"
+    MAX_TOTAL_COST_EXCEEDED = "max_total_cost_exceeded"
+    MAX_TOTAL_CYCLES_EXCEEDED = "max_total_cycles_exceeded"
 
 
 # ── NodeName ─────────────────────────────────────────────────────────
@@ -255,6 +277,10 @@ class NodeName(str, Enum):
 
     GENERATOR = "GENERATOR"
     """Draft generation node."""
+
+    REVISER = "REVISER"
+    """Draft revision node (D-0 §4, D-3 §5). Distinct from ``GENERATOR`` for
+    seals, usage records, and step directories."""
 
     VERIFICATION = "VERIFICATION"
     """Verification node (T1–T3)."""

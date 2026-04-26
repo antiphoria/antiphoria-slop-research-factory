@@ -24,7 +24,6 @@ from slop_research_factory.types.verifier_output import (
     VerifierOutput,
 )
 
-
 # ── Helper ──────────────────────────────────────────────────────────
 
 
@@ -120,19 +119,21 @@ class TestE1S08VerifierOutputJsonSchema:
     D-2 §16 Invariant 4.
     """
 
-    EXPECTED_FIELDS: frozenset[str] = frozenset({
-        "critique_summary",
-        "critique_entries",
-        "verdict",
-        "resolution_type",
-        "verdict_confidence",
-        "resolution",
-        "confidence_logical_soundness",
-        "confidence_mathematical_rigor",
-        "confidence_citation_accuracy",
-        "confidence_scope_compliance",
-        "confidence_novelty_plausibility",
-    })
+    EXPECTED_FIELDS: frozenset[str] = frozenset(
+        {
+            "critique_summary",
+            "critique_entries",
+            "verdict",
+            "resolution_type",
+            "verdict_confidence",
+            "resolution",
+            "confidence_logical_soundness",
+            "confidence_mathematical_rigor",
+            "confidence_citation_accuracy",
+            "confidence_scope_compliance",
+            "confidence_novelty_plausibility",
+        }
+    )
 
     def test_schema_is_object_type(self) -> None:
         schema = VerifierOutput.model_json_schema()
@@ -143,9 +144,7 @@ class TestE1S08VerifierOutputJsonSchema:
         schema = VerifierOutput.model_json_schema()
         actual = set(schema["properties"].keys())
         missing = self.EXPECTED_FIELDS - actual
-        assert not missing, (
-            f"Missing fields in JSON Schema: {missing}"
-        )
+        assert not missing, f"Missing fields in JSON Schema: {missing}"
 
     def test_all_fields_are_required(self) -> None:
         """Every VerifierOutput field lacks a default, so all
@@ -153,9 +152,7 @@ class TestE1S08VerifierOutputJsonSchema:
         schema = VerifierOutput.model_json_schema()
         required = set(schema.get("required", []))
         not_required = self.EXPECTED_FIELDS - required
-        assert not not_required, (
-            f"Fields not marked required: {not_required}"
-        )
+        assert not not_required, f"Fields not marked required: {not_required}"
 
 
 # ── E1-S16 ──────────────────────────────────────────────────────────

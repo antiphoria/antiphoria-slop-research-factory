@@ -18,13 +18,14 @@ Spec references:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
 from slop_research_factory.types.enums import (
     HumanRescueAction,
     NodeName,
+    RescueReason,
     Verdict,
 )
 from slop_research_factory.types.human_rescue import (
@@ -37,13 +38,13 @@ from slop_research_factory.types.human_rescue import (
 HASH_A = "a" * 64
 HASH_B = "b" * 64
 
-TS_1 = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-TS_2 = datetime(2025, 6, 15, 12, 0, 0, tzinfo=timezone.utc)
+TS_1 = datetime(2025, 1, 1, 0, 0, 0, tzinfo=UTC)
+TS_2 = datetime(2025, 6, 15, 12, 0, 0, tzinfo=UTC)
 TS_NAIVE = datetime(2025, 1, 1, 0, 0, 0)
 
-REASON_MAX_REJ = "max_rejections_exceeded"
-REASON_MAX_REV = "max_revisions_exceeded"
-REASON_MAX_CYC = "max_total_cycles_exceeded"
+REASON_MAX_REJ = RescueReason.MAX_REJECTIONS_EXCEEDED
+REASON_MAX_REV = RescueReason.MAX_REVISIONS_EXCEEDED
+REASON_MAX_CYC = RescueReason.MAX_TOTAL_CYCLES_EXCEEDED
 
 
 # ── Helpers ──────────────────────────────────────────────
@@ -132,12 +133,18 @@ class TestHumanRescueRequestConstruction:
         assert req.cycle_count == 0
 
     def test_confidence_boundaries(self) -> None:
-        assert _request(
-            verdict_confidence=0.0,
-        ).verdict_confidence == 0.0
-        assert _request(
-            verdict_confidence=1.0,
-        ).verdict_confidence == 1.0
+        assert (
+            _request(
+                verdict_confidence=0.0,
+            ).verdict_confidence
+            == 0.0
+        )
+        assert (
+            _request(
+                verdict_confidence=1.0,
+            ).verdict_confidence
+            == 1.0
+        )
 
 
 # ── HumanRescueRequest: frozen ───────────────────────────
@@ -172,7 +179,8 @@ class TestHumanRescueRequestValidation:
 
     def test_empty_request_id_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="request_id",
+            ValueError,
+            match="request_id",
         ):
             _request(request_id="")
 
@@ -180,21 +188,21 @@ class TestHumanRescueRequestValidation:
         with pytest.raises(ValueError, match="run_id"):
             _request(run_id="")
 
-    def test_empty_rescue_reason_rejected(self) -> None:
-        with pytest.raises(
-            ValueError, match="rescue_reason",
-        ):
-            _request(rescue_reason="")
+    def test_invalid_rescue_reason_string_rejected(self) -> None:
+        with pytest.raises(ValueError):
+            _request(rescue_reason="not_a_listed_reason")  # type: ignore[arg-type]
 
     def test_empty_brief_title_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="brief_title",
+            ValueError,
+            match="brief_title",
         ):
             _request(brief_title="")
 
     def test_whitespace_brief_title_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="brief_title",
+            ValueError,
+            match="brief_title",
         ):
             _request(brief_title="   \t\n  ")
 
@@ -208,19 +216,22 @@ class TestHumanRescueRequestValidation:
 
     def test_naive_timestamp_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="created_at",
+            ValueError,
+            match="created_at",
         ):
             _request(created_at=TS_NAIVE)
 
     def test_negative_step_index_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="step_index",
+            ValueError,
+            match="step_index",
         ):
             _request(step_index=-1)
 
     def test_negative_cycle_count_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="cycle_count",
+            ValueError,
+            match="cycle_count",
         ):
             _request(cycle_count=-1)
 
@@ -228,7 +239,8 @@ class TestHumanRescueRequestValidation:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="rejection_count",
+            ValueError,
+            match="rejection_count",
         ):
             _request(rejection_count=-1)
 
@@ -236,37 +248,43 @@ class TestHumanRescueRequestValidation:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="revision_count",
+            ValueError,
+            match="revision_count",
         ):
             _request(revision_count=-1)
 
     def test_confidence_below_zero_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="verdict_confidence",
+            ValueError,
+            match="verdict_confidence",
         ):
             _request(verdict_confidence=-0.01)
 
     def test_confidence_above_one_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="verdict_confidence",
+            ValueError,
+            match="verdict_confidence",
         ):
             _request(verdict_confidence=1.01)
 
     def test_invalid_seal_hash_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="latest_seal_hash",
+            ValueError,
+            match="latest_seal_hash",
         ):
             _request(latest_seal_hash="not-a-hash")
 
     def test_uppercase_seal_hash_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="latest_seal_hash",
+            ValueError,
+            match="latest_seal_hash",
         ):
             _request(latest_seal_hash="A" * 64)
 
     def test_short_seal_hash_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="latest_seal_hash",
+            ValueError,
+            match="latest_seal_hash",
         ):
             _request(latest_seal_hash="a" * 63)
 
@@ -290,9 +308,7 @@ class TestHumanRescueResolutionConstruction:
             action=HumanRescueAction.REJECT_AND_ABORT,
             notes="Methodology fundamentally flawed.",
         )
-        assert res.action is (
-            HumanRescueAction.REJECT_AND_ABORT
-        )
+        assert res.action is (HumanRescueAction.REJECT_AND_ABORT)
         assert res.notes == "Methodology fundamentally flawed."
 
     def test_revise_and_continue(self) -> None:
@@ -300,18 +316,14 @@ class TestHumanRescueResolutionConstruction:
             action=HumanRescueAction.REVISE_AND_CONTINUE,
             notes="Edited draft section 3.",
         )
-        assert res.action is (
-            HumanRescueAction.REVISE_AND_CONTINUE
-        )
+        assert res.action is (HumanRescueAction.REVISE_AND_CONTINUE)
 
     def test_increase_limits_single(self) -> None:
         res = _resolution(
             action=HumanRescueAction.INCREASE_LIMITS,
             revised_max_rejections=5,
         )
-        assert res.action is (
-            HumanRescueAction.INCREASE_LIMITS
-        )
+        assert res.action is (HumanRescueAction.INCREASE_LIMITS)
         assert res.revised_max_rejections == 5
 
     def test_increase_limits_multiple(self) -> None:
@@ -331,9 +343,7 @@ class TestHumanRescueResolutionConstruction:
             action=HumanRescueAction.PROVIDE_GUIDANCE,
             guidance="Focus on methodology section.",
         )
-        assert res.action is (
-            HumanRescueAction.PROVIDE_GUIDANCE
-        )
+        assert res.action is (HumanRescueAction.PROVIDE_GUIDANCE)
         assert res.guidance == "Focus on methodology section."
 
     def test_defaults_for_optional_fields(self) -> None:
@@ -389,19 +399,22 @@ class TestHumanRescueResolutionValidation:
 
     def test_empty_request_id_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="request_id",
+            ValueError,
+            match="request_id",
         ):
             _resolution(request_id="")
 
     def test_empty_resolver_id_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="resolver_id",
+            ValueError,
+            match="resolver_id",
         ):
             _resolution(resolver_id="")
 
     def test_naive_timestamp_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="resolved_at",
+            ValueError,
+            match="resolved_at",
         ):
             _resolution(resolved_at=TS_NAIVE)
 
@@ -409,7 +422,8 @@ class TestHumanRescueResolutionValidation:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="revised_max_rejections",
+            ValueError,
+            match="revised_max_rejections",
         ):
             _resolution(
                 action=HumanRescueAction.INCREASE_LIMITS,
@@ -420,7 +434,8 @@ class TestHumanRescueResolutionValidation:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="revised_max_revisions",
+            ValueError,
+            match="revised_max_revisions",
         ):
             _resolution(
                 action=HumanRescueAction.INCREASE_LIMITS,
@@ -431,7 +446,8 @@ class TestHumanRescueResolutionValidation:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="revised_max_total_cycles",
+            ValueError,
+            match="revised_max_total_cycles",
         ):
             _resolution(
                 action=HumanRescueAction.INCREASE_LIMITS,
@@ -442,7 +458,8 @@ class TestHumanRescueResolutionValidation:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="revised_max_total_tokens",
+            ValueError,
+            match="revised_max_total_tokens",
         ):
             _resolution(
                 action=HumanRescueAction.INCREASE_LIMITS,
@@ -471,7 +488,8 @@ class TestHumanRescueResolutionActionInvariants:
     ) -> None:
         """INCREASE_LIMITS with no revised_* → ValueError."""
         with pytest.raises(
-            ValueError, match="revised_",
+            ValueError,
+            match="revised_",
         ):
             _resolution(
                 action=HumanRescueAction.INCREASE_LIMITS,
@@ -497,7 +515,8 @@ class TestHumanRescueResolutionActionInvariants:
 
     def test_provide_guidance_empty_rejected(self) -> None:
         with pytest.raises(
-            ValueError, match="guidance",
+            ValueError,
+            match="guidance",
         ):
             _resolution(
                 action=HumanRescueAction.PROVIDE_GUIDANCE,
@@ -508,7 +527,8 @@ class TestHumanRescueResolutionActionInvariants:
         self,
     ) -> None:
         with pytest.raises(
-            ValueError, match="guidance",
+            ValueError,
+            match="guidance",
         ):
             _resolution(
                 action=HumanRescueAction.PROVIDE_GUIDANCE,
@@ -556,6 +576,4 @@ class TestHumanRescueResolutionActionInvariants:
         res = _resolution(
             action=HumanRescueAction.REVISE_AND_CONTINUE,
         )
-        assert res.action is (
-            HumanRescueAction.REVISE_AND_CONTINUE
-        )
+        assert res.action is (HumanRescueAction.REVISE_AND_CONTINUE)

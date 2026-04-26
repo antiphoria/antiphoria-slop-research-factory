@@ -16,8 +16,8 @@ from dataclasses import FrozenInstanceError
 import pytest
 
 from slop_research_factory.config import FactoryConfig
+from slop_research_factory.config_loader import ConfigLoadError, load_config
 from slop_research_factory.types.enums import CheckpointBackend
-
 
 # ── E1-S01 — FactoryConfig all defaults (D-2 §4) ───────────────────
 
@@ -61,9 +61,7 @@ def test_e1_s01_factory_config_all_defaults() -> None:
         + cfg.weight_scope_compliance
         + cfg.weight_novelty_plausibility
     )
-    assert abs(total_weight - 1.0) < 1e-9, (
-        f"Default weights must sum to 1.0, got {total_weight}"
-    )
+    assert abs(total_weight - 1.0) < 1e-9, f"Default weights must sum to 1.0, got {total_weight}"
 
     # -- Output control -------------------------------------------
     assert cfg.target_length_words == 5000
@@ -117,3 +115,18 @@ def test_e1_s02_factory_config_frozen() -> None:
         cfg.citation_check_sources = (  # type: ignore[misc]
             ("crossref",)
         )
+
+
+def test_load_config_unknown_override_key_raises() -> None:
+    """Programmatic overrides must use real ``FactoryConfig`` field names."""
+    with pytest.raises(ConfigLoadError, match="Unknown FactoryConfig override"):
+        load_config(overrides={"not_a_field": 1})
+
+
+def test_factory_config_from_mapping_drops_unknown_keys() -> None:
+    from slop_research_factory.config import factory_config_from_mapping
+
+    cfg = factory_config_from_mapping(
+        {"generator_model": "x", "nope": 1},
+    )
+    assert cfg.generator_model == "x"

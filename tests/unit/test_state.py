@@ -26,7 +26,6 @@ from slop_research_factory.types.state import (
     FactoryState,
 )
 
-
 # ── AppendOnlyList enforcement (D-2 §6, §16 invariant 12) ────
 
 
@@ -95,6 +94,11 @@ class TestAppendOnlyList:
         with pytest.raises(TypeError, match="reordering"):
             ao.sort()
 
+    def test_imul_raises_type_error(self) -> None:
+        ao = AppendOnlyList([1, 2])
+        with pytest.raises(TypeError, match="repetition"):
+            ao *= 2  # type: ignore[operator, assignment]
+
 
 # ── E1-S03: FactoryState JSON round-trip (D-2 §6) ────────────
 
@@ -124,23 +128,29 @@ class TestFactoryStateRoundTrip:
     def test_e1_s03_populated_round_trip(self) -> None:
         """Populated state (messages, counters, draft)."""
         msgs = AppendOnlyList()
-        msgs.append({
-            "role": "generator",
-            "step_index": 1,
-            "timestamp": "2026-04-15T14:32:07Z",
-            "model": "deepseek/deepseek-r1",
-            "prompt_hash": "aaa",
-            "response_hash": "bbb",
-            "token_counts": {
-                "input": 100, "output": 200, "think": 50,
-            },
-        })
+        msgs.append(
+            {
+                "role": "generator",
+                "step_index": 1,
+                "timestamp": "2026-04-15T14:32:07Z",
+                "model": "deepseek/deepseek-r1",
+                "prompt_hash": "aaa",
+                "response_hash": "bbb",
+                "token_counts": {
+                    "input": 100,
+                    "output": 200,
+                    "think": 50,
+                },
+            }
+        )
 
         checks = AppendOnlyList()
-        checks.append({
-            "citation": "Smith 2020",
-            "result": "VERIFIED",
-        })
+        checks.append(
+            {
+                "citation": "Smith 2020",
+                "result": "VERIFIED",
+            }
+        )
 
         state = FactoryState(
             run_id="550e8400-e29b-41d4-a716-446655440000",
@@ -200,7 +210,8 @@ class TestFactoryStateRoundTrip:
         restored = FactoryState.from_dict(json.loads(json_str))
         assert isinstance(restored.messages, AppendOnlyList)
         assert isinstance(
-            restored.citation_checks, AppendOnlyList,
+            restored.citation_checks,
+            AppendOnlyList,
         )
 
 
@@ -222,7 +233,9 @@ class TestNestedConfigReconstruction:
             verifier_confidence_threshold=0.65,
             checkpoint_backend=CheckpointBackend.SQLITE,
             citation_check_sources=(
-                "crossref", "semantic_scholar", "extra",
+                "crossref",
+                "semantic_scholar",
+                "extra",
             ),
         )
         state = FactoryState(
@@ -249,11 +262,14 @@ class TestNestedConfigReconstruction:
         # Enum type preserved
         assert rc.checkpoint_backend is CheckpointBackend.SQLITE
         assert isinstance(
-            rc.checkpoint_backend, CheckpointBackend,
+            rc.checkpoint_backend,
+            CheckpointBackend,
         )
         # Tuple type preserved (not list)
         assert rc.citation_check_sources == (
-            "crossref", "semantic_scholar", "extra",
+            "crossref",
+            "semantic_scholar",
+            "extra",
         )
         assert isinstance(rc.citation_check_sources, tuple)
         # Full config equality
@@ -274,3 +290,22 @@ class TestNestedConfigReconstruction:
             json.loads(json_str),
         )
         assert restored.config == FactoryConfig()
+
+    def test_e1_s22_extra_config_keys_dropped(
+        self,
+    ) -> None:
+        """Unknown keys inside embedded config are ignored (forward compat)."""
+        state = FactoryState(
+            run_id="x",
+            status=RunStatus.INITIALIZING,
+            config=FactoryConfig(),
+            brief={"thesis": "t"},
+            step_index=0,
+            latest_hash="",
+        )
+        d = state.to_dict()
+        d["config"]["future_field"] = 123
+        d["config"]["generator_model"] = "a/b"
+        restored = FactoryState.from_dict(d)
+        assert not hasattr(restored.config, "future_field")
+        assert restored.config.generator_model == "a/b"

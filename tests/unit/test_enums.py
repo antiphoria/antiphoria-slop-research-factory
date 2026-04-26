@@ -24,11 +24,24 @@ from slop_research_factory.types.enums import (
     CitationCheckResult,
     ConfidenceTier,
     IllegalTransitionError,
+    NodeName,
     RunStatus,
     StepType,
     Verdict,
     validate_status_transition,
 )
+
+# ── NodeName (D-2) ───────────────────────────────────────────────────
+
+
+class TestNodeName:
+    """Reviser is distinct from generator for audit trails."""
+
+    def test_reviser_member(self) -> None:
+        assert NodeName.REVISER.value == "REVISER"
+
+    def test_reviser_not_generator(self) -> None:
+        assert NodeName.REVISER is not NodeName.GENERATOR
 
 
 # ── Helpers ──────────────────────────────────────────────────────────
@@ -74,9 +87,7 @@ class TestEnumSerialization:
         bag = _make_bag()
         loaded = json.loads(json.dumps(asdict(bag)))
         for key, value in loaded.items():
-            assert isinstance(value, str), (
-                f"Field '{key}' is {type(value).__name__}"
-            )
+            assert isinstance(value, str), f"Field '{key}' is {type(value).__name__}"
             assert value == getattr(bag, key).value
 
     @pytest.mark.parametrize(
@@ -270,11 +281,8 @@ class TestRunStatusTransitions:
             RunStatus.NO_OUTPUT,
         }
         for status in RunStatus:
-            assert status.is_terminal == (
-                status in expected_terminals
-            ), (
-                f"{status.value}.is_terminal should be "
-                f"{status in expected_terminals}"
+            assert status.is_terminal == (status in expected_terminals), (
+                f"{status.value}.is_terminal should be {status in expected_terminals}"
             )
 
 

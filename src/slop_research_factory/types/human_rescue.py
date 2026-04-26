@@ -33,10 +33,8 @@ Action-specific invariants on :class:`HumanRescueResolution`:
 Design notes:
 
 - Both types are frozen — immutable once created.
-- ``rescue_reason`` is a plain string matching the
-
-  ``REASON_*`` constants from ``engine.routing``.
-  No import dependency to avoid circular references.
+- ``rescue_reason`` is a :class:`~slop_research_factory.types.enums.RescueReason`
+  (mirrors ``REASON_*`` in ``engine.routing``).
 - SHA-256 hashes: 64-char lowercase hexadecimal when set.
 - Timestamps: timezone-aware (UTC expected).
 - No serialization methods; the workspace manager handles
@@ -51,24 +49,21 @@ Spec references:
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from datetime import datetime
 
 from slop_research_factory.types.enums import (
     HumanRescueAction,
     NodeName,
+    RescueReason,
     Verdict,
 )
+from slop_research_factory.types.hashing import SHA256_LOWERCASE_RE
 
 __all__ = [
     "HumanRescueRequest",
     "HumanRescueResolution",
 ]
-
-# ── Constants ────────────────────────────────────────────
-
-_SHA256_RE: re.Pattern[str] = re.compile(r"^[0-9a-f]{64}$")
 
 
 # ── HumanRescueRequest (D-2 §12.1) ──────────────────────
@@ -88,9 +83,8 @@ class HumanRescueRequest:
         run_id:             Run that triggered the rescue.
         created_at:         UTC timestamp of escalation
                             (timezone-aware).
-        rescue_reason:      One of the ``REASON_*`` string
-                            constants from
-                            ``engine.routing``.
+        rescue_reason:      Why the run hit the rescue queue
+                            (:class:`~slop_research_factory.types.enums.RescueReason`).
         node_name:          Node active when rescue was
                             triggered.
         step_index:         Zero-based step index at
@@ -117,7 +111,7 @@ class HumanRescueRequest:
     request_id: str
     run_id: str
     created_at: datetime
-    rescue_reason: str
+    rescue_reason: RescueReason
     node_name: NodeName
     step_index: int
     cycle_count: int
@@ -135,73 +129,58 @@ class HumanRescueRequest:
     # ── Validation ───────────────────────────────────────
 
     def __post_init__(self) -> None:
-        # Non-empty strings
+        # ``str, Enum`` members are instances of ``str`` — only coerce
+        # actual ``str`` (e.g. JSON), not :class:`RescueReason` values.
+        if type(self.rescue_reason) is str:
+            try:
+                object.__setattr__(
+                    self,
+                    "rescue_reason",
+                    RescueReason(self.rescue_reason),
+                )
+            except ValueError as exc:
+                raise ValueError(
+                    f"rescue_reason must be a valid RescueReason, got {self.rescue_reason!r}"
+                ) from exc
+        elif not isinstance(self.rescue_reason, RescueReason):
+            raise TypeError(
+                f"rescue_reason must be str or RescueReason, "
+                f"got {type(self.rescue_reason).__name__}"
+            )
         if not self.request_id:
-            raise ValueError(
-                "request_id must be non-empty"
-            )
+            raise ValueError("request_id must be non-empty")
         if not self.run_id:
-            raise ValueError(
-                "run_id must be non-empty"
-            )
-        if not self.rescue_reason:
-            raise ValueError(
-                "rescue_reason must be non-empty"
-            )
+            raise ValueError("run_id must be non-empty")
         if not self.brief_title.strip():
-            raise ValueError(
-                "brief_title must be non-empty"
-            )
+            raise ValueError("brief_title must be non-empty")
         if not self.summary.strip():
-            raise ValueError(
-                "summary must be non-empty"
-            )
+            raise ValueError("summary must be non-empty")
 
         # Timezone-aware timestamp
         if self.created_at.tzinfo is None:
-            raise ValueError(
-                "created_at must be timezone-aware (UTC)"
-            )
+            raise ValueError("created_at must be timezone-aware (UTC)")
 
         # Non-negative integers
         if self.step_index < 0:
-            raise ValueError(
-                f"step_index must be >= 0, "
-                f"got {self.step_index}"
-            )
+            raise ValueError(f"step_index must be >= 0, got {self.step_index}")
         if self.cycle_count < 0:
-            raise ValueError(
-                f"cycle_count must be >= 0, "
-                f"got {self.cycle_count}"
-            )
+            raise ValueError(f"cycle_count must be >= 0, got {self.cycle_count}")
         if self.rejection_count < 0:
-            raise ValueError(
-                f"rejection_count must be >= 0, "
-                f"got {self.rejection_count}"
-            )
+            raise ValueError(f"rejection_count must be >= 0, got {self.rejection_count}")
         if self.revision_count < 0:
-            raise ValueError(
-                f"revision_count must be >= 0, "
-                f"got {self.revision_count}"
-            )
+            raise ValueError(f"revision_count must be >= 0, got {self.revision_count}")
 
         # Confidence range
-        if self.verdict_confidence is not None:
-            if not (
-                0.0 <= self.verdict_confidence <= 1.0
-            ):
-                raise ValueError(
-                    f"verdict_confidence must be "
-                    f"0.0–1.0, got "
-                    f"{self.verdict_confidence}"
-                )
+        if self.verdict_confidence is not None and not (
+            0.0 <= self.verdict_confidence <= 1.0
+        ):
+            raise ValueError(
+                f"verdict_confidence must be 0.0–1.0, got {self.verdict_confidence}"
+            )
 
         # SHA-256 hash format
-        if (
-            self.latest_seal_hash is not None
-            and not _SHA256_RE.match(
-                self.latest_seal_hash
-            )
+        if self.latest_seal_hash is not None and not SHA256_LOWERCASE_RE.match(
+            self.latest_seal_hash
         ):
             raise ValueError(
                 "latest_seal_hash must be 64-char "
@@ -272,20 +251,13 @@ class HumanRescueResolution:
     def __post_init__(self) -> None:
         # Non-empty strings
         if not self.request_id:
-            raise ValueError(
-                "request_id must be non-empty"
-            )
+            raise ValueError("request_id must be non-empty")
         if not self.resolver_id:
-            raise ValueError(
-                "resolver_id must be non-empty"
-            )
+            raise ValueError("resolver_id must be non-empty")
 
         # Timezone-aware timestamp
         if self.resolved_at.tzinfo is None:
-            raise ValueError(
-                "resolved_at must be timezone-aware "
-                "(UTC)"
-            )
+            raise ValueError("resolved_at must be timezone-aware (UTC)")
 
         # Non-negative limit overrides (when set)
         _validate_non_negative_optional(
@@ -310,24 +282,11 @@ class HumanRescueResolution:
         )
 
         # Action-specific invariants
-        if (
-            self.action is HumanRescueAction.INCREASE_LIMITS
-        ):
-            if not self._has_any_revised_limit():
-                raise ValueError(
-                    "INCREASE_LIMITS requires at least "
-                    "one revised_* field to be set"
-                )
+        if self.action is HumanRescueAction.INCREASE_LIMITS and not self._has_any_revised_limit():
+            raise ValueError("INCREASE_LIMITS requires at least one revised_* field to be set")
 
-        if (
-            self.action
-            is HumanRescueAction.PROVIDE_GUIDANCE
-        ):
-            if not self.guidance.strip():
-                raise ValueError(
-                    "PROVIDE_GUIDANCE requires "
-                    "non-empty guidance"
-                )
+        if self.action is HumanRescueAction.PROVIDE_GUIDANCE and not self.guidance.strip():
+            raise ValueError("PROVIDE_GUIDANCE requires non-empty guidance")
 
     def _has_any_revised_limit(self) -> bool:
         """Return ``True`` if any ``revised_*`` field is set."""
@@ -352,9 +311,7 @@ def _validate_non_negative_optional(
 ) -> None:
     """Raise ``ValueError`` if *value* is set and < 0."""
     if value is not None and value < 0:
-        raise ValueError(
-            f"{name} must be >= 0, got {value}"
-        )
+        raise ValueError(f"{name} must be >= 0, got {value}")
 
 
 def _validate_non_negative_optional_float(
@@ -363,6 +320,4 @@ def _validate_non_negative_optional_float(
 ) -> None:
     """Raise ``ValueError`` if *value* is set and < 0.0."""
     if value is not None and value < 0.0:
-        raise ValueError(
-            f"{name} must be >= 0.0, got {value}"
-        )
+        raise ValueError(f"{name} must be >= 0.0, got {value}")
