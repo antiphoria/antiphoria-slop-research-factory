@@ -171,12 +171,8 @@ class HumanRescueRequest:
             raise ValueError(f"revision_count must be >= 0, got {self.revision_count}")
 
         # Confidence range
-        if self.verdict_confidence is not None and not (
-            0.0 <= self.verdict_confidence <= 1.0
-        ):
-            raise ValueError(
-                f"verdict_confidence must be 0.0–1.0, got {self.verdict_confidence}"
-            )
+        if self.verdict_confidence is not None and not (0.0 <= self.verdict_confidence <= 1.0):
+            raise ValueError(f"verdict_confidence must be 0.0–1.0, got {self.verdict_confidence}")
 
         # SHA-256 hash format
         if self.latest_seal_hash is not None and not SHA256_LOWERCASE_RE.match(

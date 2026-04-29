@@ -324,10 +324,7 @@ class VerifierOutput(BaseModel):
         verdict is FIXABLE or WRONG but ``critique_entries`` is
         empty, the output is semantically invalid.
         """
-        if (
-            self.verdict in {Verdict.FIXABLE, Verdict.WRONG}
-            and len(self.critique_entries) == 0
-        ):
+        if self.verdict in {Verdict.FIXABLE, Verdict.WRONG} and len(self.critique_entries) == 0:
             msg = (
                 f"verdict is {self.verdict.value} but "
                 f"critique_entries is empty — FIXABLE and "
