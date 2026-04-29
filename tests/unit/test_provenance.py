@@ -20,7 +20,7 @@ Spec references:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -42,9 +42,9 @@ HASH_B = "b" * 64
 HASH_C = "c" * 64
 HASH_D = "d" * 64
 
-TS_1 = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-TS_2 = datetime(2025, 1, 1, 0, 1, 0, tzinfo=timezone.utc)
-TS_3 = datetime(2025, 1, 1, 0, 2, 0, tzinfo=timezone.utc)
+TS_1 = datetime(2025, 1, 1, 0, 0, 0, tzinfo=UTC)
+TS_2 = datetime(2025, 1, 1, 0, 1, 0, tzinfo=UTC)
+TS_3 = datetime(2025, 1, 1, 0, 2, 0, tzinfo=UTC)
 TS_NAIVE = datetime(2025, 1, 1, 0, 0, 0)
 
 
@@ -123,7 +123,8 @@ class TestProvenanceMetadataConstruction:
     def test_zero_tokens_accepted(self) -> None:
         """Zero is a valid token count."""
         m = ProvenanceMetadata(
-            input_tokens=0, output_tokens=0,
+            input_tokens=0,
+            output_tokens=0,
         )
         assert m.input_tokens == 0
         assert m.output_tokens == 0
@@ -152,7 +153,8 @@ class TestProvenanceMetadataValidation:
 
     def test_invalid_response_hash(self) -> None:
         with pytest.raises(
-            ValueError, match="response_hash",
+            ValueError,
+            match="response_hash",
         ):
             ProvenanceMetadata(response_hash="XYZ")
 
@@ -173,25 +175,29 @@ class TestProvenanceMetadataValidation:
     def test_long_hash_rejected(self) -> None:
         """65-char hex string → ValueError."""
         with pytest.raises(
-            ValueError, match="output_hash",
+            ValueError,
+            match="output_hash",
         ):
             ProvenanceMetadata(output_hash="b" * 65)
 
     def test_negative_input_tokens(self) -> None:
         with pytest.raises(
-            ValueError, match="input_tokens",
+            ValueError,
+            match="input_tokens",
         ):
             ProvenanceMetadata(input_tokens=-1)
 
     def test_negative_output_tokens(self) -> None:
         with pytest.raises(
-            ValueError, match="output_tokens",
+            ValueError,
+            match="output_tokens",
         ):
             ProvenanceMetadata(output_tokens=-1)
 
     def test_negative_critique_step(self) -> None:
         with pytest.raises(
-            ValueError, match="critique_step",
+            ValueError,
+            match="critique_step",
         ):
             ProvenanceMetadata(critique_step=-1)
 
@@ -215,7 +221,8 @@ class TestSealRecordConstruction:
     def test_create_chained_seal(self) -> None:
         """Chained seal: parent_hash set."""
         s = _seal(
-            parent_hash=HASH_B, content_hash=HASH_C,
+            parent_hash=HASH_B,
+            content_hash=HASH_C,
         )
         assert s.parent_hash == HASH_B
         assert s.content_hash == HASH_C
@@ -252,31 +259,36 @@ class TestSealRecordValidation:
 
     def test_invalid_content_hash(self) -> None:
         with pytest.raises(
-            ValueError, match="content_hash",
+            ValueError,
+            match="content_hash",
         ):
             _seal(content_hash="not-valid")
 
     def test_uppercase_content_hash(self) -> None:
         with pytest.raises(
-            ValueError, match="content_hash",
+            ValueError,
+            match="content_hash",
         ):
             _seal(content_hash="A" * 64)
 
     def test_short_content_hash(self) -> None:
         with pytest.raises(
-            ValueError, match="content_hash",
+            ValueError,
+            match="content_hash",
         ):
             _seal(content_hash="a" * 63)
 
     def test_long_content_hash(self) -> None:
         with pytest.raises(
-            ValueError, match="content_hash",
+            ValueError,
+            match="content_hash",
         ):
             _seal(content_hash="a" * 65)
 
     def test_invalid_parent_hash(self) -> None:
         with pytest.raises(
-            ValueError, match="parent_hash",
+            ValueError,
+            match="parent_hash",
         ):
             _seal(parent_hash="bad-hash")
 
@@ -322,7 +334,7 @@ class TestProvenanceChainEmpty:
         assert ProvenanceChain().seals == ()
 
     def test_verify_integrity_empty(self) -> None:
-        assert ProvenanceChain().verify_integrity() is True
+        assert ProvenanceChain().verify_integrity() == (True, None)
 
     def test_repr_shows_zero(self) -> None:
         assert "len=0" in repr(ProvenanceChain())
@@ -337,7 +349,8 @@ class TestProvenanceChainAppend:
     def test_append_first_seal(self) -> None:
         chain = ProvenanceChain()
         seal = _seal(
-            content_hash=HASH_A, parent_hash=None,
+            content_hash=HASH_A,
+            parent_hash=None,
         )
         chain.append(seal)
         assert len(chain) == 1
@@ -349,7 +362,8 @@ class TestProvenanceChainAppend:
         chain = ProvenanceChain()
         seal = _seal(parent_hash=HASH_B)
         with pytest.raises(
-            ProvenanceChainError, match="None",
+            ProvenanceChainError,
+            match="None",
         ):
             chain.append(seal)
 
@@ -379,7 +393,8 @@ class TestProvenanceChainAppend:
     ) -> None:
         chain = ProvenanceChain()
         s1 = _seal(
-            content_hash=HASH_A, parent_hash=None,
+            content_hash=HASH_A,
+            parent_hash=None,
         )
         chain.append(s1)
 
@@ -390,7 +405,8 @@ class TestProvenanceChainAppend:
             timestamp=TS_2,
         )
         with pytest.raises(
-            ProvenanceChainError, match="Chain break",
+            ProvenanceChainError,
+            match="Chain break",
         ):
             chain.append(bad)
 
@@ -400,7 +416,8 @@ class TestProvenanceChainAppend:
         """Failed append leaves chain state unchanged."""
         chain = ProvenanceChain()
         s1 = _seal(
-            content_hash=HASH_A, parent_hash=None,
+            content_hash=HASH_A,
+            parent_hash=None,
         )
         chain.append(s1)
 
@@ -453,18 +470,22 @@ class TestProvenanceChainProperties:
 
     def _two_seal_chain(self) -> ProvenanceChain:
         chain = ProvenanceChain()
-        chain.append(_seal(
-            seal_id="s1",
-            content_hash=HASH_A,
-            parent_hash=None,
-        ))
-        chain.append(_seal(
-            seal_id="s2",
-            content_hash=HASH_B,
-            parent_hash=HASH_A,
-            timestamp=TS_2,
-            step_index=1,
-        ))
+        chain.append(
+            _seal(
+                seal_id="s1",
+                content_hash=HASH_A,
+                parent_hash=None,
+            )
+        )
+        chain.append(
+            _seal(
+                seal_id="s2",
+                content_hash=HASH_B,
+                parent_hash=HASH_A,
+                timestamp=TS_2,
+                step_index=1,
+            )
+        )
         return chain
 
     def test_seals_returns_tuple(self) -> None:
@@ -476,13 +497,15 @@ class TestProvenanceChainProperties:
         """Tuple unaffected by later appends."""
         chain = self._two_seal_chain()
         snapshot = chain.seals
-        chain.append(_seal(
-            seal_id="s3",
-            content_hash=HASH_C,
-            parent_hash=HASH_B,
-            timestamp=TS_3,
-            step_index=2,
-        ))
+        chain.append(
+            _seal(
+                seal_id="s3",
+                content_hash=HASH_C,
+                parent_hash=HASH_B,
+                timestamp=TS_3,
+                step_index=2,
+            )
+        )
         assert len(snapshot) == 2
         assert len(chain.seals) == 3
 
@@ -520,35 +543,44 @@ class TestProvenanceChainIntegrity:
 
     def test_valid_chain(self) -> None:
         chain = ProvenanceChain()
-        chain.append(_seal(
-            seal_id="s1",
-            content_hash=HASH_A,
-            parent_hash=None,
-        ))
-        chain.append(_seal(
-            seal_id="s2",
-            content_hash=HASH_B,
-            parent_hash=HASH_A,
-            timestamp=TS_2,
-            step_index=1,
-        ))
-        assert chain.verify_integrity() is True
+        chain.append(
+            _seal(
+                seal_id="s1",
+                content_hash=HASH_A,
+                parent_hash=None,
+            )
+        )
+        chain.append(
+            _seal(
+                seal_id="s2",
+                content_hash=HASH_B,
+                parent_hash=HASH_A,
+                timestamp=TS_2,
+                step_index=1,
+            )
+        )
+        assert chain.verify_integrity() == (True, None)
 
     def test_single_seal_valid(self) -> None:
         chain = ProvenanceChain()
-        chain.append(_seal(
-            content_hash=HASH_A, parent_hash=None,
-        ))
-        assert chain.verify_integrity() is True
+        chain.append(
+            _seal(
+                content_hash=HASH_A,
+                parent_hash=None,
+            )
+        )
+        assert chain.verify_integrity() == (True, None)
 
     def test_broken_link_detected(self) -> None:
         """Inject broken seal bypassing append guard."""
         chain = ProvenanceChain()
-        chain.append(_seal(
-            seal_id="s1",
-            content_hash=HASH_A,
-            parent_hash=None,
-        ))
+        chain.append(
+            _seal(
+                seal_id="s1",
+                content_hash=HASH_A,
+                parent_hash=None,
+            )
+        )
         # Direct injection to bypass integrity check
         broken = _seal(
             seal_id="broken",
@@ -558,13 +590,14 @@ class TestProvenanceChainIntegrity:
             step_index=1,
         )
         chain._seals.append(broken)
-        assert chain.verify_integrity() is False
+        assert chain.verify_integrity() == (False, 1)
 
     def test_broken_first_seal_detected(self) -> None:
         """First seal with non-None parent (injected)."""
         chain = ProvenanceChain()
         bad_first = _seal(
-            content_hash=HASH_A, parent_hash=HASH_B,
+            content_hash=HASH_A,
+            parent_hash=HASH_B,
         )
         chain._seals.append(bad_first)
-        assert chain.verify_integrity() is False
+        assert chain.verify_integrity() == (False, 0)

@@ -17,6 +17,11 @@ from dataclasses import FrozenInstanceError, asdict
 
 from slop_research_factory.types.inference import InferenceRecord
 
+_H = "a" * 64
+_H2 = "b" * 64
+_H3 = "c" * 64
+_H4 = "d" * 64
+
 
 class TestInferenceRecord(unittest.TestCase):
     """E1-S15: construction, immutability, JSON round-trip."""
@@ -37,10 +42,10 @@ class TestInferenceRecord(unittest.TestCase):
             "input_tokens": 1100,
             "output_tokens": 5200,
             "think_tokens": 12400,
-            "prompt_hash": "abc123def456",
-            "response_hash": "def456ghi789",
-            "response_body_hash": "ghi789jkl012",
-            "think_trace_hash": "jkl012mno345",
+            "prompt_hash": _H,
+            "response_hash": _H2,
+            "response_body_hash": _H3,
+            "think_trace_hash": _H4,
             "api_provider": "openrouter",
             "api_response_id": "resp-001",
         }
@@ -69,13 +74,15 @@ class TestInferenceRecord(unittest.TestCase):
             retries=3,
             error="Timeout after 30s",
             sampling_params={
-                "temperature": 0.0, "top_p": 1.0,
+                "temperature": 0.0,
+                "top_p": 1.0,
             },
         )
         self.assertEqual(rec.retries, 3)
         self.assertEqual(rec.error, "Timeout after 30s")
         self.assertAlmostEqual(
-            rec.sampling_params["temperature"], 0.0,
+            rec.sampling_params["temperature"],
+            0.0,
         )
 
     def test_s15_all_three_roles_accepted(self) -> None:
@@ -198,7 +205,9 @@ class TestInferenceRecord(unittest.TestCase):
     def test_s15_sampling_params_survives_round_trip(self) -> None:
         """Non-empty sampling_params dict survives JSON."""
         params = {
-            "temperature": 0.0, "top_p": 1.0, "seed": 42,
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "seed": 42,
         }
         rec = self._make_record(sampling_params=params)
         json_str = json.dumps(asdict(rec))

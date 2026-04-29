@@ -5,6 +5,7 @@ ResearchBrief — the sole human input that initiates a factory run.
 
 Spec reference: D-2 §5.  Validation rules: D-2 §5, D-2 §16 invariant #5.
 """
+
 from __future__ import annotations
 
 from pydantic import BaseModel, field_validator
@@ -69,10 +70,16 @@ class ResearchBrief(BaseModel):
         if not v:
             raise ValueError("thesis must be non-empty")
         if len(v) > 10_000:
-            raise ValueError(
-                "thesis exceeds 10 000 character limit"
-            )
+            raise ValueError("thesis exceeds 10 000 character limit")
         return v
+
+    @field_validator("constraints", "target_venue", "domain", mode="before")
+    @classmethod
+    def strip_optional_str(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        s = v.strip()
+        return s or None
 
     @field_validator("key_references")
     @classmethod
@@ -87,10 +94,7 @@ class ResearchBrief(BaseModel):
         if v is not None:
             for idx, ref in enumerate(v):
                 if not ref.strip():
-                    raise ValueError(
-                        f"key_references[{idx}] must be a "
-                        f"non-empty string"
-                    )
+                    raise ValueError(f"key_references[{idx}] must be a non-empty string")
         return v
 
     # ── Pydantic v2 model configuration ──────────────────────────
@@ -107,9 +111,7 @@ class ResearchBrief(BaseModel):
                     "key_references": ["arXiv:2301.12345"],
                     "domain": "low-dimensional topology",
                     "constraints": (
-                        "Use only classical invariants. "
-                        "Do not invoke Heegaard Floer "
-                        "homology."
+                        "Use only classical invariants. Do not invoke Heegaard Floer homology."
                     ),
                     "target_venue": "JAIGP",
                 }

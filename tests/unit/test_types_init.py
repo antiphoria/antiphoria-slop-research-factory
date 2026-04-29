@@ -11,6 +11,7 @@ Confirms:
 
 ``FactoryConfig`` stays in ``slop_research_factory.config``, not ``types``.
 """
+
 from __future__ import annotations
 
 import dataclasses
@@ -23,17 +24,18 @@ from pydantic import BaseModel
 
 # ====================================================================
 # Authoritative reference: name → source sub-module (for ``is`` checks)
-# Must match ``slop_research_factory.types.__init__.__all__`` (38 names).
+# Must match ``slop_research_factory.types.__init__.__all__`` (39 names).
 # ====================================================================
 
 _ALL_SOURCE: dict[str, str] = {
-    # enums (11) — all ``str, Enum`` except CheckpointBackend (defined in config)
+    # enums (12) — all :class:`enum.StrEnum` except CheckpointBackend (defined in config)
     "CheckpointBackend": "enums",
     "CitationCheckResult": "enums",
     "ConfidenceTier": "enums",
     "HumanRescueAction": "enums",
     "HumanReviewStatus": "enums",
     "NodeName": "enums",
+    "RescueReason": "enums",
     "RunStatus": "enums",
     "SealType": "enums",
     "StepType": "enums",
@@ -75,56 +77,65 @@ _ALL_SOURCE: dict[str, str] = {
     "TavilyResult": "tool_types",
 }
 
-_EXPECTED_ALL_LEN = 38
+_EXPECTED_ALL_LEN = 39
 
 assert len(_ALL_SOURCE) == _EXPECTED_ALL_LEN, (
     f"Reference table has {len(_ALL_SOURCE)} entries, expected {_EXPECTED_ALL_LEN}"
 )
 
-_ENUM_NAMES: frozenset[str] = frozenset({
-    "CheckpointBackend",
-    "CitationCheckResult",
-    "ConfidenceTier",
-    "HumanRescueAction",
-    "HumanReviewStatus",
-    "NodeName",
-    "RunStatus",
-    "SealType",
-    "StepType",
-    "Verdict",
-})
+_ENUM_NAMES: frozenset[str] = frozenset(
+    {
+        "CheckpointBackend",
+        "CitationCheckResult",
+        "ConfidenceTier",
+        "HumanRescueAction",
+        "HumanReviewStatus",
+        "NodeName",
+        "RescueReason",
+        "RunStatus",
+        "SealType",
+        "StepType",
+        "Verdict",
+    }
+)
 
-_PYDANTIC_NAMES: frozenset[str] = frozenset({
-    "ResearchBrief",
-    "CitationCheckEntry",
-    "CitationEntry",
-    "CritiqueEntry",
-    "VerifierOutput",
-})
+_PYDANTIC_NAMES: frozenset[str] = frozenset(
+    {
+        "ResearchBrief",
+        "CitationCheckEntry",
+        "CitationEntry",
+        "CritiqueEntry",
+        "VerifierOutput",
+    }
+)
 
-_DATACLASS_NAMES: frozenset[str] = frozenset({
-    "InferenceRecord",
-    "ModelUsageRecord",
-    "ProcessSummary",
-    "VerificationSummary",
-    "HaiCard",
-    "HumanRescueRequest",
-    "HumanRescueResolution",
-    "ProvenanceMetadata",
-    "SealRecord",
-    "FactoryState",
-    "CrossrefQuery",
-    "CrossrefResult",
-    "SemanticScholarQuery",
-    "SemanticScholarResult",
-    "TavilyQuery",
-    "TavilyResult",
-})
+_DATACLASS_NAMES: frozenset[str] = frozenset(
+    {
+        "InferenceRecord",
+        "ModelUsageRecord",
+        "ProcessSummary",
+        "VerificationSummary",
+        "HaiCard",
+        "HumanRescueRequest",
+        "HumanRescueResolution",
+        "ProvenanceMetadata",
+        "SealRecord",
+        "FactoryState",
+        "CrossrefQuery",
+        "CrossrefResult",
+        "SemanticScholarQuery",
+        "SemanticScholarResult",
+        "TavilyQuery",
+        "TavilyResult",
+    }
+)
 
-_STR_CONST_NAMES: frozenset[str] = frozenset({
-    "DEFAULT_DISCLAIMER",
-    "SECURITY_GUARANTEE",
-})
+_STR_CONST_NAMES: frozenset[str] = frozenset(
+    {
+        "DEFAULT_DISCLAIMER",
+        "SECURITY_GUARANTEE",
+    }
+)
 
 _SUBMODULES: tuple[str, ...] = (
     "brief",
@@ -185,10 +196,7 @@ class TestDunderAll(unittest.TestCase):
     def test_no_public_type_missing_from_all(self) -> None:
         mod = importlib.import_module(_TYPES_PKG)
         public_types = {
-            n
-            for n in dir(mod)
-            if not n.startswith("_")
-            and isinstance(getattr(mod, n), type)
+            n for n in dir(mod) if not n.startswith("_") and isinstance(getattr(mod, n), type)
         }
         declared = set(mod.__all__)
         missing = public_types - declared

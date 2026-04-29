@@ -87,9 +87,7 @@ def render_generator_user_message(
         parts.append(f"\nTarget venue: {brief['target_venue']}")
 
     parts.append("</research_brief>")
-    parts.append(
-        f"\nTarget length: approximately {config.target_length_words} words."
-    )
+    parts.append(f"\nTarget length: approximately {config.target_length_words} words.")
     parts.append(
         "\nPlease produce the draft now. Remember to flag any uncertain "
         "citations with [UNVERIFIED]."

@@ -35,12 +35,13 @@ from slop_research_factory.engine.routing import (
     REASON_MAX_TOKENS,
     REVISER_NODE,
     TARGETED_REPAIR,
+    RoutingDecision,
+    apply_routing_deltas,
     compute_effective_verdict,
     route_after_verification,
 )
 from slop_research_factory.types.enums import RunStatus, Verdict
 from slop_research_factory.types.state import FactoryState
-
 
 # ── Helper ───────────────────────────────────────────────────────────
 
@@ -85,6 +86,16 @@ def _make_state(
     )
 
 
+def _commit_route(
+    state: FactoryState,
+    verdict: Verdict,
+) -> RoutingDecision:
+    """``route_after_verification`` + :func:`apply_routing_deltas` (test helper)."""
+    decision = route_after_verification(state, verdict)
+    apply_routing_deltas(state, decision)
+    return decision
+
+
 # ── E1-R01 / E1-R02: Demotion rule (D-0 §8.1) ──────────────────────
 
 
@@ -94,21 +105,27 @@ class TestComputeEffectiveVerdict:
     def test_r01_correct_above_threshold(self) -> None:
         """CORRECT, confidence=0.85, threshold=0.8 → CORRECT."""
         result = compute_effective_verdict(
-            Verdict.CORRECT, 0.85, 0.8,
+            Verdict.CORRECT,
+            0.85,
+            0.8,
         )
         assert result is Verdict.CORRECT
 
     def test_r02_correct_below_threshold(self) -> None:
         """CORRECT, confidence=0.7, threshold=0.8 → FIXABLE."""
         result = compute_effective_verdict(
-            Verdict.CORRECT, 0.7, 0.8,
+            Verdict.CORRECT,
+            0.7,
+            0.8,
         )
         assert result is Verdict.FIXABLE
 
     def test_correct_at_exact_threshold_stays(self) -> None:
         """Boundary: confidence == threshold → no demotion."""
         result = compute_effective_verdict(
-            Verdict.CORRECT, 0.8, 0.8,
+            Verdict.CORRECT,
+            0.8,
+            0.8,
         )
         assert result is Verdict.CORRECT
 
@@ -116,7 +133,9 @@ class TestComputeEffectiveVerdict:
         """FIXABLE stays FIXABLE regardless of confidence."""
         for conf in (0.0, 0.5, 0.99, 1.0):
             result = compute_effective_verdict(
-                Verdict.FIXABLE, conf, 0.8,
+                Verdict.FIXABLE,
+                conf,
+                0.8,
             )
             assert result is Verdict.FIXABLE
 
@@ -127,7 +146,9 @@ class TestComputeEffectiveVerdict:
         """
         for conf in (0.0, 0.5, 0.99, 1.0):
             result = compute_effective_verdict(
-                Verdict.WRONG, conf, 0.8,
+                Verdict.WRONG,
+                conf,
+                0.8,
             )
             assert result is Verdict.WRONG
 
@@ -141,12 +162,14 @@ class TestRoutingCorrect:
     def test_r01_correct_routes_to_finalize(self) -> None:
         """E1-R01: CORRECT confidence=0.85 threshold=0.8."""
         effective = compute_effective_verdict(
-            Verdict.CORRECT, 0.85, 0.8,
+            Verdict.CORRECT,
+            0.85,
+            0.8,
         )
         assert effective is Verdict.CORRECT
 
         state = _make_state()
-        decision = route_after_verification(state, effective)
+        decision = _commit_route(state, effective)
 
         assert decision.next_node == FINALIZE_NODE
         assert decision.reviser_mode is None
@@ -155,8 +178,9 @@ class TestRoutingCorrect:
     def test_correct_ignores_high_cycle_count(self) -> None:
         """CORRECT always finalizes, even at max cycles."""
         state = _make_state(cycle_count=999, max_total_cycles=10)
-        decision = route_after_verification(
-            state, Verdict.CORRECT,
+        decision = _commit_route(
+            state,
+            Verdict.CORRECT,
         )
         assert decision.next_node == FINALIZE_NODE
 
@@ -170,12 +194,14 @@ class TestRoutingDemotedCorrect:
     def test_r02_demoted_correct_to_reviser(self) -> None:
         """E1-R02: confidence=0.7 threshold=0.8 → reviser."""
         effective = compute_effective_verdict(
-            Verdict.CORRECT, 0.7, 0.8,
+            Verdict.CORRECT,
+            0.7,
+            0.8,
         )
         assert effective is Verdict.FIXABLE
 
         state = _make_state()
-        decision = route_after_verification(state, effective)
+        decision = _commit_route(state, effective)
 
         assert decision.next_node == REVISER_NODE
         assert decision.reviser_mode == TARGETED_REPAIR
@@ -191,8 +217,9 @@ class TestRoutingFixable:
     def test_r03_fixable_routes_to_reviser(self) -> None:
         """E1-R03: FIXABLE with headroom → targeted repair."""
         state = _make_state()
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.next_node == REVISER_NODE
         assert decision.reviser_mode == TARGETED_REPAIR
@@ -202,16 +229,18 @@ class TestRoutingFixable:
     ) -> None:
         """E1-R03: revision_count incremented on reviser route."""
         state = _make_state(revision_count=0)
-        route_after_verification(state, Verdict.FIXABLE)
+        _commit_route(state, Verdict.FIXABLE)
         assert state.revision_count == 1
 
     def test_r06_fixable_at_max_revisions(self) -> None:
         """E1-R06: revision_count >= max_revisions → rescue."""
         state = _make_state(
-            revision_count=5, max_revisions=5,
+            revision_count=5,
+            max_revisions=5,
         )
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_REVISIONS
@@ -221,9 +250,10 @@ class TestRoutingFixable:
     ) -> None:
         """Counter NOT incremented when routing to rescue."""
         state = _make_state(
-            revision_count=5, max_revisions=5,
+            revision_count=5,
+            max_revisions=5,
         )
-        route_after_verification(state, Verdict.FIXABLE)
+        _commit_route(state, Verdict.FIXABLE)
         assert state.revision_count == 5
 
 
@@ -236,8 +266,9 @@ class TestRoutingWrong:
     def test_r04_wrong_routes_to_reviser(self) -> None:
         """E1-R04: WRONG with headroom → full rewrite."""
         state = _make_state()
-        decision = route_after_verification(
-            state, Verdict.WRONG,
+        decision = _commit_route(
+            state,
+            Verdict.WRONG,
         )
         assert decision.next_node == REVISER_NODE
         assert decision.reviser_mode == FULL_REWRITE
@@ -247,16 +278,18 @@ class TestRoutingWrong:
     ) -> None:
         """E1-R04: rejection_count incremented on reviser route."""
         state = _make_state(rejection_count=0)
-        route_after_verification(state, Verdict.WRONG)
+        _commit_route(state, Verdict.WRONG)
         assert state.rejection_count == 1
 
     def test_r05_wrong_at_max_rejections(self) -> None:
         """E1-R05: rejection_count >= max_rejections → rescue."""
         state = _make_state(
-            rejection_count=3, max_rejections=3,
+            rejection_count=3,
+            max_rejections=3,
         )
-        decision = route_after_verification(
-            state, Verdict.WRONG,
+        decision = _commit_route(
+            state,
+            Verdict.WRONG,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_REJECTIONS
@@ -266,9 +299,10 @@ class TestRoutingWrong:
     ) -> None:
         """Counter NOT incremented when routing to rescue."""
         state = _make_state(
-            rejection_count=3, max_rejections=3,
+            rejection_count=3,
+            max_rejections=3,
         )
-        route_after_verification(state, Verdict.WRONG)
+        _commit_route(state, Verdict.WRONG)
         assert state.rejection_count == 3
 
 
@@ -281,10 +315,12 @@ class TestCycleCapRouting:
     def test_r07_fixable_with_cycle_cap(self) -> None:
         """FIXABLE + cycle cap hit → rescue."""
         state = _make_state(
-            cycle_count=10, max_total_cycles=10,
+            cycle_count=10,
+            max_total_cycles=10,
         )
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_CYCLES
@@ -292,10 +328,12 @@ class TestCycleCapRouting:
     def test_r07_wrong_with_cycle_cap(self) -> None:
         """WRONG + cycle cap hit → rescue."""
         state = _make_state(
-            cycle_count=10, max_total_cycles=10,
+            cycle_count=10,
+            max_total_cycles=10,
         )
-        decision = route_after_verification(
-            state, Verdict.WRONG,
+        decision = _commit_route(
+            state,
+            Verdict.WRONG,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_CYCLES
@@ -310,9 +348,9 @@ class TestCycleCapRouting:
             rejection_count=0,
             revision_count=0,
         )
-        route_after_verification(state, Verdict.FIXABLE)
+        _commit_route(state, Verdict.FIXABLE)
         assert state.revision_count == 0
-        route_after_verification(
+        _commit_route(
             _make_state(
                 cycle_count=10,
                 max_total_cycles=10,
@@ -342,16 +380,18 @@ class TestCompositeRouting:
         )
 
         # 1st FIXABLE
-        d1 = route_after_verification(
-            state, Verdict.FIXABLE,
+        d1 = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert d1.next_node == REVISER_NODE
         assert d1.reviser_mode == TARGETED_REPAIR
         assert state.revision_count == 1
 
         # 2nd FIXABLE on the same (mutated) state
-        d2 = route_after_verification(
-            state, Verdict.FIXABLE,
+        d2 = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert d2.next_node == HUMAN_RESCUE_NODE
         assert d2.rescue_reason == REASON_MAX_REVISIONS
@@ -367,8 +407,9 @@ class TestCompositeRouting:
             max_revisions=5,
             max_total_cycles=3,
         )
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_CYCLES
@@ -392,8 +433,9 @@ class TestCompositeRouting:
             max_revisions=1,
             max_total_cycles=100,
         )
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_REVISIONS
@@ -411,8 +453,9 @@ class TestCompositeRouting:
             max_revisions=5,
             max_total_cycles=10,
         )
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_REVISIONS
@@ -433,8 +476,9 @@ class TestBudgetCapRouting:
             total_output_tokens=200_000,
             max_total_tokens=500_000,
         )
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_TOKENS
@@ -448,8 +492,9 @@ class TestBudgetCapRouting:
             total_output_tokens=300_000,
             max_total_tokens=500_000,
         )
-        decision = route_after_verification(
-            state, Verdict.WRONG,
+        decision = _commit_route(
+            state,
+            Verdict.WRONG,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_TOKENS
@@ -460,8 +505,9 @@ class TestBudgetCapRouting:
             total_estimated_cost_usd=5.50,
             max_total_cost_usd=5.00,
         )
-        decision = route_after_verification(
-            state, Verdict.WRONG,
+        decision = _commit_route(
+            state,
+            Verdict.WRONG,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_COST
@@ -475,8 +521,9 @@ class TestBudgetCapRouting:
             cycle_count=10,
             max_total_cycles=10,
         )
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.rescue_reason == REASON_MAX_TOKENS
 
@@ -491,8 +538,9 @@ class TestBudgetCapRouting:
             total_output_tokens=0,
             max_total_tokens=500_000,
         )
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.rescue_reason == REASON_MAX_REVISIONS
 
@@ -505,8 +553,9 @@ class TestBudgetCapRouting:
             # max_total_tokens=None (default)
             # max_total_cost_usd=None (default)
         )
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.next_node == REVISER_NODE
 
@@ -519,8 +568,9 @@ class TestBudgetCapRouting:
             max_total_tokens=500_000,
         )
         # input+output = 400k (under), but +think = 600k (over)
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.next_node == HUMAN_RESCUE_NODE
         assert decision.rescue_reason == REASON_MAX_TOKENS
@@ -534,8 +584,9 @@ class TestBudgetCapRouting:
             max_total_tokens=500_000,
         )
         # total = 300k < 500k → no rescue
-        decision = route_after_verification(
-            state, Verdict.FIXABLE,
+        decision = _commit_route(
+            state,
+            Verdict.FIXABLE,
         )
         assert decision.next_node == REVISER_NODE
 
@@ -547,8 +598,9 @@ class TestRoutingDecisionFrozen:
     """RoutingDecision is a frozen dataclass."""
 
     def test_frozen(self) -> None:
-        d = route_after_verification(
-            _make_state(), Verdict.CORRECT,
+        d = _commit_route(
+            _make_state(),
+            Verdict.CORRECT,
         )
         with pytest.raises(AttributeError):
             d.next_node = "other"  # type: ignore[misc]

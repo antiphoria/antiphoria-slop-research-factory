@@ -25,6 +25,7 @@ D-3 §5  — Reviser Prompt.
 D-3 §6  — Citation Extraction Prompt.
 """
 
+import re
 from pathlib import Path
 
 __all__ = [
@@ -37,21 +38,28 @@ __all__ = [
 PROMPT_VERSION: str = "v0.1"
 """Current default prompt version string."""
 
-VALID_ROLES: frozenset[str] = frozenset({
-    "citation_extractor",
-    "generator",
-    "reviser",
-    "verifier",
-})
+VALID_ROLES: frozenset[str] = frozenset(
+    {
+        "citation_extractor",
+        "generator",
+        "reviser",
+        "verifier",
+    }
+)
 """Closed set of node roles that have prompt files."""
 
-VALID_KINDS: frozenset[str] = frozenset({
-    "system",
-    "user_template",
-})
+VALID_KINDS: frozenset[str] = frozenset(
+    {
+        "system",
+        "user_template",
+    }
+)
 """Closed set of prompt-file kinds."""
 
 _PROMPT_DIR: Path = Path(__file__).resolve().parent
+
+# e.g. v0.1, 1.2.3 — must not embed path components.
+_VERSION_RE = re.compile(r"^v?[0-9]+(?:\.[0-9]+)*$")
 
 # U+2550 — BOX DRAWINGS DOUBLE HORIZONTAL  (the ═ character)
 
@@ -78,10 +86,8 @@ def _strip_documentary_header(text: str) -> str:
     lines = text.split("\n")
     for i, line in enumerate(lines):
         stripped = line.strip()
-        if stripped and all(
-            ch == _SEPARATOR_CHAR for ch in stripped
-        ):
-            return "\n".join(lines[i + 1:]).strip()
+        if stripped and all(ch == _SEPARATOR_CHAR for ch in stripped):
+            return "\n".join(lines[i + 1 :]).strip()
     # No separator found — return full text unchanged.
     return text.strip()
 
@@ -125,17 +131,15 @@ def load_prompt(
         If the prompt file does not exist on disk.
     """
     if role not in VALID_ROLES:
-        msg = (
-            f"role must be one of {sorted(VALID_ROLES)}, "
-            f"got {role!r}"
-        )
+        msg = f"role must be one of {sorted(VALID_ROLES)}, got {role!r}"
         raise ValueError(msg)
 
     if kind not in VALID_KINDS:
-        msg = (
-            f"kind must be one of {sorted(VALID_KINDS)}, "
-            f"got {kind!r}"
-        )
+        msg = f"kind must be one of {sorted(VALID_KINDS)}, got {kind!r}"
+        raise ValueError(msg)
+
+    if not _VERSION_RE.fullmatch(version) or ".." in version:
+        msg = f"version must be a dotted numeric label (e.g. v0.1), got {version!r}"
         raise ValueError(msg)
 
     filename = f"{kind}_{version}.txt"

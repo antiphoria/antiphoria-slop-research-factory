@@ -23,7 +23,7 @@ import json
 import logging
 import time
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -51,9 +51,10 @@ logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 
+
 def _now_iso() -> str:
     """UTC timestamp in ISO-8601 with milliseconds (D-2 §13)."""
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
 
 def _cycle_prefix(cycle: int) -> str:
@@ -71,6 +72,7 @@ def _serialize_with_version(obj: dict, version: str = "0.1") -> dict:
 # Generator node entry point
 
 # ---------------------------------------------------------------------------
+
 
 async def generator_node(
     state: FactoryState,
@@ -101,7 +103,9 @@ async def generator_node(
     config = state.config
     cycle = state.cycle_count + 1
     prefix = _cycle_prefix(cycle)
-    chain_dir = str(workspace.run_dir / "chain")
+    cdir = workspace.chain_dir
+    cdir.mkdir(parents=True, exist_ok=True)
+    chain_dir = str(cdir)
 
     logger.info(
         "[generator] [%s] Starting Generator — cycle %d, model %s",
@@ -112,7 +116,8 @@ async def generator_node(
 
     # ── Phase 1: PRE-SEAL ─────────────────────────────────────────────
     system_prompt, user_message, audit_text = render_generator_prompt(
-        state.brief, config,
+        state.brief,
+        config,
     )
 
     prompt_path = workspace.drafts_path(f"{prefix}_generator_prompt.md")
@@ -287,7 +292,8 @@ async def generator_node(
 
     state.total_input_tokens += response.input_tokens
     state.total_output_tokens += response.output_tokens
-    state.total_think_tokens += response.think_tokens or 0
+    if response.think_tokens is not None:
+        state.total_think_tokens += response.think_tokens
     state.total_wall_clock_seconds += duration_s
     # Cost estimate (rough; exact pricing lives in D-9 §12).
     state.total_estimated_cost_usd += _estimate_cost(
@@ -320,7 +326,7 @@ async def generator_node(
     state.updated_at = _now_iso()
 
     # Atomic checkpoint (D-2 §6 serialization contract).
-    workspace.write_state_atomic(state)
+    workspace.write_state(state)
 
     logger.info(
         "[generator] [%s] State updated — draft %d words, status %s",
@@ -338,19 +344,30 @@ async def generator_node(
 
 # ---------------------------------------------------------------------------
 
-_COST_TABLE: dict[str, tuple[float, float]] = {
-    # model_substring → ($/M input, $/M output)
-    "deepseek-r1": (0.55, 2.19),
-    "gemini-2.5-flash": (0.15, 0.60),
+# Exact model id (LiteLLM string) → ($/M input, $/M output).
+# D-9 §12.1 — April 2026 reference pricing; update when list changes.
+_EXACT_MODEL_COST: dict[str, tuple[float, float]] = {
+    "deepseek/deepseek-r1": (0.55, 2.19),
+    "google/gemini-2.5-flash": (0.15, 0.60),
 }
+
+# Longest keys first so ``deepseek`` does not match before ``deepseek/deepseek-r1``.
+_SUBSTRING_MODEL_COST: tuple[tuple[str, tuple[float, float]], ...] = (
+    ("deepseek-r1", (0.55, 2.19)),
+    ("gemini-2.5-flash", (0.15, 0.60)),
+)
 
 
 def _estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
-    """Return a rough USD cost estimate. Falls back to zero if unknown."""
-    for key, (inp_rate, out_rate) in _COST_TABLE.items():
-        if key in model:
-            return (
-                input_tokens * inp_rate / 1_000_000
-                + output_tokens * out_rate / 1_000_000
-            )
-    return 0.0
+    """Return a rough USD cost estimate.  Unknown models → ``0.0``."""
+    if model in _EXACT_MODEL_COST:
+        inp_rate, out_rate = _EXACT_MODEL_COST[model]
+    else:
+        inp_rate, out_rate = 0.0, 0.0
+        for key, rates in _SUBSTRING_MODEL_COST:
+            if key in model:
+                inp_rate, out_rate = rates
+                break
+        if inp_rate == 0.0 and out_rate == 0.0:
+            return 0.0
+    return input_tokens * inp_rate / 1_000_000 + output_tokens * out_rate / 1_000_000

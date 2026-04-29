@@ -7,16 +7,21 @@ Spec reference: D-2 §4 (Configuration Schema).
 Once a run begins, the configuration is sealed into the genesis
 step and cannot be modified.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from dataclasses import fields as dc_fields
+from enum import StrEnum
+from typing import Any
+
+# Defined here (not only in ``types.enums``) so ``FactoryConfig`` stays in a
+# module that never imports ``types.*`` — ``types.state`` imports
+# ``FactoryConfig``, and ``types.enums`` re-exports :class:`CheckpointBackend`
+# for a single JSON-serialisable enum namespace.
 
 
-# Defined here (not in types.enums) so config never imports ``types.*`` and
-# avoids circular imports: ``types.state`` imports ``FactoryConfig``.
-
-class CheckpointBackend(str, Enum):
+class CheckpointBackend(StrEnum):
     """Checkpoint persistence backend (D-2 §4).
 
     SQLITE   — JSON + local files (Phase 1 default).
@@ -43,12 +48,15 @@ class FactoryConfig:
     fields whose effective value differs from the default are
     recorded (D-2 §4, D-6 §4.6).
 
-    **Loop-limit precedence** (D-2 §4):
+    **Loop-limit precedence** (D-2 §4) is evaluated *per verdict*:
 
-    1. ``max_rejections``
-    2. ``max_revisions``
-    3. ``max_total_tokens`` / ``max_total_cost_usd`` (if set)
-    4. ``max_total_cycles``
+    * On **WRONG**: ``max_rejections`` first, then shared budgets
+      (``max_total_tokens``, ``max_total_cost_usd``), then
+      ``max_total_cycles``.
+    * On **FIXABLE**: ``max_revisions`` first, then the same shared
+      budgets, then ``max_total_cycles``.
+    * **CORRECT** does not apply these loop caps; it finalizes (subject
+      to orchestration-level checks outside this dataclass).
     """
 
     # -- Model topology (D-0 §4) ----------------------------------------
@@ -58,13 +66,15 @@ class FactoryConfig:
     # reviser defaults to generator model (D-0 §4.2).
 
     # -- Loop limits -----------------------------------------------------
-    max_rejections: int = 3       # WRONG verdicts before human rescue
-    max_revisions: int = 5        # FIXABLE verdicts before human rescue
-    max_total_cycles: int = 10    # Absolute loop cap
-    max_total_tokens: int | None = None       # Optional hard token cap
-    max_total_cost_usd: float | None = None   # Optional cost budget
+    max_rejections: int = 3  # WRONG verdicts before human rescue
+    max_revisions: int = 5  # FIXABLE verdicts before human rescue
+    max_total_cycles: int = 10  # Absolute loop cap
+    max_total_tokens: int | None = None  # Optional hard token cap
+    max_total_cost_usd: float | None = None  # Optional cost budget
 
     # -- Verifier behaviour (D-4 §8) ------------------------------------
+    # Citation extractor prompts (D-3 §6) use ``verifier_model``; there is no
+    # separate ``citation_extractor_model`` in v0.1.
     verifier_confidence_threshold: float = 0.8
     # Below this, a CORRECT verdict is demoted to FIXABLE (D-0 §8.1).
 
@@ -97,3 +107,27 @@ class FactoryConfig:
     # -- Infrastructure --------------------------------------------------
     workspace_base_path: str = "./workspaces"
     checkpoint_backend: CheckpointBackend = CheckpointBackend.SQLITE
+
+
+def factory_config_from_mapping(data: dict[str, Any]) -> FactoryConfig:
+    """Construct ``FactoryConfig`` from a plain mapping (JSON, TOML, etc.).
+
+    Keys not in :class:`FactoryConfig` are **silently dropped** so older
+    ``state.json`` or config files with experimental fields still load
+    (forward compatibility, matching workspace I/O).  Tuple and enum
+    fields are coerced the same way as :func:`load_config` output.
+    """
+    known = {f.name for f in dc_fields(FactoryConfig)}
+    kwargs: dict[str, Any] = {k: v for k, v in data.items() if k in known}
+    if "checkpoint_backend" in kwargs and not isinstance(
+        kwargs["checkpoint_backend"],
+        CheckpointBackend,
+    ):
+        kwargs["checkpoint_backend"] = CheckpointBackend(
+            str(kwargs["checkpoint_backend"]),
+        )
+    if "citation_check_sources" in kwargs:
+        kwargs["citation_check_sources"] = tuple(
+            kwargs["citation_check_sources"],
+        )
+    return FactoryConfig(**kwargs)

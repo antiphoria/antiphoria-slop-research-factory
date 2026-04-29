@@ -14,6 +14,7 @@ Mutation contract (enforced by orchestrator, not this module):
   total_*                   — increment-only
   status                    — forward-only transitions (D-2 §3.3)
 """
+
 from __future__ import annotations
 
 import dataclasses
@@ -21,7 +22,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from slop_research_factory.config import CheckpointBackend, FactoryConfig
+from slop_research_factory.config import (
+    FactoryConfig,
+    factory_config_from_mapping,
+)
 from slop_research_factory.types.enums import RunStatus
 
 __all__ = ["AppendOnlyList", "FactoryState"]
@@ -42,20 +46,14 @@ class AppendOnlyList(list[Any]):
     """
 
     def __setitem__(self, key: Any, value: Any) -> None:
-        raise TypeError(
-            "AppendOnlyList does not support item reassignment"
-        )
+        raise TypeError("AppendOnlyList does not support item reassignment")
 
     def __delitem__(self, key: Any) -> None:
-        raise TypeError(
-            "AppendOnlyList does not support deletion"
-        )
+        raise TypeError("AppendOnlyList does not support deletion")
 
     def insert(self, index: int, value: Any) -> None:
         if index != len(self):
-            raise TypeError(
-                "AppendOnlyList only permits append-at-end"
-            )
+            raise TypeError("AppendOnlyList only permits append-at-end")
         super().insert(index, value)
 
     def pop(self, *a):
@@ -72,6 +70,13 @@ class AppendOnlyList(list[Any]):
 
     def sort(self, *a, **kw):
         raise TypeError("AppendOnlyList does not support reordering")
+
+    def __iadd__(self, other: list[Any]) -> Any:  # noqa: ANN401
+        self.extend(other)
+        return self
+
+    def __imul__(self, n: int) -> Any:  # noqa: ANN401
+        raise TypeError("AppendOnlyList does not support repetition")
 
 
 # ── FactoryState ──────────────────────────────────────────────
@@ -156,17 +161,10 @@ class FactoryState:
         """
         data: dict[str, Any] = dict(raw)
 
-        # ── Nested FactoryConfig ──────────────────────────
-        config_raw: dict[str, Any] = dict(data.pop("config"))
-        if "checkpoint_backend" in config_raw:
-            config_raw["checkpoint_backend"] = CheckpointBackend(
-                config_raw["checkpoint_backend"],
-            )
-        if "citation_check_sources" in config_raw:
-            config_raw["citation_check_sources"] = tuple(
-                config_raw["citation_check_sources"],
-            )
-        config = FactoryConfig(**config_raw)
+        # ── Nested FactoryConfig (unknown keys dropped; D-2 §6 recovery) ─
+        config = factory_config_from_mapping(
+            dict(data.pop("config")),
+        )
 
         # ── RunStatus enum ────────────────────────────────
         status = RunStatus(data.pop("status"))
@@ -195,9 +193,7 @@ def _deep_serialize(obj: Any) -> Any:
     if isinstance(obj, Enum):
         return obj.value
     if isinstance(obj, dict):
-        return {
-            k: _deep_serialize(v) for k, v in obj.items()
-        }
+        return {k: _deep_serialize(v) for k, v in obj.items()}
     if isinstance(obj, (list, tuple)):
         return [_deep_serialize(item) for item in obj]
     return obj

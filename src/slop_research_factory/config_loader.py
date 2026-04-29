@@ -18,6 +18,7 @@ Spec references:
     D-5 §11  Provenance disable requires env-var safety gate.
     D-1 §10  ANTIPHORIA_I_UNDERSTAND_NO_PROVENANCE.
 """
+
 from __future__ import annotations
 
 import logging
@@ -40,6 +41,7 @@ logger = logging.getLogger(__name__)
 
 # ===================================================================
 
+
 class ConfigLoadError(Exception):
     """Raised when configuration loading or validation fails."""
 
@@ -50,9 +52,7 @@ class ConfigLoadError(Exception):
 
 # ===================================================================
 
-_KNOWN_FIELDS: frozenset[str] = frozenset(
-    f.name for f in dc_fields(FactoryConfig)
-)
+_KNOWN_FIELDS: frozenset[str] = frozenset(f.name for f in dc_fields(FactoryConfig))
 
 _DEFAULT_TOML_SEARCH: tuple[Path, ...] = (
     Path("antiphoria.toml"),
@@ -74,42 +74,42 @@ _DEFAULT_TOML_SEARCH: tuple[Path, ...] = (
 _SECTION_MAP: dict[str, dict[str, str]] = {
     "models": {
         "generator": "generator_model",
-        "verifier":  "verifier_model",
-        "reviser":   "reviser_model",
+        "verifier": "verifier_model",
+        "reviser": "reviser_model",
     },
     "limits": {
-        "max_rejections":   "max_rejections",
-        "max_revisions":    "max_revisions",
+        "max_rejections": "max_rejections",
+        "max_revisions": "max_revisions",
         "max_total_cycles": "max_total_cycles",
         "max_total_tokens": "max_total_tokens",
         "max_total_cost_usd": "max_total_cost_usd",
     },
     "output": {
-        "target_length_words":  "target_length_words",
+        "target_length_words": "target_length_words",
         "capture_think_tokens": "capture_think_tokens",
     },
     "provenance": {
-        "enabled":        "enable_provenance",
+        "enabled": "enable_provenance",
         "hash_algorithm": "hash_algorithm",
     },
     "infrastructure": {
         "workspace_base_path": "workspace_base_path",
-        "checkpoint_backend":  "checkpoint_backend",
+        "checkpoint_backend": "checkpoint_backend",
     },
 }
 
 _VERIFIER_SCALAR_MAP: dict[str, str] = {
-    "confidence_threshold":     "verifier_confidence_threshold",
+    "confidence_threshold": "verifier_confidence_threshold",
     "enable_citation_checking": "enable_citation_checking",
-    "citation_check_sources":   "citation_check_sources",
-    "enable_tavily_search":     "enable_tavily_search",
+    "citation_check_sources": "citation_check_sources",
+    "enable_tavily_search": "enable_tavily_search",
 }
 
 _WEIGHT_MAP: dict[str, str] = {
-    "logical_soundness":    "weight_logical_soundness",
-    "mathematical_rigor":   "weight_mathematical_rigor",
-    "citation_accuracy":    "weight_citation_accuracy",
-    "scope_compliance":     "weight_scope_compliance",
+    "logical_soundness": "weight_logical_soundness",
+    "mathematical_rigor": "weight_mathematical_rigor",
+    "citation_accuracy": "weight_citation_accuracy",
+    "scope_compliance": "weight_scope_compliance",
     "novelty_plausibility": "weight_novelty_plausibility",
 }
 
@@ -119,6 +119,7 @@ _WEIGHT_MAP: dict[str, str] = {
 # TOML discovery
 
 # ===================================================================
+
 
 def _find_toml(explicit: str | Path | None) -> Path | None:
     """Return the path to the TOML config, or ``None`` if absent.
@@ -130,9 +131,7 @@ def _find_toml(explicit: str | Path | None) -> Path | None:
         p = Path(explicit)
         if p.is_file():
             return p
-        raise FileNotFoundError(
-            f"Explicit config path does not exist: {p}"
-        )
+        raise FileNotFoundError(f"Explicit config path does not exist: {p}")
     for candidate in _DEFAULT_TOML_SEARCH:
         if candidate.is_file():
             return candidate
@@ -144,6 +143,7 @@ def _find_toml(explicit: str | Path | None) -> Path | None:
 # Flattening: nested TOML → flat FactoryConfig kwargs
 
 # ===================================================================
+
 
 def _flatten_toml(raw: dict[str, Any]) -> dict[str, Any]:
     """Convert nested TOML tables into ``FactoryConfig`` keyword args.
@@ -179,9 +179,7 @@ def _flatten_toml(raw: dict[str, Any]) -> dict[str, Any]:
     # ── Type coercions ─────────────────────────────────────────────
     # TOML arrays → tuple (FactoryConfig expects tuple[str, ...])
     if "citation_check_sources" in flat:
-        flat["citation_check_sources"] = tuple(
-            flat["citation_check_sources"]
-        )
+        flat["citation_check_sources"] = tuple(flat["citation_check_sources"])
 
     # checkpoint_backend string → CheckpointBackend enum
     if "checkpoint_backend" in flat:
@@ -219,8 +217,7 @@ def _warn_unknown_fields(flat: dict[str, Any]) -> None:
     """Log a warning for flattened keys absent from FactoryConfig."""
     for key in sorted(set(flat) - _KNOWN_FIELDS):
         logger.warning(
-            "Config key %r does not match any FactoryConfig field "
-            "(ignored).",
+            "Config key %r does not match any FactoryConfig field (ignored).",
             key,
         )
 
@@ -230,6 +227,7 @@ def _warn_unknown_fields(flat: dict[str, Any]) -> None:
 # Validation helpers
 
 # ===================================================================
+
 
 def _validate_weights(cfg: FactoryConfig) -> None:
     """D-4 §8: confidence dimension weights must sum to 1.0."""
@@ -242,8 +240,7 @@ def _validate_weights(cfg: FactoryConfig) -> None:
     )
     if abs(total - 1.0) > 1e-6:
         raise ConfigLoadError(
-            f"[verifier.weights] must sum to 1.0, got {total:.6f}. "
-            "Check antiphoria.toml."
+            f"[verifier.weights] must sum to 1.0, got {total:.6f}. Check antiphoria.toml."
         )
 
 
@@ -255,9 +252,14 @@ def _validate_provenance_gate(cfg: FactoryConfig) -> None:
     if cfg.enable_provenance:
         return
 
-    env_val = os.environ.get(
-        "ANTIPHORIA_I_UNDERSTAND_NO_PROVENANCE", "",
-    ).strip().lower()
+    env_val = (
+        os.environ.get(
+            "ANTIPHORIA_I_UNDERSTAND_NO_PROVENANCE",
+            "",
+        )
+        .strip()
+        .lower()
+    )
 
     if env_val != "true":
         raise ConfigLoadError(
@@ -290,6 +292,7 @@ def _validate_provenance_gate(cfg: FactoryConfig) -> None:
 # Public API
 
 # ===================================================================
+
 
 def load_config(
     toml_path: str | Path | None = None,
@@ -326,12 +329,17 @@ def load_config(
         _warn_unknown_sections(raw)
         flat = _flatten_toml(raw)
     else:
-        logger.info(
-            "No antiphoria.toml found; using FactoryConfig defaults."
-        )
+        logger.info("No antiphoria.toml found; using FactoryConfig defaults.")
 
     # ── 2. Programmatic overrides ─────────────────────────────────
     if overrides:
+        bad_override = set(overrides) - _KNOWN_FIELDS
+        if bad_override:
+            raise ConfigLoadError(
+                "Unknown FactoryConfig override keys: "
+                f"{sorted(bad_override)}.  Valid field names: "
+                f"{sorted(_KNOWN_FIELDS)}."
+            )
         flat.update(overrides)
 
     # ── 3. Filter unknown fields ──────────────────────────────────
@@ -342,17 +350,14 @@ def load_config(
     try:
         cfg = FactoryConfig(**clean)
     except TypeError as exc:
-        raise ConfigLoadError(
-            f"Invalid configuration: {exc}"
-        ) from exc
+        raise ConfigLoadError(f"Invalid configuration: {exc}") from exc
 
     # ── 5. Validate invariants ────────────────────────────────────
     _validate_weights(cfg)
     _validate_provenance_gate(cfg)
 
     logger.info(
-        "FactoryConfig ready — generator=%s  verifier=%s  "
-        "provenance=%s  threshold=%.2f",
+        "FactoryConfig ready — generator=%s  verifier=%s  provenance=%s  threshold=%.2f",
         cfg.generator_model,
         cfg.verifier_model,
         cfg.enable_provenance,

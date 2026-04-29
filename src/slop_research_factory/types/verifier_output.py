@@ -38,29 +38,35 @@ __all__ = [
 
 # ── Value-set constants (D-2 §8.3) ─────────────────────────────────────
 
-VALID_CRITIQUE_CATEGORIES: frozenset[str] = frozenset({
-    "citation_error",
-    "logical_gap",
-    "mathematical_error",
-    "rigor_deficit",
-    "formatting",
-    "scope_violation",
-    "other",
-})
+VALID_CRITIQUE_CATEGORIES: frozenset[str] = frozenset(
+    {
+        "citation_error",
+        "logical_gap",
+        "mathematical_error",
+        "rigor_deficit",
+        "formatting",
+        "scope_violation",
+        "other",
+    }
+)
 """Closed set of allowed values for :pyattr:`CritiqueEntry.category`."""
 
-VALID_CRITIQUE_SEVERITIES: frozenset[str] = frozenset({
-    "critical",
-    "major",
-    "minor",
-})
+VALID_CRITIQUE_SEVERITIES: frozenset[str] = frozenset(
+    {
+        "critical",
+        "major",
+        "minor",
+    }
+)
 """Closed set of allowed values for :pyattr:`CritiqueEntry.severity`."""
 
-VALID_RESOLUTION_TYPES: frozenset[str] = frozenset({
-    "explanation",
-    "corrected_version",
-    "remediation_plan",
-})
+VALID_RESOLUTION_TYPES: frozenset[str] = frozenset(
+    {
+        "explanation",
+        "corrected_version",
+        "remediation_plan",
+    }
+)
 """Closed set of allowed values for
 :pyattr:`VerifierOutput.resolution_type`."""
 
@@ -192,11 +198,7 @@ class CritiqueEntry(BaseModel):
     @classmethod
     def _validate_category(cls, v: str) -> str:
         if v not in VALID_CRITIQUE_CATEGORIES:
-            msg = (
-                f"category must be one of "
-                f"{sorted(VALID_CRITIQUE_CATEGORIES)}, "
-                f"got {v!r}"
-            )
+            msg = f"category must be one of {sorted(VALID_CRITIQUE_CATEGORIES)}, got {v!r}"
             raise ValueError(msg)
         return v
 
@@ -204,11 +206,7 @@ class CritiqueEntry(BaseModel):
     @classmethod
     def _validate_severity(cls, v: str) -> str:
         if v not in VALID_CRITIQUE_SEVERITIES:
-            msg = (
-                f"severity must be one of "
-                f"{sorted(VALID_CRITIQUE_SEVERITIES)}, "
-                f"got {v!r}"
-            )
+            msg = f"severity must be one of {sorted(VALID_CRITIQUE_SEVERITIES)}, got {v!r}"
             raise ValueError(msg)
         return v
 
@@ -297,11 +295,7 @@ class VerifierOutput(BaseModel):
     @classmethod
     def _validate_resolution_type(cls, v: str) -> str:
         if v not in VALID_RESOLUTION_TYPES:
-            msg = (
-                f"resolution_type must be one of "
-                f"{sorted(VALID_RESOLUTION_TYPES)}, "
-                f"got {v!r}"
-            )
+            msg = f"resolution_type must be one of {sorted(VALID_RESOLUTION_TYPES)}, got {v!r}"
             raise ValueError(msg)
         return v
 
@@ -330,15 +324,14 @@ class VerifierOutput(BaseModel):
         verdict is FIXABLE or WRONG but ``critique_entries`` is
         empty, the output is semantically invalid.
         """
-        if self.verdict in {Verdict.FIXABLE, Verdict.WRONG}:
-            if len(self.critique_entries) == 0:
-                msg = (
-                    f"verdict is {self.verdict.value} but "
-                    f"critique_entries is empty — FIXABLE and "
-                    f"WRONG verdicts require at least one "
-                    f"critique entry"
-                )
-                raise ValueError(msg)
+        if self.verdict in {Verdict.FIXABLE, Verdict.WRONG} and len(self.critique_entries) == 0:
+            msg = (
+                f"verdict is {self.verdict.value} but "
+                f"critique_entries is empty — FIXABLE and "
+                f"WRONG verdicts require at least one "
+                f"critique entry"
+            )
+            raise ValueError(msg)
         return self
 
     # ── Pydantic model configuration ───────────────────────────────
@@ -356,9 +349,7 @@ class VerifierOutput(BaseModel):
                         {
                             "category": "logical_gap",
                             "severity": "major",
-                            "location": (
-                                "Step 3, second paragraph"
-                            ),
+                            "location": ("Step 3, second paragraph"),
                             "description": (
                                 "The claim that the compactly "
                                 "supported Euler "

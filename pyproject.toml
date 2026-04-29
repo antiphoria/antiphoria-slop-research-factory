@@ -46,7 +46,8 @@ where = ["src"]
 [tool.ruff]
 line-length = 100
 indent-width = 4
-target-version = "py312"
+# Match antiphoria/.org-policy/ruff.toml (QG Python Ruff workflow).
+target-version = "py311"
 extend-exclude = [
     ".venv",
     "venv",
