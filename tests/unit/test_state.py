@@ -13,6 +13,7 @@ Test-to-spec traceability
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -125,8 +126,9 @@ class TestFactoryStateRoundTrip:
         restored = FactoryState.from_dict(json.loads(json_str))
         assert restored == state
 
-    def test_e1_s03_populated_round_trip(self) -> None:
+    def test_e1_s03_populated_round_trip(self, tmp_path: Path) -> None:
         """Populated state (messages, counters, draft)."""
+        workspace_dir = str(tmp_path / "test-workspace")
         msgs = AppendOnlyList()
         msgs.append(
             {
@@ -170,7 +172,7 @@ class TestFactoryStateRoundTrip:
             total_output_tokens=300,
             messages=msgs,
             citation_checks=checks,
-            workspace="/tmp/test-workspace",
+            workspace=workspace_dir,
             created_at="2026-04-15T14:32:07Z",
             updated_at="2026-04-15T14:35:00Z",
         )
@@ -190,7 +192,7 @@ class TestFactoryStateRoundTrip:
         assert len(restored.messages) == 1
         assert restored.messages[0]["role"] == "generator"
         assert len(restored.citation_checks) == 1
-        assert restored.workspace == "/tmp/test-workspace"
+        assert restored.workspace == workspace_dir
         assert restored.created_at == "2026-04-15T14:32:07Z"
         # Full equality
         assert restored == state

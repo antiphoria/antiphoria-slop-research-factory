@@ -19,14 +19,14 @@ Specification references
   D-5 §5.5  Human gate node contract
   D-7 §7.4  Human review governance
 
-All enums inherit from ``(str, Enum)`` so every member serialises
-to its ``.value`` string in ``json.dumps`` without a custom encoder
-(design principle D-2 §2: "JSON-serializable everywhere").
+All string-valued enums use :class:`enum.StrEnum` so every member
+serialises to its ``.value`` string in ``json.dumps`` without a custom
+encoder (design principle D-2 §2: "JSON-serializable everywhere").
 """
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 from slop_research_factory.config import CheckpointBackend
 
@@ -50,7 +50,7 @@ __all__ = [
 # ── D-2 §3.1  Verdict ───────────────────────────────────────────────
 
 
-class Verdict(str, Enum):
+class Verdict(StrEnum):
     """Verifier verdict (D-2 §3.1).
 
     Modeled on Aletheia's Verification-and-Extraction prompt
@@ -70,7 +70,7 @@ class Verdict(str, Enum):
 # ── D-2 §3.2  StepType ──────────────────────────────────────────────
 
 
-class StepType(str, Enum):
+class StepType(StrEnum):
     """Seal-chain step classification (D-2 §3.2).
 
     Per D-1 §10: auditors must distinguish node types structurally.
@@ -91,7 +91,7 @@ class StepType(str, Enum):
 # ── D-2 §3.3  RunStatus ─────────────────────────────────────────────
 
 
-class RunStatus(str, Enum):
+class RunStatus(StrEnum):
     """Run lifecycle status (D-2 §3.3).
 
     Forward-only state machine.  Illegal transitions MUST raise
@@ -195,7 +195,7 @@ def validate_status_transition(
 # ── D-2 §3.4  CitationCheckResult ───────────────────────────────────
 
 
-class CitationCheckResult(str, Enum):
+class CitationCheckResult(StrEnum):
     """Citation verification outcome (D-2 §3.4)."""
 
     VERIFIED = "VERIFIED"
@@ -208,7 +208,7 @@ class CitationCheckResult(str, Enum):
 # ── D-2 §3.5  ConfidenceTier ────────────────────────────────────────
 
 
-class ConfidenceTier(str, Enum):
+class ConfidenceTier(StrEnum):
     """Human-readable confidence bucketing (D-2 §3.5).
 
     Boundary semantics (explicit per spec)::
@@ -251,7 +251,7 @@ class ConfidenceTier(str, Enum):
 # ── Human rescue routing (D-2 §4, D-2 §12) ────────────────────────────
 
 
-class RescueReason(str, Enum):
+class RescueReason(StrEnum):
     """Why the pipeline escalated to the human rescue queue."""
 
     MAX_REJECTIONS_EXCEEDED = "max_rejections_exceeded"
@@ -264,7 +264,7 @@ class RescueReason(str, Enum):
 # ── NodeName ─────────────────────────────────────────────────────────
 
 
-class NodeName(str, Enum):
+class NodeName(StrEnum):
     """Pipeline node identifiers.
 
     Used by :class:`~slop_research_factory.types.hai_card.ModelUsageRecord`
@@ -301,7 +301,7 @@ class NodeName(str, Enum):
 # ── D-1 §10 / D-0 §5  SealType ──────────────────────────────────────
 
 
-class SealType(str, Enum):
+class SealType(StrEnum):
     """Provenance seal operation category (D-1 §10, D-0 §5.1–§5.2).
 
     Classifies chain entries at the **provenance layer** (Layer 4).
@@ -343,7 +343,7 @@ class SealType(str, Enum):
 # ── D-2 §12  HumanRescueAction ──────────────────────────────────────
 
 
-class HumanRescueAction(str, Enum):
+class HumanRescueAction(StrEnum):
     """Resolution action for a human rescue request (D-2 §12).
 
     Governs how the orchestrator resumes (or terminates)
@@ -369,7 +369,7 @@ class HumanRescueAction(str, Enum):
 # ── D-2 §10 / D-7 §7.4  HumanReviewStatus ──────────────────────────
 
 
-class HumanReviewStatus(str, Enum):
+class HumanReviewStatus(StrEnum):
     """HAI Card review state (D-2 §10, D-7 §7.4).
 
     ``UNREVIEWED`` is the only valid factory default.

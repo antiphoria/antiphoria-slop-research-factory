@@ -28,7 +28,7 @@ from pydantic import BaseModel
 # ====================================================================
 
 _ALL_SOURCE: dict[str, str] = {
-    # enums (12) — all ``str, Enum`` except CheckpointBackend (defined in config)
+    # enums (12) — all :class:`enum.StrEnum` except CheckpointBackend (defined in config)
     "CheckpointBackend": "enums",
     "CitationCheckResult": "enums",
     "ConfidenceTier": "enums",

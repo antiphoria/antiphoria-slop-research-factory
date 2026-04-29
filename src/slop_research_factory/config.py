@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from dataclasses import fields as dc_fields
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 # Defined here (not only in ``types.enums``) so ``FactoryConfig`` stays in a
@@ -21,7 +21,7 @@ from typing import Any
 # for a single JSON-serialisable enum namespace.
 
 
-class CheckpointBackend(str, Enum):
+class CheckpointBackend(StrEnum):
     """Checkpoint persistence backend (D-2 §4).
 
     SQLITE   — JSON + local files (Phase 1 default).

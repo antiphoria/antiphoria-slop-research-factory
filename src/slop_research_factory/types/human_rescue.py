@@ -129,7 +129,7 @@ class HumanRescueRequest:
     # ── Validation ───────────────────────────────────────
 
     def __post_init__(self) -> None:
-        # ``str, Enum`` members are instances of ``str`` — only coerce
+        # :class:`enum.StrEnum` members are ``str`` subclasses — only coerce
         # actual ``str`` (e.g. JSON), not :class:`RescueReason` values.
         if type(self.rescue_reason) is str:
             try:
