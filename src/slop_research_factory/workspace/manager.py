@@ -565,6 +565,24 @@ class WorkspaceManager:
         drafts.mkdir(parents=True, exist_ok=True)
         return drafts / filename
 
+    def tools_path(self, filename: str) -> Path:
+        """Return path inside the run's tools directory (D-5 §5.3).
+
+        Creates ``tools/`` if needed.
+        """
+        tools = self.run_dir / "tools"
+        tools.mkdir(parents=True, exist_ok=True)
+        return tools / filename
+
+    def citations_path(self, filename: str) -> Path:
+        """Return path inside the run's citations directory (D-4 §5).
+
+        Creates ``citations/`` if needed.
+        """
+        cites = self.run_dir / "citations"
+        cites.mkdir(parents=True, exist_ok=True)
+        return cites / filename
+
     def write_bytes(
         self,
         path: Path,

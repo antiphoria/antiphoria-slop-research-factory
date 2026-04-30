@@ -208,3 +208,7 @@ __marimo__/
 
 # local dirs
 docs/test_research/
+
+# Skills
+skills-lock.json
+agents/

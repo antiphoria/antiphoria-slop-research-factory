@@ -103,9 +103,7 @@ async def generator_node(
     config = state.config
     cycle = state.cycle_count + 1
     prefix = _cycle_prefix(cycle)
-    cdir = workspace.chain_dir
-    cdir.mkdir(parents=True, exist_ok=True)
-    chain_dir = str(cdir)
+    workspace.chain_dir.mkdir(parents=True, exist_ok=True)
 
     logger.info(
         "[generator] [%s] Starting Generator — cycle %d, model %s",
@@ -137,7 +135,6 @@ async def generator_node(
         step_type=StepType.PRE_GENERATOR,
         content_file_paths=[workspace.relative(prompt_path)],
         metadata=pre_meta,
-        chain_dir=chain_dir,
     )
 
     logger.info(
@@ -276,7 +273,6 @@ async def generator_node(
         step_type=StepType.POST_GENERATOR,
         content_file_paths=post_content_files,
         metadata=post_meta,
-        chain_dir=chain_dir,
     )
 
     logger.info(
