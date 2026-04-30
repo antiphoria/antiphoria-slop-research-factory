@@ -208,6 +208,14 @@ class StubWorkspace:
     def drafts_path(self, filename: str) -> Path:
         return self.root / "drafts" / filename
 
+    def tools_path(self, filename: str) -> Path:
+        (self.root / "tools").mkdir(parents=True, exist_ok=True)
+        return self.root / "tools" / filename
+
+    def citations_path(self, filename: str) -> Path:
+        (self.root / "citations").mkdir(parents=True, exist_ok=True)
+        return self.root / "citations" / filename
+
     @property
     def chain_dir(self) -> Path:
         return self.root / "chain"

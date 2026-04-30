@@ -52,6 +52,37 @@ class _StubState:
     messages: list = field(default_factory=list)
 
 
+# ── Valid metadata helpers ─────────────────────────────
+#
+# Strict metadata schema registry (D-2 §15) now enforces required
+# keys for every StepType. Tests that don't otherwise care about the
+# wire metadata pull a minimal valid dict from these helpers.
+
+_FAKE_HASH = "0" * 64
+
+
+def _pre_gen_meta(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "prompt_hash": _FAKE_HASH,
+        "model": "deepseek/deepseek-r1",
+        "cycle": 1,
+    }
+    base.update(overrides)
+    return base
+
+
+def _post_gen_meta(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "model": "deepseek/deepseek-r1",
+        "token_counts": {"input": 1, "output": 1},
+        "cycle": 1,
+        "draft_hash": _FAKE_HASH,
+        "raw_response_hash": _FAKE_HASH,
+    }
+    base.update(overrides)
+    return base
+
+
 # ── Fixtures ────────────────────────────────────────────
 
 
@@ -92,7 +123,7 @@ class TestSealStepBasics:
             state=state,
             step_type=StepType.PRE_GENERATOR,
             content_file_paths=[rel],
-            metadata={"model": "deepseek/deepseek-r1", "cycle": 1},
+            metadata=_pre_gen_meta(),
         )
         assert new_state is state
         assert isinstance(receipt, SealReceipt)
@@ -111,7 +142,7 @@ class TestSealStepBasics:
             state=state,
             step_type=StepType.PRE_GENERATOR,
             content_file_paths=["drafts/x.md"],
-            metadata={},
+            metadata=_pre_gen_meta(),
         )
         # Genesis = 0, first seal_step = 1.
         assert state.step_index == 1
@@ -130,7 +161,7 @@ class TestSealStepBasics:
             state=state,
             step_type=StepType.PRE_GENERATOR,
             content_file_paths=["drafts/x.md"],
-            metadata={},
+            metadata=_pre_gen_meta(),
         )
         assert state.latest_hash == receipt.content_hash
         assert is_valid_sha256_hex(state.latest_hash)
@@ -150,7 +181,7 @@ class TestSealStepChaining:
             state=state,
             step_type=StepType.PRE_GENERATOR,
             content_file_paths=["drafts/prompt.md"],
-            metadata={"prompt_version": "v0.1"},
+            metadata=_pre_gen_meta(prompt_version="v0.1"),
         )
         _write_artefact(workspace, "drafts/output.md", b"output")
         _, post = await seal_step(
@@ -158,7 +189,7 @@ class TestSealStepChaining:
             state=state,
             step_type=StepType.POST_GENERATOR,
             content_file_paths=["drafts/output.md"],
-            metadata={},
+            metadata=_post_gen_meta(),
         )
         assert post.parent_hash == pre.content_hash
         # Chain so far: genesis (0), pre (1), post (2).
@@ -179,7 +210,7 @@ class TestSealStepChaining:
             state=state,
             step_type=StepType.PRE_GENERATOR,
             content_file_paths=["drafts/p.md"],
-            metadata={},
+            metadata=_pre_gen_meta(),
         )
         assert receipt.parent_hash == genesis_hash
 
@@ -199,7 +230,7 @@ class TestSealStepFailures:
                 state=state,
                 step_type=StepType.PRE_GENERATOR,
                 content_file_paths=["drafts/missing.md"],
-                metadata={},
+                metadata=_pre_gen_meta(),
             )
         assert state.step_index == prior_step
         assert state.latest_hash == prior_hash
@@ -227,7 +258,7 @@ class TestSealStepFailures:
                 state=state,
                 step_type=StepType.PRE_GENERATOR,
                 content_file_paths=["drafts/x.md"],
-                metadata={},
+                metadata=_pre_gen_meta(),
             )
         # State unchanged.
         assert state.step_index == 0
@@ -247,11 +278,9 @@ class TestSealStepPayloadShape:
             state=state,
             step_type=StepType.POST_GENERATOR,
             content_file_paths=["drafts/output.md"],
-            metadata={
-                "model": "deepseek/deepseek-r1",
-                "token_counts": {"input": 100, "output": 200, "think": 50},
-                "cycle": 1,
-            },
+            metadata=_post_gen_meta(
+                token_counts={"input": 100, "output": 200, "think": 50},
+            ),
         )
         text = receipt.payload_path.read_text("utf-8")
         assert text.endswith("\n")
@@ -280,7 +309,7 @@ class TestSealStepPayloadShape:
             state=state,
             step_type=StepType.PRE_GENERATOR,
             content_file_paths=["drafts/b.md", "drafts/a.md"],
-            metadata={},
+            metadata=_pre_gen_meta(),
         )
         payload = json.loads(receipt.payload_path.read_text("utf-8"))
         files = payload["content_files"]
@@ -303,7 +332,7 @@ class TestSealStepPayloadShape:
             state=state,
             step_type=StepType.PRE_GENERATOR,
             content_file_paths=["drafts/x.md"],
-            metadata={},
+            metadata=_pre_gen_meta(),
         )
         on_disk = json.loads(receipt.receipt_path.read_text("utf-8"))
         assert on_disk["parent_hash"] == genesis_hash

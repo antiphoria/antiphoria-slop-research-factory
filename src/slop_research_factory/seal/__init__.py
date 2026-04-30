@@ -33,11 +33,24 @@ from slop_research_factory.seal.engine import (
     step_type_to_node_seal,
 )
 from slop_research_factory.seal.helpers import seal_step
+from slop_research_factory.seal.registry import (
+    METADATA_REGISTRY,
+    MetadataSchema,
+    MetadataSchemaError,
+    MetadataStrictness,
+    register_metadata_schema,
+    set_metadata_strictness,
+    validate_metadata,
+)
 
 __all__ = [
     "GENESIS_PARENT_TAG",
+    "METADATA_REGISTRY",
     "PAYLOAD_SCHEMA_VERSION",
     "InMemorySealEngine",
+    "MetadataSchema",
+    "MetadataSchemaError",
+    "MetadataStrictness",
     "SealEngine",
     "SealError",
     "SealReceipt",
@@ -45,6 +58,9 @@ __all__ = [
     "VerificationReport",
     "canonical_json_bytes",
     "compute_content_hash",
+    "register_metadata_schema",
     "seal_step",
+    "set_metadata_strictness",
     "step_type_to_node_seal",
+    "validate_metadata",
 ]

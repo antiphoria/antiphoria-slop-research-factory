@@ -273,9 +273,7 @@ class TestGeneratorRawResponseHash:
     """E2-NE07: raw_response file hash is captured in the chain payload."""
 
     @pytest.mark.asyncio
-    async def test_response_file_hashed_in_post_payload(
-        self, state, ws, engine
-    ) -> None:
+    async def test_response_file_hashed_in_post_payload(self, state, ws, engine) -> None:
         await generator_node(
             state,
             seal_engine=engine,
@@ -293,9 +291,7 @@ class TestGeneratorChainIntegrity:
     """M1 acceptance gate: produced workspace must verify cleanly."""
 
     @pytest.mark.asyncio
-    async def test_chain_verifies_after_generator(
-        self, state, ws, engine
-    ) -> None:
+    async def test_chain_verifies_after_generator(self, state, ws, engine) -> None:
         await generator_node(
             state,
             seal_engine=engine,
@@ -314,9 +310,7 @@ class TestGeneratorChainIntegrity:
             llm_client=StubLLMClient(),
             workspace=ws,
         )
-        genesis = json.loads(
-            (ws.root / "chain" / "000000_GENESIS.receipt.json").read_text("utf-8")
-        )
+        genesis = json.loads((ws.root / "chain" / "000000_GENESIS.receipt.json").read_text("utf-8"))
         pre = json.loads(
             (ws.root / "chain" / "000001_PRE_GENERATOR.receipt.json").read_text("utf-8")
         )

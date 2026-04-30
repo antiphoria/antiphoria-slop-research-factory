@@ -93,9 +93,7 @@ class TestConstruction:
 
 class TestHashFile:
     @pytest.mark.asyncio
-    async def test_known_value_small(
-        self, engine: InMemorySealEngine, workspace: Path
-    ) -> None:
+    async def test_known_value_small(self, engine: InMemorySealEngine, workspace: Path) -> None:
         f = workspace / "x.bin"
         f.write_bytes(b"hello")
         digest = await engine.hash_file(str(f))
@@ -110,12 +108,8 @@ class TestHashFile:
         assert digest == hashlib.sha256(b"y").hexdigest()
 
     @pytest.mark.asyncio
-    async def test_streaming_large_file_matches_oneshot(
-        self, tmp_path: Path
-    ) -> None:
-        engine = InMemorySealEngine.create(
-            tmp_path, run_id="r", hash_chunk_size=8192
-        )
+    async def test_streaming_large_file_matches_oneshot(self, tmp_path: Path) -> None:
+        engine = InMemorySealEngine.create(tmp_path, run_id="r", hash_chunk_size=8192)
         data = b"abcd" * (1 << 18)  # 1 MiB
         f = tmp_path / "big.bin"
         f.write_bytes(data)
@@ -123,9 +117,7 @@ class TestHashFile:
         assert digest == hashlib.sha256(data).hexdigest()
 
     @pytest.mark.asyncio
-    async def test_returns_lowercase_hex(
-        self, engine: InMemorySealEngine, workspace: Path
-    ) -> None:
+    async def test_returns_lowercase_hex(self, engine: InMemorySealEngine, workspace: Path) -> None:
         f = workspace / "x.bin"
         f.write_bytes(b"\x00\x01\x02")
         digest = await engine.hash_file(str(f))
@@ -169,18 +161,14 @@ class TestBeginChain:
             await engine.begin_chain()
 
     @pytest.mark.asyncio
-    async def test_non_empty_chain_dir_rejected(
-        self, tmp_path: Path
-    ) -> None:
+    async def test_non_empty_chain_dir_rejected(self, tmp_path: Path) -> None:
         engine = InMemorySealEngine.create(tmp_path, run_id="r")
         (engine.chain_dir / "leftover.txt").write_text("debris")
         with pytest.raises(SealError, match="not empty"):
             await engine.begin_chain()
 
     @pytest.mark.asyncio
-    async def test_research_brief_collision_rejected(
-        self, engine: InMemorySealEngine
-    ) -> None:
+    async def test_research_brief_collision_rejected(self, engine: InMemorySealEngine) -> None:
         with pytest.raises(SealError, match="reserved"):
             await engine.begin_chain(
                 research_brief={"a": 1},
@@ -188,9 +176,7 @@ class TestBeginChain:
             )
 
     @pytest.mark.asyncio
-    async def test_research_brief_lands_in_payload(
-        self, engine: InMemorySealEngine
-    ) -> None:
+    async def test_research_brief_lands_in_payload(self, engine: InMemorySealEngine) -> None:
         receipt = await engine.begin_chain(research_brief={"thesis": "T"})
         payload = json.loads(receipt.payload_path.read_text("utf-8"))
         assert payload["metadata"]["research_brief"] == {"thesis": "T"}
@@ -213,9 +199,7 @@ class TestSeal:
             )
 
     @pytest.mark.asyncio
-    async def test_seal_genesis_step_type_rejected(
-        self, engine: InMemorySealEngine
-    ) -> None:
+    async def test_seal_genesis_step_type_rejected(self, engine: InMemorySealEngine) -> None:
         await engine.begin_chain()
         with pytest.raises(SealError, match="begin_chain"):
             await engine.seal(
@@ -250,12 +234,8 @@ class TestSeal:
             content_file_paths=["drafts/p.md"],
             metadata={},
         )
-        canonical = canonical_json_bytes(
-            json.loads(receipt.payload_path.read_text("utf-8"))
-        )
-        assert receipt.content_hash == compute_content_hash(
-            receipt.parent_hash, canonical
-        )
+        canonical = canonical_json_bytes(json.loads(receipt.payload_path.read_text("utf-8")))
+        assert receipt.content_hash == compute_content_hash(receipt.parent_hash, canonical)
 
     @pytest.mark.asyncio
     async def test_receipt_records_payload_digest_and_parent(
@@ -277,9 +257,7 @@ class TestSeal:
         assert is_valid_sha256_hex(on_disk["payload_digest"])
 
     @pytest.mark.asyncio
-    async def test_missing_content_file_raises(
-        self, engine: InMemorySealEngine
-    ) -> None:
+    async def test_missing_content_file_raises(self, engine: InMemorySealEngine) -> None:
         await engine.begin_chain()
         with pytest.raises(SealError):
             await engine.seal(
@@ -328,9 +306,7 @@ async def _build_three_seal_chain(
 
 class TestVerifyChain:
     @pytest.mark.asyncio
-    async def test_clean_chain_verifies(
-        self, engine: InMemorySealEngine, workspace: Path
-    ) -> None:
+    async def test_clean_chain_verifies(self, engine: InMemorySealEngine, workspace: Path) -> None:
         await _build_three_seal_chain(engine, workspace)
         report = await engine.verify_chain()
         assert isinstance(report, VerificationReport)
@@ -340,9 +316,7 @@ class TestVerifyChain:
         assert all(isinstance(s, StepVerification) and s.ok for s in report.steps)
 
     @pytest.mark.asyncio
-    async def test_empty_chain_dir_returns_broken(
-        self, engine: InMemorySealEngine
-    ) -> None:
+    async def test_empty_chain_dir_returns_broken(self, engine: InMemorySealEngine) -> None:
         report = await engine.verify_chain()
         assert not report.chain_intact
         assert report.total_steps == 0
@@ -375,15 +349,10 @@ class TestVerifyChain:
         assert not report.chain_intact
         # Either content_hash mismatch or parent_hash break is reported.
         all_errors = [e for s in report.steps for e in s.errors]
-        assert any(
-            ("content_hash mismatch" in e) or ("parent_hash break" in e)
-            for e in all_errors
-        )
+        assert any(("content_hash mismatch" in e) or ("parent_hash break" in e) for e in all_errors)
 
     @pytest.mark.asyncio
-    async def test_chain_break_detected(
-        self, engine: InMemorySealEngine, workspace: Path
-    ) -> None:
+    async def test_chain_break_detected(self, engine: InMemorySealEngine, workspace: Path) -> None:
         genesis, pre, _ = await _build_three_seal_chain(engine, workspace)
         pre.receipt_path.unlink()
         pre.payload_path.unlink()

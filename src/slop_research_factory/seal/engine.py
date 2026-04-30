@@ -109,9 +109,7 @@ _CHAIN_DIR_NAME: str = "chain"
 _RESEARCH_BRIEF_KEY: str = "research_brief"
 
 # ``{NNNNNN}_{STEP_TYPE}.{payload|receipt}.json``
-_RECORD_FILENAME_RE = re.compile(
-    r"^(?P<step>\d{6})_(?P<type>[A-Z][A-Z0-9_]{0,63})\.receipt\.json$"
-)
+_RECORD_FILENAME_RE = re.compile(r"^(?P<step>\d{6})_(?P<type>[A-Z][A-Z0-9_]{0,63})\.receipt\.json$")
 
 
 # ── Errors ───────────────────────────────────────────────
@@ -180,9 +178,7 @@ def compute_content_hash(parent_hash: str | None, payload_bytes: bytes) -> str:
     """
     parent_part = parent_hash if parent_hash is not None else GENESIS_PARENT_TAG
     if parent_hash is not None and not is_valid_sha256_hex(parent_hash):
-        raise SealError(
-            f"parent_hash must be 64-char lowercase hex or None, got {parent_hash!r}"
-        )
+        raise SealError(f"parent_hash must be 64-char lowercase hex or None, got {parent_hash!r}")
     h = hashlib.sha256()
     h.update(parent_part.encode("utf-8"))
     h.update(b"\n")
@@ -730,13 +726,9 @@ class InMemorySealEngine:
 
                 if not isinstance(payload_rel, str):
                     errors.append("missing payload_path")
-                elif not isinstance(stored_content, str) or not is_valid_sha256_hex(
-                    stored_content
-                ):
+                elif not isinstance(stored_content, str) or not is_valid_sha256_hex(stored_content):
                     errors.append("malformed content_hash")
-                elif not isinstance(stored_digest, str) or not is_valid_sha256_hex(
-                    stored_digest
-                ):
+                elif not isinstance(stored_digest, str) or not is_valid_sha256_hex(stored_digest):
                     errors.append("malformed payload_digest")
                 else:
                     payload_full = (self._chain_dir / payload_rel).resolve()
@@ -752,8 +744,7 @@ class InMemorySealEngine:
 
                 if int(receipt.get("step_index", -1)) != idx:
                     errors.append(
-                        f"step_index mismatch: filename={idx}, receipt="
-                        f"{receipt.get('step_index')}",
+                        f"step_index mismatch: filename={idx}, receipt={receipt.get('step_index')}",
                     )
 
             if payload_full is not None and payload_full.is_file():
@@ -850,4 +841,3 @@ class InMemorySealEngine:
             steps=tuple(steps),
             first_error_index=first_error,
         )
-

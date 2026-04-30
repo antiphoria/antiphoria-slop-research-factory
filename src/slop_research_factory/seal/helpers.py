@@ -36,6 +36,10 @@ from slop_research_factory.seal.engine import (
     SealError,
     SealReceipt,
 )
+from slop_research_factory.seal.registry import (
+    MetadataSchemaError,
+    validate_metadata,
+)
 
 if TYPE_CHECKING:
     from slop_research_factory.types.enums import StepType
@@ -92,6 +96,11 @@ async def seal_step(
         )
 
     payload_metadata = _normalize_metadata(metadata)
+
+    try:
+        validate_metadata(step_type, payload_metadata)
+    except MetadataSchemaError as exc:
+        raise SealError(f"seal_step: metadata schema violation: {exc}") from exc
 
     receipt = await seal_engine.seal(
         step_type=step_type,

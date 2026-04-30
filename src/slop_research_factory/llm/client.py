@@ -285,11 +285,7 @@ def _extract_content(raw: dict[str, Any]) -> tuple[str, int | None]:
     content_text = str(message.get("content") or "")
     reasoning_text = message.get("reasoning_content")
     if isinstance(reasoning_text, str) and reasoning_text.strip():
-        wrapped = (
-            "<details><summary>Reasoning</summary>\n"
-            f"{reasoning_text.strip()}\n"
-            "</details>\n"
-        )
+        wrapped = f"<details><summary>Reasoning</summary>\n{reasoning_text.strip()}\n</details>\n"
         return wrapped + content_text, _estimate_tokens(reasoning_text)
     return content_text, None
 
