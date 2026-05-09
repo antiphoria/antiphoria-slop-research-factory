@@ -25,6 +25,7 @@ from pydantic import BaseModel
 
 from slop_research_factory.llm.structured import (
     InstructorNotInstalledError,
+    _build_default_client_for_model,
     complete_structured,
 )
 
@@ -168,6 +169,111 @@ class TestCompleteStructured:
         )
         # Round trip via JSON — guarantees the seal layer can serialise it.
         json.dumps(raw_resp.raw_response)
+
+
+class TestOpenRouterInstructorMode:
+    """OpenRouter + Instructor default ``TOOLS`` mode triggers provider 404."""
+
+    def test_openrouter_selects_structured_outputs_mode(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        import instructor
+
+        captured: dict[str, Any] = {}
+
+        def fake_from_litellm(_acompletion: Any, mode: Any = None, **_kw: Any) -> Any:
+            captured["mode"] = mode
+
+            class _Dummy:
+                chat = object()
+
+            return _Dummy()
+
+        monkeypatch.setattr(instructor, "from_litellm", fake_from_litellm)
+
+        _build_default_client_for_model("openrouter/nemotron")
+        assert captured["mode"] == instructor.Mode.OPENROUTER_STRUCTURED_OUTPUTS
+
+    def test_non_openrouter_keeps_default_tools_mode(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        import instructor
+
+        captured: dict[str, Any] = {}
+
+        def fake_from_litellm(_acompletion: Any, mode: Any = None, **_kw: Any) -> Any:
+            captured["mode"] = mode
+
+            class _Dummy:
+                chat = object()
+
+            return _Dummy()
+
+        monkeypatch.setattr(instructor, "from_litellm", fake_from_litellm)
+
+        _build_default_client_for_model("google/gemini-2.5-flash")
+        assert captured["mode"] == instructor.Mode.TOOLS
+
+
+class TestStructuredOpenRouterFallback:
+    @pytest.mark.asyncio
+    async def test_retries_with_openrouter_model_and_rebuilt_client(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from litellm.exceptions import BadRequestError
+
+        monkeypatch.setenv("OPENROUTER_API_KEY", "sk-test")
+        parsed_ok = _SampleModel(answer="ok", confidence=1.0)
+        raw_ok = {
+            "id": "r2",
+            "model": "openrouter/google/gemma:x",
+            "choices": [{"message": {"content": "{}"}}],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 2},
+        }
+
+        builds: list[str] = []
+
+        def fake_build(m: str) -> _StubInstructorClient:
+            builds.append(m)
+            built_for = m
+
+            class Completions:
+                async def create_with_completion(
+                    self,
+                    *,
+                    model: str,
+                    messages: list[dict[str, Any]],
+                    response_model: type,
+                    max_retries: int,
+                    **kwargs: Any,
+                ) -> tuple[BaseModel, dict[str, Any]]:
+                    assert model == built_for
+                    if not built_for.startswith("openrouter/"):
+                        raise BadRequestError(
+                            "LLM Provider NOT provided",
+                            model=model,
+                            llm_provider="",
+                        )
+                    return parsed_ok, raw_ok
+
+            return _StubInstructorClient(chat=_StubChat(completions=Completions()))
+
+        monkeypatch.setattr(
+            "slop_research_factory.llm.structured._build_default_client_for_model",
+            fake_build,
+        )
+
+        parsed, raw = await complete_structured(
+            model="google/gemma:x",
+            messages=[{"role": "user", "content": "?"}],
+            response_model=_SampleModel,
+        )
+        assert builds == ["google/gemma:x", "openrouter/google/gemma:x"]
+        assert parsed.answer == "ok"
+        assert raw.api_provider == "openrouter"
 
 
 class TestImportFallback:

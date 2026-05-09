@@ -1,0 +1,9 @@
+[models]
+generator = "inclusionai/ring-2.6-1t:free"
+verifier  = "google/gemma-4-31b-it:free"
+reviser   = "inclusionai/ring-2.6-1t:free"
+
+[limits]
+max_total_cycles = 3
+max_revisions = 2
+max_rejections = 2

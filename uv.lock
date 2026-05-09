@@ -204,6 +204,7 @@ dependencies = [
     { name = "langgraph" },
     { name = "litellm" },
     { name = "pydantic" },
+    { name = "python-dotenv" },
     { name = "rich" },
 ]
 
@@ -243,6 +244,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.2.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23.0" },
     { name = "pytest-timeout", marker = "extra == 'dev'", specifier = ">=2.3.0" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "redis", marker = "extra == 'production'", specifier = ">=5.0.0" },
     { name = "rich", specifier = ">=13.7.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.5.0" },

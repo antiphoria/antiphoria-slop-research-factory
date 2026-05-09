@@ -273,7 +273,10 @@ async def run_factory(
     wall_start = time.monotonic()
     config = config or FactoryConfig()
     run_id = run_id or _generate_run_id()
-    workspace_root = Path(workspace_root or "./workspace")
+    # Resolve so paths passed to the seal SDK are absolute; relative paths like
+    # ``workspace/<run_id>/config.json`` would otherwise be joined incorrectly
+    # under the SDK workspace root (see SealEngine._resolve_content_path_and_rel).
+    workspace_root = Path(workspace_root or "./workspace").resolve()
 
     logger.info(
         "[orchestrator] [%s] Starting factory run",
@@ -364,16 +367,33 @@ async def run_factory(
         run_id[:8],
     )
 
+    graph_failed = False
     try:
         state = await run_graph(state, deps)
     except Exception:
+        graph_failed = True
         logger.exception(
             "[orchestrator] [%s] Pipeline graph raised — marking FAILED",
             run_id[:8],
         )
-        state.status = RunStatus.FAILED
-        state.updated_at = _now_iso()
-        workspace.write_state(state)
+
+    if graph_failed:
+        # LangGraph invokes nodes against a runtime snapshot of ``FactoryState``;
+        # this orchestrator's local ``state`` binding may still be the pre-invoke
+        # bootstrap object if ``await run_graph`` aborts. Nodes persist via
+        # ``workspace.write_state`` — reload disk truth before marking FAILED so we
+        # do not clobber step_index / latest_hash / current_draft (see workspace
+        # checkpoint after generator vs verifier exceptions).
+        try:
+            state = workspace.read_state()
+            state.status = RunStatus.FAILED
+            state.updated_at = _now_iso()
+            workspace.write_state(state)
+        except Exception:
+            logger.exception(
+                "[orchestrator] [%s] Failed to reload or persist FAILED checkpoint",
+                run_id[:8],
+            )
 
     # ── 5.9: Terminal status handling ─────────────────────────────
     wall_elapsed = time.monotonic() - wall_start
@@ -548,16 +568,27 @@ async def resume_factory(
         run_id[:8],
     )
 
+    graph_failed = False
     try:
         state = await run_graph(state, deps)
     except Exception:
+        graph_failed = True
         logger.exception(
             "[orchestrator] [%s] Pipeline graph raised on resume — marking FAILED",
             run_id[:8],
         )
-        state.status = RunStatus.FAILED
-        state.updated_at = _now_iso()
-        workspace.write_state(state)
+
+    if graph_failed:
+        try:
+            state = workspace.read_state()
+            state.status = RunStatus.FAILED
+            state.updated_at = _now_iso()
+            workspace.write_state(state)
+        except Exception:
+            logger.exception(
+                "[orchestrator] [%s] Failed to reload or persist FAILED checkpoint (resume)",
+                run_id[:8],
+            )
 
     # Terminal handling (same as run_factory)
     wall_elapsed = time.monotonic() - wall_start

@@ -164,6 +164,11 @@ async def reviser_node(  # noqa: PLR0915 - phased protocol is intentionally expl
     ts_start = _now_iso()
     wall_start = time.monotonic()
 
+    logger.info(
+        "[reviser] [%s] Awaiting LLM response (model=%s)…",
+        state.run_id[:8],
+        config.reviser_model,
+    )
     response: LLMResponse = await llm_client.complete(
         model=config.reviser_model,
         messages=messages,

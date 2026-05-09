@@ -108,6 +108,31 @@ def _query_summary(query: Any) -> str:
     return str(query)
 
 
+# Maximum title / free-text length passed to Semantic Scholar title search.
+_MAX_S2_QUERY_TEXT_LEN = 512
+
+
+def _semantic_scholar_query_from_citation(citation: CitationEntry) -> SemanticScholarQuery | None:
+    """Build an S2 graph lookup when we have an id or searchable text.
+
+    Regex extraction often yields ``citation_text`` without a structured
+    ``claimed_title``; fall back to stripped raw text so we never construct
+    :class:`SemanticScholarQuery` with neither ``paper_id`` nor ``query_title``.
+    """
+    if citation.doi and citation.doi.strip():
+        return SemanticScholarQuery(paper_id=f"DOI:{citation.doi.strip()}")
+    if citation.arxiv_id and citation.arxiv_id.strip():
+        return SemanticScholarQuery(paper_id=f"arXiv:{citation.arxiv_id.strip()}")
+    title = (citation.claimed_title or "").strip() or None
+    if title is None:
+        raw = (citation.citation_text or "").strip()
+        if raw:
+            title = raw[:_MAX_S2_QUERY_TEXT_LEN]
+    if not title:
+        return None
+    return SemanticScholarQuery(query_title=title[:_MAX_S2_QUERY_TEXT_LEN])
+
+
 # ── Verdict composition ──────────────────────────────────
 
 
@@ -157,6 +182,22 @@ def _aggregate_citation_check(
         elif s2_inv.status == "error":
             any_error = True
             notes_parts.append(f"s2 error: {s2_inv.error}")
+
+    if not sources:
+        return CitationCheckEntry(
+            citation=citation,
+            result=CitationCheckResult.INCONCLUSIVE,
+            checked_sources=[],
+            crossref_match=None,
+            semantic_scholar_match=None,
+            tavily_response=None,
+            confidence=0.0,
+            notes=(
+                "; ".join(notes_parts)
+                if notes_parts
+                else "no external citation lookup performed (missing identifiers)"
+            ),
+        )
 
     if any_found:
         result = CitationCheckResult.VERIFIED
@@ -320,38 +361,38 @@ async def verifier_node(  # noqa: PLR0915 - phased protocol is intentionally exp
             tool_call_steps.append(state.step_index)
 
         if config.enable_citation_checking and "semantic_scholar" in sources:
-            s2_query_id = (
-                f"DOI:{citation.doi}"
-                if citation.doi
-                else (f"arXiv:{citation.arxiv_id}" if citation.arxiv_id else None)
-            )
-            s2_query = SemanticScholarQuery(
-                paper_id=s2_query_id,
-                query_title=None if s2_query_id else citation.claimed_title,
-            )
-            s2_invocation = await citation_check_client.semantic_scholar(s2_query)
-            tool_path = workspace.tools_path(f"semantic_scholar_{cycle:02d}_{idx}.json")
-            workspace.write_json(
-                tool_path,
-                _serialize_with_version(s2_invocation.to_dict()),
-            )
-            tool_meta = {
-                "tool_name": "semantic_scholar",
-                "query": _query_summary(s2_invocation.query),
-                "response_hash": await seal_engine.hash_file(str(tool_path)),
-                "parent_step": None,
-                "elapsed_seconds": s2_invocation.elapsed_seconds,
-                "result_status": s2_invocation.status,
-                "cycle": cycle,
-            }
-            state, _r = await seal_step(
-                seal_engine=seal_engine,
-                state=state,
-                step_type=StepType.TOOL_CALL,
-                content_file_paths=[workspace.relative(tool_path)],
-                metadata=tool_meta,
-            )
-            tool_call_steps.append(state.step_index)
+            s2_query = _semantic_scholar_query_from_citation(citation)
+            if s2_query is None:
+                logger.debug(
+                    "[verifier] [%s] Skipping Semantic Scholar for citation %d "
+                    "(no doi, arxiv id, or query text)",
+                    state.run_id[:8],
+                    idx,
+                )
+            else:
+                s2_invocation = await citation_check_client.semantic_scholar(s2_query)
+                tool_path = workspace.tools_path(f"semantic_scholar_{cycle:02d}_{idx}.json")
+                workspace.write_json(
+                    tool_path,
+                    _serialize_with_version(s2_invocation.to_dict()),
+                )
+                tool_meta = {
+                    "tool_name": "semantic_scholar",
+                    "query": _query_summary(s2_invocation.query),
+                    "response_hash": await seal_engine.hash_file(str(tool_path)),
+                    "parent_step": None,
+                    "elapsed_seconds": s2_invocation.elapsed_seconds,
+                    "result_status": s2_invocation.status,
+                    "cycle": cycle,
+                }
+                state, _r = await seal_step(
+                    seal_engine=seal_engine,
+                    state=state,
+                    step_type=StepType.TOOL_CALL,
+                    content_file_paths=[workspace.relative(tool_path)],
+                    metadata=tool_meta,
+                )
+                tool_call_steps.append(state.step_index)
 
         check = _aggregate_citation_check(citation, cr_invocation, s2_invocation)
         citation_checks.append(check)

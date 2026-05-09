@@ -6,7 +6,9 @@ Instructor / Pydantic structured-output wrapper (D-0 §13 Step 5).
 The Verifier (D-3 §4) requires a strictly-typed Pydantic response
 model — :class:`~slop_research_factory.types.verifier_output.VerifierOutput`.
 Instructor patches LiteLLM to coerce raw model output into a Pydantic
-instance, retrying when the parser fails validation.
+instance, retrying when the parser fails validation. Models routed via
+``openrouter/…`` use :data:`instructor.Mode.OPENROUTER_STRUCTURED_OUTPUTS`
+(OpenRouter returns HTTP 404 for unconstrained ``tool_choice`` on many models).
 
 This module exposes a single async helper:
 
@@ -31,6 +33,7 @@ Optional dependencies:
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any, TypeVar
 
 from pydantic import BaseModel
@@ -38,9 +41,11 @@ from pydantic import BaseModel
 from slop_research_factory.llm.client import (
     LLMResponse,
     _coerce_to_dict,
+    _configure_litellm_runtime,
     _extract_provider,
     _extract_think_tokens,
     _optional_str,
+    _should_retry_completion_as_openrouter,
 )
 
 __all__ = [
@@ -114,17 +119,45 @@ async def complete_structured(
         pydantic.ValidationError: When the LLM's structured output
             still fails validation after ``max_retries`` attempts.
     """
-    client = instructor_client if instructor_client is not None else _build_default_client()
-
     sampling = dict(sampling_params or {})
 
-    parsed, raw_completion = await client.chat.completions.create_with_completion(
-        model=model,
-        messages=messages,
-        response_model=response_model,
-        max_retries=max_retries,
-        **sampling,
-    )
+    async def _invoke(request_model: str, client_obj: Any) -> tuple[Any, Any]:
+        return await client_obj.chat.completions.create_with_completion(
+            model=request_model,
+            messages=messages,
+            response_model=response_model,
+            max_retries=max_retries,
+            **sampling,
+        )
+
+    effective_model = model
+
+    if instructor_client is not None:
+        client = instructor_client
+        parsed, raw_completion = await _invoke(model, client)
+    else:
+        client = _build_default_client_for_model(model)
+        try:
+            parsed, raw_completion = await _invoke(model, client)
+        except Exception as exc:
+            has_openrouter_key = bool(os.environ.get("OPENROUTER_API_KEY", "").strip())
+            if (
+                has_openrouter_key
+                and not str(model).startswith("openrouter/")
+                and _should_retry_completion_as_openrouter(exc)
+            ):
+                routed = f"openrouter/{model}"
+                logger.info(
+                    "LiteLLM could not infer provider for structured model=%r; "
+                    "retrying as %r",
+                    model,
+                    routed,
+                )
+                effective_model = routed
+                client = _build_default_client_for_model(routed)
+                parsed, raw_completion = await _invoke(routed, client)
+            else:
+                raise
 
     raw_dict = _coerce_to_dict(raw_completion)
     usage = raw_dict.get("usage") or {}
@@ -135,9 +168,9 @@ async def complete_structured(
         input_tokens=int(usage.get("prompt_tokens") or 0),
         output_tokens=int(usage.get("completion_tokens") or 0),
         think_tokens=_extract_think_tokens(usage, None),
-        model=str(raw_dict.get("model") or model),
+        model=str(raw_dict.get("model") or effective_model),
         api_response_id=_optional_str(raw_dict.get("id")),
-        api_provider=_extract_provider(raw_dict, model),
+        api_provider=_extract_provider(raw_dict, effective_model),
         retries=int(raw_dict.get("_litellm_retries") or 0),
         sampling_params=dict(sampling),
     )
@@ -148,8 +181,8 @@ async def complete_structured(
 # ── Internal helpers ────────────────────────────────────
 
 
-def _build_default_client() -> Any:
-    """Construct a default Instructor-patched async LiteLLM client."""
+def _load_instructor_litellm() -> tuple[Any, Any]:
+    """Import Instructor + LiteLLM and apply runtime tuning."""
     try:
         import instructor
     except ImportError as exc:  # pragma: no cover - exercised in install-less envs
@@ -165,7 +198,25 @@ def _build_default_client() -> Any:
             "`pip install litellm`."
         ) from exc
 
-    return instructor.from_litellm(litellm.acompletion)
+    _configure_litellm_runtime(litellm)
+    return instructor, litellm
+
+
+def _build_default_client_for_model(model: str) -> Any:
+    """Construct Instructor client — provider-specific structured-output mode.
+
+    OpenRouter rejects plain ``tool_call`` / ``tool_choice`` for many models
+    (404: no endpoints support ``tool_choice``). Use OpenRouter's structured
+    outputs mode instead.
+
+    Other providers keep Instructor's default :data:`~instructor.Mode.TOOLS`.
+    """
+    instructor, litellm = _load_instructor_litellm()
+    mode = instructor.Mode.TOOLS
+    lead = model.strip().partition("/")[0].lower()
+    if lead == "openrouter":
+        mode = instructor.Mode.OPENROUTER_STRUCTURED_OUTPUTS
+    return instructor.from_litellm(litellm.acompletion, mode=mode)
 
 
 def _extract_assistant_text(raw: dict[str, Any]) -> str:

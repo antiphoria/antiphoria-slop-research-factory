@@ -39,7 +39,9 @@ Spec references:
 
 from __future__ import annotations
 
+import contextlib
 import logging
+import os
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
@@ -52,6 +54,11 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
+
+
+def _should_retry_completion_as_openrouter(exc: BaseException) -> bool:
+    """Detect LiteLLM \"could not infer provider\" for bare vendor/model slugs."""
+    return "LLM Provider NOT provided" in str(exc)
 
 
 # ── LLMResponse ─────────────────────────────────────────
@@ -163,11 +170,32 @@ class LiteLLMClient:
         if self._timeout is not None:
             sampling.setdefault("request_timeout", self._timeout)
 
-        response = await litellm.acompletion(
-            model=model,
-            messages=messages,
-            **sampling,
-        )
+        try:
+            response = await litellm.acompletion(
+                model=model,
+                messages=messages,
+                **sampling,
+            )
+        except Exception as exc:
+            has_openrouter_key = bool(os.environ.get("OPENROUTER_API_KEY", "").strip())
+            if (
+                has_openrouter_key
+                and not str(model).startswith("openrouter/")
+                and _should_retry_completion_as_openrouter(exc)
+            ):
+                routed = f"openrouter/{model}"
+                logger.info(
+                    "LiteLLM could not infer provider for model=%r; retrying as %r",
+                    model,
+                    routed,
+                )
+                response = await litellm.acompletion(
+                    model=routed,
+                    messages=messages,
+                    **sampling,
+                )
+            else:
+                raise
 
         raw_dict = _coerce_to_dict(response)
         content, think_tokens_from_field = _extract_content(raw_dict)
@@ -232,6 +260,16 @@ class CannedLLMClient:
 # ── Internal helpers ────────────────────────────────────
 
 
+def _configure_litellm_runtime(litellm: Any) -> None:
+    """Tune LiteLLM for factory CLI runs (less stdout/log spam at INFO)."""
+    with contextlib.suppress(Exception):
+        setattr(litellm, "suppress_debug_info", True)
+    # Duplicate LiteLLM INFO lines (completion banners, provider URLs) bury our
+    # node logs when using ``slop-factory -v``; errors stay visible at WARNING+.
+    with contextlib.suppress(Exception):
+        logging.getLogger("LiteLLM").setLevel(logging.WARNING)
+
+
 def _import_litellm() -> Any:
     """Import ``litellm`` lazily; raise a typed error on failure."""
     try:
@@ -241,6 +279,7 @@ def _import_litellm() -> Any:
             "LiteLLMClient requires the `litellm` package; install with "
             "`pip install litellm` or use CannedLLMClient for offline runs."
         ) from exc
+    _configure_litellm_runtime(litellm)
     return litellm
 
 

@@ -20,11 +20,11 @@ import types
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from slop_research_factory.seal.engine import SealReceipt, VerificationReport
+from slop_research_factory.seal.engine import SealReceipt, SealEngine, VerificationReport
 from slop_research_factory.seal.sdk_adapter import (
     _KEY_B64_VARS,
     _KEY_LOCATION_VARS,
@@ -34,6 +34,7 @@ from slop_research_factory.seal.sdk_adapter import (
     _map_verification_report,
     _resolve_sdk_hybrid_keys,
     _strip_hash_prefix,
+    SDKSealEngine,
     create_seal_engine,
 )
 from slop_research_factory.types.enums import StepType
@@ -334,6 +335,24 @@ class TestResolveSdkHybridKeys:
 
 
 # ── Engine selection ──────────────────────────────────────────────────
+
+
+class TestSDKSealEngineRuntimeProtocol:
+    """@runtime_checkable SealEngine must accept the SDK adapter (see seal_step)."""
+
+    def test_isinstance_seal_engine(self, tmp_path: Path) -> None:
+        sdk = MagicMock()
+        sdk.run_id = "run-z"
+        sdk.latest_hash = None
+        sdk.latest_step = -1
+        sdk.chain_dir = tmp_path / "chain"
+        sdk.begin_chain = AsyncMock()
+        sdk.seal = AsyncMock()
+        sdk.verify_chain = AsyncMock()
+        sdk.hash_file = AsyncMock(return_value="sha256:" + "b" * 64)
+
+        adapter = SDKSealEngine(sdk, tmp_path / "ws")
+        assert isinstance(adapter, SealEngine)
 
 
 class TestEngineSelection:

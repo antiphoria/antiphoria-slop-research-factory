@@ -153,6 +153,11 @@ async def generator_node(
     ts_start = _now_iso()
     wall_start = time.monotonic()
 
+    logger.info(
+        "[generator] [%s] Awaiting LLM response (model=%s)…",
+        state.run_id[:8],
+        config.generator_model,
+    )
     response: LLMResponse = await llm_client.complete(
         model=config.generator_model,
         messages=messages,

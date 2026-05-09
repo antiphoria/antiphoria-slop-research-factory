@@ -219,3 +219,6 @@ keys/
 # DS_Store
 .DS_Store
 **/.DS_Store
+
+# workspace
+workspace/

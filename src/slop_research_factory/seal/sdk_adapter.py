@@ -53,6 +53,11 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_PROVENANCE_SDK_INSTALL_HINT = (
+    "antiphoria_sdk is required for provenance sealing. "
+    "Install with: uv sync --extra provenance (or: pip install antiphoria-slop-provenance)."
+)
+
 __all__ = [
     "SDKSealEngine",
     "create_sdk_engine",
@@ -217,10 +222,16 @@ class SDKSealEngine:
         """Chain directory path."""
         return self._engine.chain_dir
 
+    @property
+    def run_id(self) -> str:
+        """Run identifier (mirrors underlying SDK engine)."""
+        return self._engine.run_id
+
     # ── begin_chain ───────────────────────────────────────────────
 
     async def begin_chain(
         self,
+        *,
         research_brief: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> SealReceipt:
@@ -249,22 +260,22 @@ class SDKSealEngine:
 
     async def seal(
         self,
-        step_type: StepType | str,
+        *,
+        step_type: StepType,
         content_file_paths: list[str | Path],
         metadata: dict[str, Any],
     ) -> SealReceipt:
         """Seal a pipeline step.
 
         Args:
-            step_type:          Step type enum or SCREAMING_SNAKE string.
+            step_type:          Pipeline step type enum value.
             content_file_paths: Relative paths to content files within workspace.
             metadata:           Step metadata dict.
 
         Returns:
             A :class:`SealReceipt` for the sealed record.
         """
-        # Normalize step type to string
-        step_type_str = step_type.value if isinstance(step_type, StepType) else str(step_type)
+        step_type_str = step_type.value
 
         # Normalize paths to strings
         path_strs = [str(p) for p in content_file_paths]
@@ -414,10 +425,7 @@ def _resolve_sdk_hybrid_keys() -> Any:
     try:
         from antiphoria_sdk import HybridKeys, load_keys_from_env
     except ImportError as exc:
-        raise RuntimeError(
-            "antiphoria_sdk is required for provenance sealing. "
-            "Install with: pip install antiphoria-slop-provenance",
-        ) from exc
+        raise RuntimeError(_PROVENANCE_SDK_INSTALL_HINT) from exc
 
     loc_n = _location_env_nonempty_count()
     if loc_n == len(_KEY_LOCATION_VARS):
@@ -452,9 +460,9 @@ def create_sdk_engine(
     """Create an :class:`SDKSealEngine` wrapping a fresh or resumed SDK engine.
 
     Args:
-        workspace:           Workspace directory path.
+        workspace:           Factory run directory (``workspace_root / run_id``),
+                            same as ``antiphoria_sdk.SealEngine`` expects.
         run_id:              Unique run identifier.
-        signer:              Object satisfying SDK's ``Signer`` protocol.
         verifier:            Object satisfying SDK's ``Verifier`` protocol.
         file_lock_timeout_s: Timeout for cross-process file lock.
         resume:              If True, resume an existing chain (verifies integrity).
@@ -465,16 +473,16 @@ def create_sdk_engine(
     Raises:
         RuntimeError: If ``antiphoria_sdk`` is not installed.
         ChainError:   If ``resume=True`` and the chain is broken.
+
+    Note:
+        *workspace* must be the factory **run directory**
+        (``workspace_root / run_id``), matching ``antiphoria_sdk.SealEngine`` —
+        chain and content paths live directly under that directory.
     """
     try:
         from antiphoria_sdk import SealEngine as _SDKEngine
     except ImportError as exc:
-        raise RuntimeError(
-            "antiphoria_sdk is required for provenance sealing. "
-            "Install with: pip install antiphoria-slop-provenance"
-        ) from exc
-
-    workspace = Path(workspace).resolve()
+        raise RuntimeError(_PROVENANCE_SDK_INSTALL_HINT) from exc
 
     if resume:
         sdk_engine = _SDKEngine.resume(
@@ -533,7 +541,8 @@ def create_sdk_engine_from_env(
     Do not set both full path quads and full B64 quads.
 
     Args:
-        workspace:           Workspace directory path.
+        workspace:           Run workspace directory (``workspace_root / run_id``), as used by
+                            ``antiphoria_sdk.SealEngine``.
         run_id:              Unique run identifier.
         key_id:              Optional key epoch identifier (e.g. "2025-Q3").
         file_lock_timeout_s: Timeout for cross-process file lock.
@@ -549,10 +558,7 @@ def create_sdk_engine_from_env(
     try:
         from antiphoria_sdk import HybridSigner, HybridVerifier
     except ImportError as exc:
-        raise RuntimeError(
-            "antiphoria_sdk is required for provenance sealing. "
-            "Install with: pip install antiphoria-slop-provenance"
-        ) from exc
+        raise RuntimeError(_PROVENANCE_SDK_INSTALL_HINT) from exc
 
     keys = _resolve_sdk_hybrid_keys()
     signer = HybridSigner(keys, key_id=key_id)
@@ -586,7 +592,9 @@ def create_seal_engine(
     the seal engine. All downstream code is engine-agnostic.
 
     Args:
-        workspace:          Workspace directory path.
+        workspace:          Run workspace directory (``workspace_root / run_id``).
+                            Prefer a resolved absolute path so genesis hashing does not
+                            pick up accidental ``workspace/…`` relative prefixes.
         run_id:             Unique run identifier.
         enable_provenance:  If True, use SDK adapter; if False, use InMemory.
         key_id:             Key epoch for SDK signer (ignored if InMemory).

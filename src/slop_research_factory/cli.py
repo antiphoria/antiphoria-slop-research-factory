@@ -31,6 +31,11 @@ Usage examples:
     # Check run status
     slop-factory status --workspace ./workspace/abc123
 
+Environment:
+    A ``.env`` file in the **current working directory** is loaded on startup
+    (``python-dotenv``) so API keys need not be exported manually. Pre-set
+    shell variables take precedence over ``.env``.
+
 Spec references:
     D-0 §13   Implementation step plan — CLI phase.
     D-2 §3    Run lifecycle.
@@ -43,6 +48,7 @@ import asyncio
 import json
 import logging
 import sys
+import warnings
 from pathlib import Path
 from typing import NoReturn
 
@@ -538,6 +544,20 @@ def _err(msg: str) -> None:
     print(f"ERROR: {msg}", file=sys.stderr)
 
 
+def _load_dotenv_from_cwd() -> None:
+    """Merge ``.env`` into the process environment (current working directory).
+
+    Uses ``python-dotenv`` when installed so ``slop-factory`` picks up
+    ``OPENROUTER_API_KEY``, ``GEMINI_API_KEY``, etc. without a manual
+    ``export``. Existing real environment variables are not overridden.
+    """
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    load_dotenv()
+
+
 # ── Entry point ──────────────────────────────────────────────────────
 
 
@@ -549,6 +569,14 @@ def main(argv: list[str] | None = None) -> NoReturn:
         1 — Error (run failed, chain broken, invalid args).
         2 — Paused (run awaiting human intervention).
     """
+    _load_dotenv_from_cwd()
+    # LangGraph pulls JsonPlusSerializer with a pending deprecation about
+    # ``allowed_objects`` defaults — harmless until we pin an explicit serde.
+    warnings.filterwarnings(
+        "ignore",
+        message=r".*`allowed_objects`.*",
+        category=Warning,
+    )
     parser = _build_parser()
     args = parser.parse_args(argv)
 
