@@ -1,3 +1,5 @@
+# pyproject.toml
+
 [build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -15,15 +17,17 @@ dependencies = [
     "pydantic>=2.7.0",
     "httpx>=0.27.0",
     "anyio>=4.4.0",
+    "filelock>=3.12.0",
     "langgraph>=0.2.0",
-    "click>=8.1.0",
     "rich>=13.7.0",
 ]
 
 [project.optional-dependencies]
+provenance = [
+    "antiphoria-slop-provenance>=0.1.0",
+]
 dev = [
-    # Pinned to match antiphoria/.github org quality gate (ci/requirements-ruff.txt).
-    "ruff==0.15.8",
+    "ruff>=0.5.0",
     "pytest>=8.2.0",
     "pytest-asyncio>=0.23.0",
     "pytest-timeout>=2.3.0",
@@ -38,39 +42,11 @@ production = [
     "streamlit>=1.35.0",
 ]
 
-# D-9 §4: `antiphoria = "slop_research_factory.cli:main"` — add [project.scripts] once `src/slop_research_factory/cli.py` exists.
+[project.scripts]
+slop-factory = "slop_research_factory.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.ruff]
-line-length = 100
-indent-width = 4
-# Match antiphoria/.org-policy/ruff.toml (QG Python Ruff workflow).
-target-version = "py311"
-extend-exclude = [
-    ".venv",
-    "venv",
-    "build",
-    "dist",
-    "node_modules",
-]
-
-[tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "B", "UP", "I", "SIM", "A", "S"]
-ignore = [
-    "E203",
-]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101"]
-"**/tests/**/*.py" = ["S101"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

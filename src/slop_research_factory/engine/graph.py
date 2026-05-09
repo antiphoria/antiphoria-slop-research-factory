@@ -1,3 +1,4 @@
+# engine/graph.py
 # src/slop_research_factory/engine/graph.py
 
 """LangGraph wiring for the slop-research-factory pipeline.
@@ -20,13 +21,14 @@ Implementation notes:
 * Routing decisions come from
   :func:`~slop_research_factory.engine.routing.route_after_verification`
   which is the single source of truth for verdict → next-node logic.
-* FINALIZE and HUMAN_RESCUE are placeholder END nodes in M2; M3
-  replaces them with manifest synthesis and rescue queueing.
+* FINALIZE assembles terminal output artifacts and seals the MANIFEST.
+* HUMAN_RESCUE persists a rescue request and halts the pipeline.
 
 Spec references:
     D-0 §13   Implementation step plan.
     D-2 §8.4  Verdict routing.
     D-5 §4    Four-phase node protocol.
+    D-5 §5.5  Finalize + rescue node contracts.
 """
 
 from __future__ import annotations
@@ -43,7 +45,9 @@ from slop_research_factory.engine.routing import (
     REVISER_NODE,
     TARGETED_REPAIR,
 )
+from slop_research_factory.nodes.finalize_node import finalize_node
 from slop_research_factory.nodes.generator_node import generator_node
+from slop_research_factory.nodes.human_rescue_node import human_rescue_node
 from slop_research_factory.nodes.reviser_node import reviser_node
 from slop_research_factory.nodes.verifier_node import (
     StructuredCompleteFn,
@@ -149,22 +153,28 @@ def _make_reviser(deps: GraphDependencies) -> NodeFn:
     return _node
 
 
-def _make_finalize_stub(_deps: GraphDependencies) -> NodeFn:
-    """M2 placeholder for the finalize/manifest node (D-5 §5.5)."""
+def _make_finalize(deps: GraphDependencies) -> NodeFn:
+    """Finalize node — assembles output artifacts and seals MANIFEST."""
 
     async def _node(state: FactoryState) -> FactoryState:
-        state.status = RunStatus.COMPLETED
-        return state
+        return await finalize_node(
+            state,
+            seal_engine=deps.seal_engine,
+            workspace=deps.workspace,
+        )
 
     return _node
 
 
-def _make_rescue_stub(_deps: GraphDependencies) -> NodeFn:
-    """M2 placeholder for the human rescue queue node (D-5 §5.5)."""
+def _make_rescue(deps: GraphDependencies) -> NodeFn:
+    """Human rescue node — persists rescue request and seals HUMAN_GATE."""
 
     async def _node(state: FactoryState) -> FactoryState:
-        state.status = RunStatus.AWAITING_HUMAN
-        return state
+        return await human_rescue_node(
+            state,
+            seal_engine=deps.seal_engine,
+            workspace=deps.workspace,
+        )
 
     return _node
 
@@ -201,7 +211,7 @@ def _route_after_verifier(state: FactoryState) -> str:
 
 
 def build_graph(deps: GraphDependencies) -> Any:
-    """Compile the M2 LangGraph for the factory pipeline.
+    """Compile the LangGraph for the factory pipeline.
 
     Returns a compiled LangGraph object exposing ``ainvoke(state)``.
     """
@@ -220,8 +230,8 @@ def build_graph(deps: GraphDependencies) -> Any:
     add_node(GENERATOR_NODE_ID, _make_generator(deps))
     add_node(VERIFIER_NODE_ID, _make_verifier(deps))
     add_node(REVISER_NODE, _make_reviser(deps))
-    add_node(FINALIZE_NODE, _make_finalize_stub(deps))
-    add_node(HUMAN_RESCUE_NODE, _make_rescue_stub(deps))
+    add_node(FINALIZE_NODE, _make_finalize(deps))
+    add_node(HUMAN_RESCUE_NODE, _make_rescue(deps))
 
     graph.add_edge(START, GENERATOR_NODE_ID)
     graph.add_edge(GENERATOR_NODE_ID, VERIFIER_NODE_ID)
