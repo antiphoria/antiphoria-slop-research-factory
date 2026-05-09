@@ -17,11 +17,13 @@ integration test which is skipped if unavailable).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
+from slop_research_factory.seal.engine import SealReceipt, VerificationReport
 from slop_research_factory.seal.sdk_adapter import (
     _add_hash_prefix,
     _map_receipt,
@@ -30,10 +32,7 @@ from slop_research_factory.seal.sdk_adapter import (
     _strip_hash_prefix,
     create_seal_engine,
 )
-from slop_research_factory.types.provenance import (
-    SealReceipt,
-    VerificationReport,
-)
+from slop_research_factory.types.enums import StepType
 
 # Non-/tmp paths — ruff S108 flags hard-coded /tmp in tests.
 _FIXTURE_CHAIN_POST = "/workspace/fixture/chain/000003_POST_GENERATOR.json"
@@ -96,23 +95,25 @@ class TestReceiptMapping:
         result = _map_receipt(sdk_receipt)
         assert isinstance(result, SealReceipt)
         assert result.step_index == 3
-        assert result.step_type == "POST_GENERATOR"
-        assert result.entry_hash == "e" * 64
-        assert result.previous_hash == "f" * 64
-        assert result.record_path == Path(_FIXTURE_CHAIN_POST)
-        assert result.timestamp == "2025-06-15T12:00:00Z"
+        assert result.step_type == StepType.POST_GENERATOR
+        assert result.content_hash == "e" * 64
+        assert result.parent_hash == "f" * 64
+        assert result.receipt_path == Path(_FIXTURE_CHAIN_POST)
+        assert result.payload_path == Path(_FIXTURE_CHAIN_POST)
+        assert isinstance(result.timestamp, datetime)
+        assert result.seal_id
 
     def test_none_previous_hash(self) -> None:
         """Genesis receipt has None previous_hash."""
         sdk_receipt = _MockSDKReceipt(previous_hash=None, step_index=0)
         result = _map_receipt(sdk_receipt)
-        assert result.previous_hash is None
+        assert result.parent_hash is None
 
     def test_none_record_path(self) -> None:
-        """None record_path maps to None."""
+        """None record_path maps to placeholder path."""
         sdk_receipt = _MockSDKReceipt(record_path=None)
         result = _map_receipt(sdk_receipt)
-        assert result.record_path is None
+        assert result.receipt_path == Path(".")
 
 
 # ── Verification report mapping ───────────────────────────────────────
@@ -180,7 +181,7 @@ class TestVerificationReportMapping:
         result = _map_verification_report(sdk_report)
         assert result.chain_intact is False
         assert result.first_error_index == 2
-        assert result.steps[2].signature_valid is False
+        assert result.steps[2].receipt_valid is False
         assert "signature mismatch" in result.steps[2].errors
 
     def test_step_ok_property(self) -> None:
@@ -191,6 +192,7 @@ class TestVerificationReportMapping:
 
         broken = _MockSDKStepVerification(content_hashes_valid=False)
         result_broken = _map_step_verification(broken)
+        assert result_broken.payload_valid is False
         assert result_broken.ok is False
 
 

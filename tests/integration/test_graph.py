@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -105,6 +106,11 @@ def _structured_runner_sequence(parsed_outputs: list[VerifierOutput]):
 def _initial_state(
     workspace_root: Path, *, max_revisions: int = 5, max_rejections: int = 3
 ) -> FactoryState:
+    brief = {"thesis": "Cats run the internet."}
+    (workspace_root / "brief.json").write_text(
+        json.dumps(brief, ensure_ascii=False),
+        encoding="utf-8",
+    )
     return FactoryState(
         run_id="test-run-0001",
         status=RunStatus.GENERATING,
@@ -112,7 +118,7 @@ def _initial_state(
             max_revisions=max_revisions,
             max_rejections=max_rejections,
         ),
-        brief={"thesis": "Cats run the internet."},
+        brief=brief,
         step_index=0,
         latest_hash="",
         cycle_count=0,

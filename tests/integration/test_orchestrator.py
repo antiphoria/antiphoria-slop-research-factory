@@ -19,7 +19,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from conftest import StubLLMResponse
 
 from slop_research_factory.config import FactoryConfig
 from slop_research_factory.orchestrator import (
@@ -28,6 +27,8 @@ from slop_research_factory.orchestrator import (
     run_factory,
 )
 from slop_research_factory.types.enums import RunStatus
+from slop_research_factory.workspace.manager import WorkspaceNotInitializedError
+from tests.conftest import StubLLMResponse
 
 
 def _gen_response(content: str = "# Generated\n\nContent.") -> StubLLMResponse:
@@ -217,8 +218,8 @@ class TestResumeFactory:
 
     @pytest.mark.asyncio
     async def test_resume_nonexistent_workspace_raises(self, tmp_path: Path) -> None:
-        """Missing workspace path → FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
+        """Missing workspace path → WorkspaceNotInitializedError."""
+        with pytest.raises(WorkspaceNotInitializedError):
             await resume_factory(workspace_path=tmp_path / "nonexistent")
 
     @pytest.mark.asyncio

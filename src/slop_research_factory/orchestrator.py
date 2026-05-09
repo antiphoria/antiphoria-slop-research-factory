@@ -49,9 +49,9 @@ from typing import Any
 
 from slop_research_factory.config import FactoryConfig
 from slop_research_factory.engine.graph import GraphDependencies, run_graph
+from slop_research_factory.seal.engine import VerificationReport
 from slop_research_factory.seal.sdk_adapter import create_seal_engine
 from slop_research_factory.types.enums import RunStatus
-from slop_research_factory.types.provenance import VerificationReport
 from slop_research_factory.types.state import AppendOnlyList, FactoryState
 from slop_research_factory.workspace.manager import WorkspaceManager
 
@@ -144,17 +144,20 @@ def _build_llm_client(config: FactoryConfig) -> Any:
     from slop_research_factory.llm.client import LiteLLMClient
 
     sampling: dict[str, Any] = {}
-    if config.default_temperature is not None:
-        sampling["temperature"] = config.default_temperature
-    if config.default_top_p is not None:
-        sampling["top_p"] = config.default_top_p
-    if config.default_max_tokens is not None:
-        sampling["max_tokens"] = config.default_max_tokens
+    dt = getattr(config, "default_temperature", None)
+    if dt is not None:
+        sampling["temperature"] = dt
+    dtp = getattr(config, "default_top_p", None)
+    if dtp is not None:
+        sampling["top_p"] = dtp
+    dmt = getattr(config, "default_max_tokens", None)
+    if dmt is not None:
+        sampling["max_tokens"] = dmt
 
     return LiteLLMClient(
         default_sampling=sampling,
-        num_retries=config.llm_retries,
-        request_timeout_seconds=config.llm_timeout_seconds,
+        num_retries=getattr(config, "llm_retries", 0),
+        request_timeout_seconds=getattr(config, "llm_timeout_seconds", None),
     )
 
 
@@ -328,7 +331,7 @@ async def run_factory(
         "[orchestrator] [%s] GENESIS sealed (step=%d, hash=%s…)",
         run_id[:8],
         genesis_receipt.step_index,
-        genesis_receipt.entry_hash[:12],
+        genesis_receipt.content_hash[:12],
     )
 
     # ── 5.7: Bootstrap state ─────────────────────────────────────
@@ -337,7 +340,7 @@ async def run_factory(
         config=config,
         brief=brief_dict,
         step_index=genesis_receipt.step_index,
-        latest_hash=genesis_receipt.entry_hash,
+        latest_hash=genesis_receipt.content_hash,
     )
 
     # Persist initial state checkpoint
@@ -479,7 +482,7 @@ async def resume_factory(
     workspace = WorkspaceManager.for_run_directory(workspace_path)
 
     # Load persisted state
-    state = workspace.load_state()
+    state = workspace.read_state()
     run_id = state.run_id
     config = state.config
 
@@ -489,6 +492,11 @@ async def resume_factory(
         state.status.value,
         state.step_index,
     )
+
+    if state.status in (RunStatus.COMPLETED, RunStatus.NO_OUTPUT):
+        raise ValueError(
+            f"Run {run_id} already in terminal status {state.status.value} — cannot resume."
+        )
 
     # Reconnect seal engine (verifies chain integrity)
     seal_engine = create_seal_engine(
@@ -512,11 +520,6 @@ async def resume_factory(
             "[orchestrator] [%s] Human response applied — resuming as %s",
             run_id[:8],
             state.status.value,
-        )
-
-    elif state.status in (RunStatus.COMPLETED, RunStatus.NO_OUTPUT):
-        raise ValueError(
-            f"Run {run_id} already in terminal status {state.status.value} — cannot resume."
         )
 
     elif state.status == RunStatus.FAILED:
@@ -720,12 +723,12 @@ def _verification_report_to_dict(report: VerificationReport) -> dict[str, Any]:
             {
                 "step_index": s.step_index,
                 "step_type": s.step_type,
-                "record_path": str(s.record_path) if s.record_path else None,
-                "signature_valid": s.signature_valid,
-                "content_hashes_valid": s.content_hashes_valid,
-                "previous_hash_matches": s.previous_hash_matches,
+                "receipt_path": str(s.receipt_path) if s.receipt_path else None,
+                "payload_valid": s.payload_valid,
+                "receipt_valid": s.receipt_valid,
+                "parent_hash_matches": s.parent_hash_matches,
                 "canonical_form_valid": s.canonical_form_valid,
-                "errors": s.errors,
+                "errors": list(s.errors),
                 "ok": s.ok,
             }
             for s in report.steps

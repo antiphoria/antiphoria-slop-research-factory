@@ -18,13 +18,13 @@ import json
 from pathlib import Path
 
 import pytest
-from conftest import StubConfig, StubState, StubWorkspace
 
 from slop_research_factory.nodes.human_rescue_node import (
     _extract_rescue_reason,
     human_rescue_node,
 )
 from slop_research_factory.types.enums import RescueReason, RunStatus, StepType
+from tests.conftest import StubConfig, StubState, StubWorkspace
 
 
 @pytest.fixture
@@ -111,7 +111,6 @@ class TestHumanRescueNodeIntegration:
         genesis_seal_engine,
     ) -> None:
         """rescue/request.json is written with expected structure."""
-        stub_workspace.workspace_path = stub_workspace.root
         await human_rescue_node(
             rescue_state,
             seal_engine=genesis_seal_engine,
@@ -131,7 +130,6 @@ class TestHumanRescueNodeIntegration:
         genesis_seal_engine,
     ) -> None:
         """Draft is preserved in rescue/draft_at_rescue.md."""
-        stub_workspace.workspace_path = stub_workspace.root
         await human_rescue_node(
             rescue_state,
             seal_engine=genesis_seal_engine,
@@ -149,7 +147,6 @@ class TestHumanRescueNodeIntegration:
         genesis_seal_engine,
     ) -> None:
         """Critique is preserved in rescue/critique_at_rescue.json."""
-        stub_workspace.workspace_path = stub_workspace.root
         await human_rescue_node(
             rescue_state,
             seal_engine=genesis_seal_engine,
@@ -168,7 +165,6 @@ class TestHumanRescueNodeIntegration:
         genesis_seal_engine,
     ) -> None:
         """State status becomes AWAITING_HUMAN."""
-        stub_workspace.workspace_path = stub_workspace.root
         result = await human_rescue_node(
             rescue_state,
             seal_engine=genesis_seal_engine,
@@ -184,7 +180,6 @@ class TestHumanRescueNodeIntegration:
         genesis_seal_engine,
     ) -> None:
         """HUMAN_GATE step appears in chain."""
-        stub_workspace.workspace_path = stub_workspace.root
         await human_rescue_node(
             rescue_state,
             seal_engine=genesis_seal_engine,
@@ -203,7 +198,6 @@ class TestHumanRescueNodeIntegration:
         genesis_seal_engine,
     ) -> None:
         """Rescue works even without a current_draft."""
-        stub_workspace.workspace_path = stub_workspace.root
         rescue_state.current_draft = None
         result = await human_rescue_node(
             rescue_state,

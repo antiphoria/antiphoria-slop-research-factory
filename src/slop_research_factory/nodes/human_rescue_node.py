@@ -33,14 +33,18 @@ from __future__ import annotations
 
 import json
 import logging
+import uuid
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from slop_research_factory.types.enums import (
+    NodeName,
     RescueReason,
     RunStatus,
     StepType,
+    Verdict,
 )
+from slop_research_factory.types.hashing import SHA256_LOWERCASE_RE
 from slop_research_factory.types.human_rescue import HumanRescueRequest
 
 if TYPE_CHECKING:
@@ -54,11 +58,6 @@ __all__ = ["human_rescue_node"]
 
 
 # ── Helpers ──────────────────────────────────────────────────────────
-
-
-def _now_iso() -> str:
-    """UTC timestamp in ISO-8601 with milliseconds."""
-    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
 
 def _extract_rescue_reason(state: FactoryState) -> RescueReason:
@@ -105,39 +104,6 @@ def _extract_rescue_reason(state: FactoryState) -> RescueReason:
     return RescueReason.MAX_TOTAL_CYCLES_EXCEEDED
 
 
-def _build_rescue_context(state: FactoryState) -> dict[str, Any]:
-    """Build the diagnostic context dict persisted with the request.
-
-    Contains everything a human operator needs to understand the
-    failure without reading the full chain.
-    """
-    critique = state.current_critique or {}
-
-    return {
-        "last_verdict": critique.get("effective_verdict") or critique.get("verdict"),
-        "verdict_confidence": critique.get("verdict_confidence"),
-        "critique_summary": critique.get("summary") or critique.get("critique_text"),
-        "issues": critique.get("issues", []),
-        "cycle_count": state.cycle_count,
-        "revision_count": state.revision_count,
-        "rejection_count": state.rejection_count,
-        "total_input_tokens": state.total_input_tokens,
-        "total_output_tokens": state.total_output_tokens,
-        "total_estimated_cost_usd": round(state.total_estimated_cost_usd, 6),
-        "total_wall_clock_seconds": round(state.total_wall_clock_seconds, 3),
-        "config_limits": {
-            "max_rejections": state.config.max_rejections,
-            "max_revisions": state.config.max_revisions,
-            "max_total_cycles": state.config.max_total_cycles,
-            "max_total_tokens": state.config.max_total_tokens,
-            "max_total_cost_usd": state.config.max_total_cost_usd,
-        },
-    }
-
-
-# ── Node entry point ─────────────────────────────────────────────────
-
-
 async def human_rescue_node(
     state: FactoryState,
     *,
@@ -174,20 +140,67 @@ async def human_rescue_node(
     )
 
     # ── 2. Build HumanRescueRequest ──────────────────────────────
+    brief = dict(state.brief) if state.brief else {}
+    brief_title = str(
+        brief.get("title_suggestion") or brief.get("title") or brief.get("thesis") or "Untitled",
+    )[:10_000]
+
+    critique = state.current_critique or {}
+    summary_raw = critique.get("critique_summary") or critique.get("summary") or ""
+    summary = str(summary_raw)[:20_000] if summary_raw else ""
+    if not summary.strip():
+        summary = f"Human rescue: {rescue_reason.value}"
+
+    raw_node = critique.get("node_name")
+    if isinstance(raw_node, NodeName):
+        node_name = raw_node
+    elif isinstance(raw_node, str):
+        try:
+            node_name = NodeName(raw_node)
+        except ValueError:
+            node_name = NodeName.VERIFICATION
+    else:
+        node_name = NodeName.VERIFICATION
+
+    lv_raw = critique.get("effective_verdict") or critique.get("verdict")
+    latest_verdict: Verdict | None = None
+    if lv_raw is not None:
+        if isinstance(lv_raw, Verdict):
+            latest_verdict = lv_raw
+        else:
+            try:
+                latest_verdict = Verdict(str(lv_raw))
+            except ValueError:
+                latest_verdict = None
+
+    vconf = critique.get("verdict_confidence")
+    verdict_confidence: float | None = None
+    if isinstance(vconf, (int, float)):
+        verdict_confidence = float(vconf)
+
+    latest_seal: str | None = state.latest_hash or None
+    if latest_seal is not None and not SHA256_LOWERCASE_RE.match(latest_seal):
+        latest_seal = None
+
     request = HumanRescueRequest(
+        request_id=str(uuid.uuid4()),
         run_id=state.run_id,
+        created_at=datetime.now(UTC),
         rescue_reason=rescue_reason,
-        created_at=_now_iso(),
-        brief=dict(state.brief) if state.brief else {},
-        current_draft=state.current_draft,
-        current_critique=state.current_critique,
-        context=_build_rescue_context(state),
-        latest_seal_hash=state.latest_hash,
+        node_name=node_name,
         step_index=state.step_index,
+        cycle_count=state.cycle_count,
+        rejection_count=state.rejection_count,
+        revision_count=state.revision_count,
+        brief_title=brief_title,
+        summary=summary,
+        latest_verdict=latest_verdict,
+        verdict_confidence=verdict_confidence,
+        latest_seal_hash=latest_seal,
     )
 
     # ── 3. Persist request to rescue/ ─────────────────────────────
-    rescue_dir = workspace.workspace_path / "rescue"
+    rescue_dir = workspace.run_dir / "rescue"
     rescue_dir.mkdir(parents=True, exist_ok=True)
 
     request_data = request.to_dict()
@@ -234,6 +247,8 @@ async def human_rescue_node(
 
     # ── 5. Seal HUMAN_GATE ────────────────────────────────────────
     seal_metadata = {
+        "request_id": request.request_id,
+        "node_name": node_name.value,
         "rescue_reason": rescue_reason.value,
         "cycle_count": state.cycle_count,
         "revision_count": state.revision_count,
@@ -257,7 +272,7 @@ async def human_rescue_node(
 
     # ── 6. State transition → AWAITING_HUMAN ─────────────────────
     state.status = RunStatus.AWAITING_HUMAN
-    state.updated_at = _now_iso()
+    state.updated_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
     workspace.write_state(state)
 
     logger.info(

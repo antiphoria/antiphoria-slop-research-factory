@@ -38,6 +38,7 @@ from typing import Any
 
 import pytest
 
+from slop_research_factory.config import CheckpointBackend
 from slop_research_factory.types.enums import RunStatus
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -81,6 +82,7 @@ class StubConfig:
     enable_provenance: bool = True
     hash_algorithm: str = "sha256"
     workspace_base_path: str = "./workspaces"
+    checkpoint_backend: CheckpointBackend = CheckpointBackend.SQLITE
     weight_logical_soundness: float = 0.35
     weight_mathematical_rigor: float = 0.25
     weight_citation_accuracy: float = 0.20
@@ -204,6 +206,24 @@ class StubWorkspace:
         self.root = root
         (root / "drafts").mkdir(parents=True, exist_ok=True)
         (root / "chain").mkdir(parents=True, exist_ok=True)
+        (root / "output").mkdir(parents=True, exist_ok=True)
+
+    @property
+    def run_dir(self) -> Path:
+        """Align with :class:`WorkspaceManager.run_dir` (stub root = run root)."""
+        return self.root
+
+    @property
+    def output_dir(self) -> Path:
+        return self.root / "output"
+
+    @property
+    def brief_path(self) -> Path:
+        return self.root / "brief.json"
+
+    @property
+    def workspace_path(self) -> Path:
+        return self.root
 
     def drafts_path(self, filename: str) -> Path:
         return self.root / "drafts" / filename
@@ -229,6 +249,11 @@ class StubWorkspace:
     def write_text(self, path: Path, content: str) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
+
+    def write_output_file(self, filename: str, content: str) -> Path:
+        path = self.output_dir / filename
+        self.write_text(path, content)
+        return path
 
     def write_bytes(self, path: Path, data: bytes) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)

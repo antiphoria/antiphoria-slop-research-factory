@@ -217,4 +217,4 @@ class TestEdgeCases:
         """Default unreviewed status renders."""
         card = _minimal_card()
         result = render_hai_card(card)
-        assert HumanReviewStatus.NOT_REVIEWED.value in result
+        assert HumanReviewStatus.UNREVIEWED.value in result

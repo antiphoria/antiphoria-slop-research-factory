@@ -37,9 +37,7 @@ Design notes:
   (mirrors ``REASON_*`` in ``engine.routing``).
 - SHA-256 hashes: 64-char lowercase hexadecimal when set.
 - Timestamps: timezone-aware (UTC expected).
-- No serialization methods; the workspace manager handles
-
-  persistence.
+- ``to_dict`` produces a JSON-friendly dict for ``rescue/request.json``.
 
 Spec references:
     D-0 §7.3   Rescue queue semantics.
@@ -51,6 +49,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
 from slop_research_factory.types.enums import (
     HumanRescueAction,
@@ -184,8 +183,24 @@ class HumanRescueRequest:
                 f"got {self.latest_seal_hash!r}"
             )
 
-
-# ── HumanRescueResolution (D-2 §12.2) ───────────────────
+    def to_dict(self) -> dict[str, Any]:
+        """JSON-serialisable dict (ISO-8601 ``created_at``, enum ``.value``)."""
+        return {
+            "request_id": self.request_id,
+            "run_id": self.run_id,
+            "created_at": self.created_at.isoformat(),
+            "rescue_reason": self.rescue_reason.value,
+            "node_name": self.node_name.value,
+            "step_index": self.step_index,
+            "cycle_count": self.cycle_count,
+            "rejection_count": self.rejection_count,
+            "revision_count": self.revision_count,
+            "brief_title": self.brief_title,
+            "summary": self.summary,
+            "latest_verdict": self.latest_verdict.value if self.latest_verdict else None,
+            "verdict_confidence": self.verdict_confidence,
+            "latest_seal_hash": self.latest_seal_hash,
+        }
 
 
 @dataclass(frozen=True)

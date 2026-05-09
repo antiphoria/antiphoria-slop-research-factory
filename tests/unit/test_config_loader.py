@@ -23,7 +23,7 @@ from unittest.mock import patch
 import pytest
 
 from slop_research_factory.config import FactoryConfig
-from slop_research_factory.config_loader import load_config_from_file
+from slop_research_factory.config_loader import ConfigLoadError, load_config_from_file
 
 
 class TestTomlParsing:
@@ -140,7 +140,7 @@ class TestWeightValidation:
             """),
             encoding="utf-8",
         )
-        with pytest.raises((ValueError, TypeError)):
+        with pytest.raises(ConfigLoadError):
             load_config_from_file(toml)
 
     def test_all_zero_weights_raises(self, tmp_path: Path) -> None:
@@ -157,7 +157,7 @@ class TestWeightValidation:
             """),
             encoding="utf-8",
         )
-        with pytest.raises((ValueError, ZeroDivisionError)):
+        with pytest.raises(ConfigLoadError):
             load_config_from_file(toml)
 
 
@@ -176,7 +176,7 @@ class TestProvenanceGate:
         )
         env = {k: v for k, v in os.environ.items()}
         env.pop("ANTIPHORIA_I_UNDERSTAND_NO_PROVENANCE", None)
-        with patch.dict(os.environ, env, clear=True), pytest.raises((ValueError, RuntimeError)):
+        with patch.dict(os.environ, env, clear=True), pytest.raises(ConfigLoadError):
             load_config_from_file(toml)
 
     def test_provenance_disabled_with_env_var_succeeds(self, tmp_path: Path) -> None:

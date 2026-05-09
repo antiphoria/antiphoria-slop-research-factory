@@ -356,7 +356,7 @@ async def _cmd_verify(args: argparse.Namespace) -> int:
     workspace = WorkspaceManager.for_run_directory(workspace_path)
 
     try:
-        state = workspace.load_state()
+        state = workspace.read_state()
     except Exception as exc:
         _err(f"Failed to load state: {exc}")
         return 1
@@ -421,7 +421,7 @@ async def _cmd_status(args: argparse.Namespace) -> int:
     workspace = WorkspaceManager.for_run_directory(workspace_path)
 
     try:
-        state = workspace.load_state()
+        state = workspace.read_state()
     except Exception as exc:
         _err(f"Failed to load state: {exc}")
         return 1

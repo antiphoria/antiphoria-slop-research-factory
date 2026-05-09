@@ -18,7 +18,6 @@ import json
 from pathlib import Path
 
 import pytest
-from conftest import StubState, StubWorkspace
 
 from slop_research_factory.nodes.finalize_node import (
     compute_configuration_overrides,
@@ -26,6 +25,7 @@ from slop_research_factory.nodes.finalize_node import (
     render_paper,
 )
 from slop_research_factory.types.enums import RunStatus, StepType
+from tests.conftest import StubState, StubWorkspace
 
 
 @pytest.fixture
@@ -74,23 +74,7 @@ def finalize_state(tmp_path: Path) -> StubState:
 def finalize_workspace(tmp_path: Path) -> StubWorkspace:
     """Workspace with output directory support."""
     ws = StubWorkspace(tmp_path)
-    (tmp_path / "output").mkdir(parents=True, exist_ok=True)
     (tmp_path / "brief.json").write_text('{"thesis": "Test"}', encoding="utf-8")
-
-    # Add write_output_file method
-    def write_output_file(filename: str, content: str) -> Path:
-        out_dir = tmp_path / "output"
-        out_dir.mkdir(parents=True, exist_ok=True)
-        p = out_dir / filename
-        p.write_text(content, encoding="utf-8")
-        return p
-
-    ws.write_output_file = write_output_file
-
-    # Add brief_path property
-    ws.brief_path = tmp_path / "brief.json"
-    ws.workspace_path = tmp_path
-
     return ws
 
 

@@ -21,7 +21,7 @@ Design decisions:
   raw file paths (it hashes internally).
 
 * **Type mapping**: SDK receipt/report types are mapped to the factory's
-  own dataclasses from ``types/provenance.py``. This keeps the factory
+  own dataclasses from ``seal/engine.py``. This keeps the factory
   decoupled — SDK types never leak into node code.
 
 * **Key management**: Delegated entirely to the SDK's ``load_keys_from_env``
@@ -38,15 +38,13 @@ Spec references:
 from __future__ import annotations
 
 import logging
+import uuid
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from slop_research_factory.seal.engine import SealReceipt, StepVerification, VerificationReport
 from slop_research_factory.types.enums import StepType
-from slop_research_factory.types.provenance import (
-    SealReceipt,
-    StepVerification,
-    VerificationReport,
-)
 
 if TYPE_CHECKING:
     pass
@@ -91,14 +89,42 @@ def _add_hash_prefix(h: str | None) -> str | None:
 
 
 def _map_receipt(sdk_receipt: Any) -> SealReceipt:
-    """Map an SDK ``GenesisReceipt`` or ``SealReceipt`` to factory type."""
+    """Map an SDK ``GenesisReceipt`` or ``SealReceipt`` to :class:`SealReceipt`."""
+    st_raw = sdk_receipt.step_type
+    st = st_raw if isinstance(st_raw, StepType) else StepType(str(st_raw))
+
+    content_hash = (
+        _strip_hash_prefix(
+            getattr(sdk_receipt, "entry_hash", None) or getattr(sdk_receipt, "content_hash", None),
+        )
+        or ""
+    )
+    parent_hash = _strip_hash_prefix(
+        getattr(sdk_receipt, "previous_hash", None) or getattr(sdk_receipt, "parent_hash", None),
+    )
+
+    seal_id = str(getattr(sdk_receipt, "seal_id", "") or uuid.uuid4())
+
+    ts = getattr(sdk_receipt, "timestamp", None)
+    if isinstance(ts, str):
+        ts = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    elif not isinstance(ts, datetime):
+        ts = datetime.now(UTC)
+
+    rp = getattr(sdk_receipt, "receipt_path", None) or getattr(sdk_receipt, "record_path", None)
+    receipt_path = Path(rp) if rp else Path(".")
+    pp = getattr(sdk_receipt, "payload_path", None)
+    payload_path = Path(pp) if pp else receipt_path
+
     return SealReceipt(
-        step_index=sdk_receipt.step_index,
-        step_type=sdk_receipt.step_type,
-        entry_hash=_strip_hash_prefix(sdk_receipt.entry_hash) or "",
-        previous_hash=_strip_hash_prefix(sdk_receipt.previous_hash),
-        record_path=Path(sdk_receipt.record_path) if sdk_receipt.record_path else None,
-        timestamp=sdk_receipt.timestamp,
+        step_index=int(sdk_receipt.step_index),
+        step_type=st,
+        seal_id=seal_id,
+        content_hash=content_hash,
+        parent_hash=parent_hash,
+        timestamp=ts,
+        receipt_path=receipt_path,
+        payload_path=payload_path,
     )
 
 
@@ -107,15 +133,29 @@ def _map_receipt(sdk_receipt: Any) -> SealReceipt:
 
 def _map_step_verification(sdk_step: Any) -> StepVerification:
     """Map an SDK ``StepVerification`` to factory type."""
+    rp = getattr(sdk_step, "record_path", None) or getattr(sdk_step, "receipt_path", None)
+    receipt_path = Path(rp) if rp else Path(".")
+    payload_ok = getattr(
+        sdk_step,
+        "payload_valid",
+        getattr(sdk_step, "content_hashes_valid", True),
+    )
+    receipt_ok = getattr(
+        sdk_step,
+        "receipt_valid",
+        getattr(sdk_step, "signature_valid", True),
+    )
+    phm = getattr(sdk_step, "parent_hash_matches", getattr(sdk_step, "previous_hash_matches", True))
+    errs = sdk_step.errors if getattr(sdk_step, "errors", None) else []
     return StepVerification(
         step_index=sdk_step.step_index,
         step_type=sdk_step.step_type,
-        record_path=Path(sdk_step.record_path) if sdk_step.record_path else None,
-        signature_valid=sdk_step.signature_valid,
-        content_hashes_valid=sdk_step.content_hashes_valid,
-        previous_hash_matches=sdk_step.previous_hash_matches,
-        canonical_form_valid=sdk_step.canonical_form_valid,
-        errors=list(sdk_step.errors) if sdk_step.errors else [],
+        receipt_path=receipt_path,
+        payload_valid=bool(payload_ok),
+        receipt_valid=bool(receipt_ok),
+        parent_hash_matches=bool(phm),
+        canonical_form_valid=bool(getattr(sdk_step, "canonical_form_valid", True)),
+        errors=tuple(str(e) for e in errs),
     )
 
 
@@ -199,7 +239,7 @@ class SDKSealEngine:
 
         logger.debug(
             "[sdk-adapter] GENESIS sealed (hash=%s…)",
-            receipt.entry_hash[:12],
+            receipt.content_hash[:12],
         )
         return receipt
 
@@ -238,7 +278,7 @@ class SDKSealEngine:
             "[sdk-adapter] %s sealed (step=%d, hash=%s…)",
             step_type_str,
             receipt.step_index,
-            receipt.entry_hash[:12],
+            receipt.content_hash[:12],
         )
         return receipt
 
@@ -432,17 +472,19 @@ def create_seal_engine(
     if not enable_provenance:
         from slop_research_factory.seal.engine import InMemorySealEngine
 
-        engine = InMemorySealEngine(
-            workspace=workspace,
-            run_id=run_id,
-        )
-        if resume:
-            engine.load_from_disk()
         logger.info(
             "[seal] InMemory engine selected (provenance disabled) — run %s",
             run_id[:8],
         )
-        return engine
+        if resume:
+            return InMemorySealEngine.resume(
+                workspace=workspace,
+                run_id=run_id,
+            )
+        return InMemorySealEngine.create(
+            workspace=workspace,
+            run_id=run_id,
+        )
 
     # SDK adapter with env-based keys
     return create_sdk_engine_from_env(

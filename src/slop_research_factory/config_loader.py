@@ -30,7 +30,7 @@ from typing import Any
 
 from slop_research_factory.config import CheckpointBackend, FactoryConfig
 
-__all__ = ["load_config", "ConfigLoadError"]
+__all__ = ["load_config", "load_config_from_file", "ConfigLoadError"]
 
 logger = logging.getLogger(__name__)
 
@@ -144,6 +144,50 @@ def _find_toml(explicit: str | Path | None) -> Path | None:
 
 # ===================================================================
 
+_KNOWN_SECTIONS: frozenset[str] = frozenset(_SECTION_MAP) | {"verifier", "factory"}
+
+
+def _merge_legacy_factory_table(raw: dict[str, Any], flat: dict[str, Any]) -> None:
+    """Flatten ``[factory]`` (deprecated) into *flat* ``FactoryConfig`` field names.
+
+    New configs should use ``[models]``, ``[limits]``, ``[output]``, etc.
+    ``[factory]`` keys that match :class:`FactoryConfig` fields still apply.
+    """
+    section = raw.get("factory")
+    if not isinstance(section, dict):
+        return
+    for key, val in section.items():
+        if key in _KNOWN_FIELDS:
+            flat[key] = val
+
+
+_WEIGHT_FIELDS: tuple[str, ...] = (
+    "weight_logical_soundness",
+    "weight_mathematical_rigor",
+    "weight_citation_accuracy",
+    "weight_scope_compliance",
+    "weight_novelty_plausibility",
+)
+
+
+def _resolve_weights(clean: dict[str, Any]) -> None:
+    """Merge, validate, and (if needed) normalize verifier weights in *clean*."""
+    if not any(k in clean for k in _WEIGHT_FIELDS):
+        return
+    defaults = FactoryConfig()
+    merged: dict[str, float] = {
+        k: float(clean.get(k, getattr(defaults, k))) for k in _WEIGHT_FIELDS
+    }
+    for name, val in merged.items():
+        if val < 0:
+            raise ConfigLoadError(f"{name} must be >= 0, got {val}")
+    total = sum(merged.values())
+    if total <= 0:
+        raise ConfigLoadError("Verifier weights must sum to a positive value.")
+    if abs(total - 1.0) > 1e-6:
+        merged = {k: v / total for k, v in merged.items()}
+    clean.update(merged)
+
 
 def _flatten_toml(raw: dict[str, Any]) -> dict[str, Any]:
     """Convert nested TOML tables into ``FactoryConfig`` keyword args.
@@ -152,6 +196,7 @@ def _flatten_toml(raw: dict[str, Any]) -> dict[str, Any]:
     Unrecognised top-level sections are warned about separately.
     """
     flat: dict[str, Any] = {}
+    _merge_legacy_factory_table(raw, flat)
 
     # ── Simple 1:1 sections ────────────────────────────────────────
     for section_key, field_map in _SECTION_MAP.items():
@@ -200,8 +245,6 @@ def _flatten_toml(raw: dict[str, Any]) -> dict[str, Any]:
 # Warnings for unrecognised keys
 
 # ===================================================================
-
-_KNOWN_SECTIONS: frozenset[str] = frozenset(_SECTION_MAP) | {"verifier"}
 
 
 def _warn_unknown_sections(raw: dict[str, Any]) -> None:
@@ -345,6 +388,7 @@ def load_config(
     # ── 3. Filter unknown fields ──────────────────────────────────
     _warn_unknown_fields(flat)
     clean = {k: v for k, v in flat.items() if k in _KNOWN_FIELDS}
+    _resolve_weights(clean)
 
     # ── 4. Construct frozen config ────────────────────────────────
     try:
@@ -364,3 +408,11 @@ def load_config(
         cfg.verifier_confidence_threshold,
     )
     return cfg
+
+
+def load_config_from_file(path: str | Path) -> FactoryConfig:
+    """Load config from an explicit TOML path (CLI / tests).
+
+    Thin wrapper around :func:`load_config` with ``toml_path=path``.
+    """
+    return load_config(toml_path=path)

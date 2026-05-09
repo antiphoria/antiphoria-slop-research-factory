@@ -304,7 +304,16 @@ METADATA_REGISTRY: dict[StepType, MetadataSchema] = {
     ),
     StepType.HUMAN_GATE: MetadataSchema(
         required=frozenset({"request_id", "rescue_reason", "node_name"}),
-        allowed=frozenset({"resolver_id", "action", "notes"}),
+        allowed=frozenset(
+            {
+                "resolver_id",
+                "action",
+                "notes",
+                "cycle_count",
+                "rejection_count",
+                "revision_count",
+            },
+        ),
         types={
             "request_id": (str,),
             "rescue_reason": (str,),
@@ -312,6 +321,9 @@ METADATA_REGISTRY: dict[StepType, MetadataSchema] = {
             "resolver_id": (str,),
             "action": (str,),
             "notes": (str,),
+            "cycle_count": (int,),
+            "rejection_count": (int,),
+            "revision_count": (int,),
         },
     ),
     StepType.MANIFEST: MetadataSchema(
