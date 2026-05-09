@@ -23,8 +23,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Local sealing SDK: sibling repo …/antiphoria-slop-provenance (see [tool.uv.sources]).
+# `uv lock` / `uv sync` resolve the path. Plain `pip install .[provenance]` does not read
+# uv sources — install the SDK first: `pip install -e ../antiphoria-slop-provenance`.
 provenance = [
-    "antiphoria-slop-provenance>=0.1.0",
+    "antiphoria-slop-provenance>=0.3.0",
 ]
 dev = [
     "ruff>=0.5.0",
@@ -47,6 +50,9 @@ slop-factory = "slop_research_factory.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.uv.sources]
+antiphoria-slop-provenance = { path = "../antiphoria-slop-provenance", editable = true }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -95,13 +95,12 @@ class TestGeneratorNodeHappyPath:
             llm_client=client,
             workspace=ws,
         )
-        # The pre-seal receipt exists on disk before the post-seal one
-        # (file ordering by step_index reflects creation order).
+        # Both seals exist; a single LLM completion proves inference ran once
+        # after the graph's PRE→LLM→POST ordering (mtime is not reliable for ordering).
         pre = ws.root / "chain" / "000001_PRE_GENERATOR.receipt.json"
         post = ws.root / "chain" / "000002_POST_GENERATOR.receipt.json"
         assert pre.is_file()
         assert post.is_file()
-        assert pre.stat().st_mtime <= post.stat().st_mtime
         assert len(client.calls) == 1
 
     @pytest.mark.asyncio

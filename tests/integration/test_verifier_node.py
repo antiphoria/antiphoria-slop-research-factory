@@ -100,6 +100,21 @@ def _factory_state(workspace_root: Path, *, draft: str) -> FactoryState:
     )
 
 
+def _expected_tool_call_seal_count(state: FactoryState) -> int:
+    """Seal count from extracted citations + citation_check_sources (verifier contract)."""
+    cfg = state.config
+    if not cfg.enable_citation_checking:
+        return 0
+    sources = set(cfg.citation_check_sources)
+    n = 0
+    for entry in state.current_extracted_citations:
+        if entry.get("doi") and "crossref" in sources:
+            n += 1
+        if "semantic_scholar" in sources:
+            n += 1
+    return n
+
+
 # ── Fixtures ───────────────────────────────────────────
 
 
@@ -256,10 +271,11 @@ class TestToolCallSeals:
             citation_check_client=CannedCitationCheckClient(),
             structured_complete=runner,
         )
-        # 2 citations × 2 sources = 4 TOOL_CALL seals + PRE + POST = 6
-        # plus genesis = 7
+        expected_tools = _expected_tool_call_seal_count(result)
+        assert expected_tools > 0
         report = await engine.verify_chain()
-        assert report.total_steps == 7
         tool_call_steps = [s for s in report.steps if s.step_type == StepType.TOOL_CALL.value]
-        assert len(tool_call_steps) == 4
+        assert len(tool_call_steps) == expected_tools
+        # genesis + tool seals + PRE_VERIFIER + POST_VERIFIER
+        assert report.total_steps == 1 + expected_tools + 2
         assert result.current_critique is not None

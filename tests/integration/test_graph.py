@@ -227,6 +227,11 @@ class TestCapsEscalation:
         result = await run_graph(state, deps)
         assert result.status == RunStatus.AWAITING_HUMAN
         assert result.revision_count == 1
+        # Observable evidence the reviser ran before the second verifier pass:
+        # two full cycles and the second LLM response is on the draft.
+        assert result.cycle_count == 2
+        assert result.current_draft is not None
+        assert "revised" in result.current_draft.lower()
 
 
 class TestRoutingNodeIds:
