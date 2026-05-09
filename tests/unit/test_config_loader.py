@@ -176,9 +176,8 @@ class TestProvenanceGate:
         )
         env = {k: v for k, v in os.environ.items()}
         env.pop("ANTIPHORIA_I_UNDERSTAND_NO_PROVENANCE", None)
-        with patch.dict(os.environ, env, clear=True):
-            with pytest.raises((ValueError, RuntimeError)):
-                load_config_from_file(toml)
+        with patch.dict(os.environ, env, clear=True), pytest.raises((ValueError, RuntimeError)):
+            load_config_from_file(toml)
 
     def test_provenance_disabled_with_env_var_succeeds(self, tmp_path: Path) -> None:
         """enable_provenance=false WITH env var → config loads."""

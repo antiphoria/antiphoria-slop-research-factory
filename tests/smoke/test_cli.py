@@ -18,14 +18,12 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 ENTRY_POINT = [sys.executable, "-m", "slop_research_factory.cli"]
 
 
 def _run(*args: str, timeout: float = 10.0) -> subprocess.CompletedProcess:
     """Run CLI with given args, capture output."""
-    return subprocess.run(
+    return subprocess.run(  # noqa: S603
         [*ENTRY_POINT, *args],
         capture_output=True,
         text=True,
@@ -103,8 +101,10 @@ class TestRunSubcommand:
         brief.write_text('{"thesis": "test"}', encoding="utf-8")
         result = _run(
             "run",
-            "--brief", str(brief),
-            "--config", str(tmp_path / "missing.toml"),
+            "--brief",
+            str(brief),
+            "--config",
+            str(tmp_path / "missing.toml"),
         )
         assert result.returncode == 1
 

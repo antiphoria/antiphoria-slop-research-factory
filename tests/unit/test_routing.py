@@ -255,6 +255,7 @@ class TestRoutingFixable:
         )
         _commit_route(state, Verdict.FIXABLE)
         assert state.revision_count == 5
+        assert state.cycle_count == 0
 
 
 # ── E1-R04 / E1-R05: WRONG routing ──────────────────────────────────
@@ -304,6 +305,7 @@ class TestRoutingWrong:
         )
         _commit_route(state, Verdict.WRONG)
         assert state.rejection_count == 3
+        assert state.cycle_count == 0
 
 
 # ── E1-R07: cycle cap ────────────────────────────────────────────────
@@ -342,21 +344,23 @@ class TestCycleCapRouting:
         self,
     ) -> None:
         """Neither counter is incremented when cycle cap fires."""
-        state = _make_state(
+        state_f = _make_state(
             cycle_count=10,
             max_total_cycles=10,
             rejection_count=0,
             revision_count=0,
         )
-        _commit_route(state, Verdict.FIXABLE)
-        assert state.revision_count == 0
-        _commit_route(
-            _make_state(
-                cycle_count=10,
-                max_total_cycles=10,
-            ),
-            Verdict.WRONG,
+        _commit_route(state_f, Verdict.FIXABLE)
+        assert state_f.revision_count == 0
+
+        state_w = _make_state(
+            cycle_count=10,
+            max_total_cycles=10,
+            rejection_count=0,
+            revision_count=0,
         )
+        _commit_route(state_w, Verdict.WRONG)
+        assert state_w.rejection_count == 0
 
 
 # ── E1-R08 / E1-R09 / E1-R10: composite scenarios ──────────────────

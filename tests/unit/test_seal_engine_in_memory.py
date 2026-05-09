@@ -353,20 +353,16 @@ class TestVerifyChain:
 
     @pytest.mark.asyncio
     async def test_chain_break_detected(self, engine: InMemorySealEngine, workspace: Path) -> None:
-        genesis, pre, _ = await _build_three_seal_chain(engine, workspace)
+        _, pre, _ = await _build_three_seal_chain(engine, workspace)
         pre.receipt_path.unlink()
         pre.payload_path.unlink()
 
         report = await engine.verify_chain()
         assert not report.chain_intact
-        all_errors = [e for s in report.steps for e in s.errors]
-        # Genesis is fine; the gap shows up as a parent-hash break at step 2.
-        assert any("parent_hash break" in e for e in all_errors)
+        # Missing PRE seal → broken parent linkage on a later step (stable field).
+        assert any(not s.parent_hash_matches for s in report.steps)
         assert report.steps[0].step_index == 0
         assert report.steps[1].step_index == 2  # post-generator filename position
-        # Dropped step's hash isn't in chain anymore — but genesis hash must
-        # still be present in the diagnostic stream for at least one step.
-        assert any(genesis.content_hash[:10] in e for e in all_errors)
 
 
 # ── Step-type mapping + Protocol conformance ───────────

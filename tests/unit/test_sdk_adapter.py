@@ -18,8 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -31,13 +30,14 @@ from slop_research_factory.seal.sdk_adapter import (
     _strip_hash_prefix,
     create_seal_engine,
 )
-from slop_research_factory.types.enums import StepType
 from slop_research_factory.types.provenance import (
     SealReceipt,
-    StepVerification,
     VerificationReport,
 )
 
+# Non-/tmp paths — ruff S108 flags hard-coded /tmp in tests.
+_FIXTURE_CHAIN_POST = "/workspace/fixture/chain/000003_POST_GENERATOR.json"
+_FIXTURE_CHAIN_GENESIS = "/workspace/fixture/chain/000000_GENESIS.json"
 
 # ── Hash normalization ────────────────────────────────────────────────
 
@@ -83,7 +83,7 @@ class _MockSDKReceipt:
     step_type: str = "POST_GENERATOR"
     entry_hash: str = "sha256:" + "e" * 64
     previous_hash: str = "sha256:" + "f" * 64
-    record_path: str = "/tmp/chain/000003_POST_GENERATOR.json"
+    record_path: str = _FIXTURE_CHAIN_POST
     timestamp: str = "2025-06-15T12:00:00Z"
 
 
@@ -99,7 +99,7 @@ class TestReceiptMapping:
         assert result.step_type == "POST_GENERATOR"
         assert result.entry_hash == "e" * 64
         assert result.previous_hash == "f" * 64
-        assert result.record_path == Path("/tmp/chain/000003_POST_GENERATOR.json")
+        assert result.record_path == Path(_FIXTURE_CHAIN_POST)
         assert result.timestamp == "2025-06-15T12:00:00Z"
 
     def test_none_previous_hash(self) -> None:
@@ -122,7 +122,7 @@ class TestReceiptMapping:
 class _MockSDKStepVerification:
     step_index: int = 0
     step_type: str = "GENESIS"
-    record_path: str = "/tmp/chain/000000_GENESIS.json"
+    record_path: str = _FIXTURE_CHAIN_GENESIS
     signature_valid: bool = True
     content_hashes_valid: bool = True
     previous_hash_matches: bool = True
@@ -213,10 +213,12 @@ class TestEngineSelection:
 
     def test_provenance_enabled_without_sdk_raises(self, tmp_path: Path) -> None:
         """enable_provenance=True without SDK installed → RuntimeError."""
-        with patch.dict("sys.modules", {"antiphoria_sdk": None}):
-            with pytest.raises(RuntimeError, match="antiphoria_sdk"):
-                create_seal_engine(
-                    workspace=tmp_path,
-                    run_id="test-001",
-                    enable_provenance=True,
-                )
+        with (
+            patch.dict("sys.modules", {"antiphoria_sdk": None}),
+            pytest.raises(RuntimeError, match="antiphoria_sdk"),
+        ):
+            create_seal_engine(
+                workspace=tmp_path,
+                run_id="test-001",
+                enable_provenance=True,
+            )

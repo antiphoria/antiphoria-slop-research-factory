@@ -21,7 +21,7 @@ Spec references:
 from __future__ import annotations
 
 from slop_research_factory.types.enums import ConfidenceTier, HumanReviewStatus
-from slop_research_factory.types.hai_card import HaiCard, ModelUsageRecord
+from slop_research_factory.types.hai_card import HaiCard
 
 __all__ = ["render_hai_card"]
 
@@ -63,11 +63,7 @@ def _render_header(card: HaiCard) -> str:
 
 
 def _render_security_guarantee(card: HaiCard) -> str:
-    return (
-        "\n---\n\n"
-        "## ⚠️ Security Guarantee\n\n"
-        f"> {card.security_guarantee}\n"
-    )
+    return f"\n---\n\n## ⚠️ Security Guarantee\n\n> {card.security_guarantee}\n"
 
 
 def _render_identity(card: HaiCard) -> str:
@@ -98,11 +94,7 @@ def _render_models(card: HaiCard) -> str:
     total_in = sum(r.input_tokens for r in card.models_used)
     total_out = sum(r.output_tokens for r in card.models_used)
     total_calls = sum(r.call_count for r in card.models_used)
-    lines.append(
-        f"| **Total** | — "
-        f"| **{total_in:,}** | **{total_out:,}** "
-        f"| **{total_calls}** |"
-    )
+    lines.append(f"| **Total** | — | **{total_in:,}** | **{total_out:,}** | **{total_calls}** |")
     lines.append("")
     return "\n".join(lines)
 
@@ -121,7 +113,9 @@ def _render_process(card: HaiCard) -> str:
 def _render_verification(card: HaiCard) -> str:
     tier = ConfidenceTier.from_score(card.verification.verdict_confidence)
     tier_labels = {1: "T1 — Deterministic", 2: "T2 — LLM", 3: "T3 — Tool-grounded"}
-    tier_label = tier_labels.get(card.verification.tier_reached, f"T{card.verification.tier_reached}")
+    tier_label = tier_labels.get(
+        card.verification.tier_reached, f"T{card.verification.tier_reached}"
+    )
 
     lines = [
         "\n## Verification Summary\n",
@@ -180,8 +174,7 @@ def _render_human_review(card: HaiCard) -> str:
         lines.append(f"**Reviewer:** {card.human_reviewer}\n")
         if card.human_review_timestamp:
             lines.append(
-                f"**Reviewed:** "
-                f"{card.human_review_timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
+                f"**Reviewed:** {card.human_review_timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
             )
     if card.human_review_notes:
         lines.append(f"\n**Notes:** {card.human_review_notes}\n")

@@ -16,9 +16,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
+from conftest import StubLLMResponse
 
 from slop_research_factory.config import FactoryConfig
 from slop_research_factory.orchestrator import (
@@ -27,8 +28,6 @@ from slop_research_factory.orchestrator import (
     run_factory,
 )
 from slop_research_factory.types.enums import RunStatus
-
-from conftest import StubLLMClient, StubLLMResponse
 
 
 def _gen_response(content: str = "# Generated\n\nContent.") -> StubLLMResponse:
@@ -101,6 +100,7 @@ class TestRunFactoryHappyPath:
         brief = {"thesis": "Test"}
 
         with patch("slop_research_factory.orchestrator.run_graph") as mock_graph:
+
             async def _fake(state, deps):
                 state.status = RunStatus.COMPLETED
                 return state
@@ -126,6 +126,7 @@ class TestRunFactoryHappyPath:
         brief = {"thesis": "Persisted", "title_suggestion": "T"}
 
         with patch("slop_research_factory.orchestrator.run_graph") as mock_graph:
+
             async def _fake(state, deps):
                 state.status = RunStatus.COMPLETED
                 return state
@@ -191,6 +192,7 @@ class TestRunFactoryVerification:
         brief = {"thesis": "Verify me"}
 
         with patch("slop_research_factory.orchestrator.run_graph") as mock_graph:
+
             async def _fake(state, deps):
                 state.status = RunStatus.COMPLETED
                 return state

@@ -161,15 +161,10 @@ def _build_verification_summary(
     # T2 if LLM verification ran (always true if we got here)
     # T1 if only deterministic checks (not implemented in M2)
     citations_total = len(state.citation_checks)
-    if config.enable_citation_checking and citations_total > 0:
-        tier_reached = 3
-    else:
-        tier_reached = 2
+    tier_reached = 3 if config.enable_citation_checking and citations_total > 0 else 2
 
     # Citations verified
-    citations_verified = sum(
-        1 for c in state.citation_checks if c.get("result") == "VERIFIED"
-    )
+    citations_verified = sum(1 for c in state.citation_checks if c.get("result") == "VERIFIED")
 
     # Deterministic checks (T1 — not yet implemented in M2)
     deterministic_passed = 0
@@ -249,10 +244,10 @@ def render_paper(state: FactoryState) -> str:
 
     front_matter = (
         "---\n"
-        f"title: \"{title}\"\n"
+        f'title: "{title}"\n'
         f"generated_by: SLOP Research Factory v0.1\n"
-        f"run_id: \"{state.run_id}\"\n"
-        f"generated_at: \"{now}\"\n"
+        f'run_id: "{state.run_id}"\n'
+        f'generated_at: "{now}"\n'
         f"status: ai_generated_unreviewed\n"
         "---\n\n"
     )
@@ -351,8 +346,7 @@ async def finalize_node(
         run_id=state.run_id,
         generated_at=datetime.now(UTC),
         brief_title=(
-            state.brief.get("title_suggestion")
-            or state.brief.get("thesis", "Untitled")[:80]
+            state.brief.get("title_suggestion") or state.brief.get("thesis", "Untitled")[:80]
         ),
         brief_hash=brief_hash,
         models_used=_aggregate_model_usage(list(state.messages)),

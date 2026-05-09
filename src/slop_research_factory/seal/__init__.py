@@ -20,9 +20,9 @@ from slop_research_factory.seal.helpers import seal_step
 from slop_research_factory.seal.registry import validate_metadata
 from slop_research_factory.seal.sdk_adapter import (
     SDKSealEngine,
-    create_seal_engine,
     create_sdk_engine,
     create_sdk_engine_from_env,
+    create_seal_engine,
 )
 
 __all__ = [

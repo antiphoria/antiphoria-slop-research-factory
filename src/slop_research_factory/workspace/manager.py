@@ -170,6 +170,16 @@ class WorkspaceManager:
     Spec: D-2 §13, D-9 §3.
     """
 
+    @classmethod
+    def for_run_directory(cls, run_dir: Path | str) -> WorkspaceManager:
+        """Open a workspace when *run_dir* is already ``base_dir / run_id``.
+
+        Used by CLI and resume entry points that receive a path to the run
+        root (e.g. ``.../workspace/<run_id>``).
+        """
+        p = Path(run_dir).resolve()
+        return cls(p.parent, p.name)
+
     def __init__(
         self,
         base_dir: Path | str,

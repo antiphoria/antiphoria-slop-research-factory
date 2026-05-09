@@ -18,16 +18,14 @@ import json
 from pathlib import Path
 
 import pytest
+from conftest import StubState, StubWorkspace
 
 from slop_research_factory.nodes.finalize_node import (
     compute_configuration_overrides,
     finalize_node,
     render_paper,
-    render_provenance_report,
 )
 from slop_research_factory.types.enums import RunStatus, StepType
-
-from conftest import StubConfig, StubState, StubWorkspace
 
 
 @pytest.fixture
@@ -161,7 +159,7 @@ class TestFinalizeNodeIntegration:
         genesis_seal_engine,
     ) -> None:
         """Finalize creates paper.md, hai_card.md, manifest.json, provenance_report.md."""
-        result = await finalize_node(
+        await finalize_node(
             finalize_state,
             seal_engine=genesis_seal_engine,
             workspace=finalize_workspace,
@@ -231,9 +229,7 @@ class TestFinalizeNodeIntegration:
         report = await genesis_seal_engine.verify_chain()
         assert report.chain_intact
         # Find the MANIFEST step
-        manifest_steps = [
-            s for s in report.steps if s.step_type == StepType.MANIFEST.value
-        ]
+        manifest_steps = [s for s in report.steps if s.step_type == StepType.MANIFEST.value]
         assert len(manifest_steps) == 1
 
     @pytest.mark.asyncio

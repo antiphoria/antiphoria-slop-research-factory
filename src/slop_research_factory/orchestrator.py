@@ -50,7 +50,7 @@ from typing import Any
 from slop_research_factory.config import FactoryConfig
 from slop_research_factory.engine.graph import GraphDependencies, run_graph
 from slop_research_factory.seal.sdk_adapter import create_seal_engine
-from slop_research_factory.types.enums import RunStatus, StepType
+from slop_research_factory.types.enums import RunStatus
 from slop_research_factory.types.provenance import VerificationReport
 from slop_research_factory.types.state import AppendOnlyList, FactoryState
 from slop_research_factory.workspace.manager import WorkspaceManager
@@ -106,11 +106,7 @@ class FactoryResult:
         status = self.state.status.value
         chain = ""
         if self.verification_report:
-            chain = (
-                " chain=INTACT"
-                if self.verification_report.chain_intact
-                else " chain=BROKEN"
-            )
+            chain = " chain=INTACT" if self.verification_report.chain_intact else " chain=BROKEN"
         return (
             f"[{self.state.run_id[:8]}] status={status}{chain} "
             f"cycles={self.state.cycle_count} "
@@ -186,9 +182,7 @@ def _build_structured_complete(config: FactoryConfig) -> Any:
 
         return complete_structured
     except ImportError:
-        logger.warning(
-            "[orchestrator] instructor not installed — verifier will use manual parsing"
-        )
+        logger.warning("[orchestrator] instructor not installed — verifier will use manual parsing")
         return None
 
 
@@ -288,7 +282,7 @@ async def run_factory(
 
     # ── 5.3: Workspace ───────────────────────────────────────────
     workspace_path = workspace_root / run_id
-    workspace = WorkspaceManager(workspace_path)
+    workspace = WorkspaceManager(workspace_root, run_id)
     workspace.initialize()
 
     logger.info(
@@ -482,7 +476,7 @@ async def resume_factory(
     """
     wall_start = time.monotonic()
     workspace_path = Path(workspace_path).resolve()
-    workspace = WorkspaceManager(workspace_path)
+    workspace = WorkspaceManager.for_run_directory(workspace_path)
 
     # Load persisted state
     state = workspace.load_state()
@@ -522,8 +516,7 @@ async def resume_factory(
 
     elif state.status in (RunStatus.COMPLETED, RunStatus.NO_OUTPUT):
         raise ValueError(
-            f"Run {run_id} already in terminal status {state.status.value} — "
-            f"cannot resume."
+            f"Run {run_id} already in terminal status {state.status.value} — cannot resume."
         )
 
     elif state.status == RunStatus.FAILED:
@@ -699,8 +692,7 @@ def _log_completion(
     """Log a structured completion message."""
     integrity = "INTACT" if report.chain_intact else "BROKEN"
     logger.info(
-        "[orchestrator] [%s] Run COMPLETED — "
-        "chain=%s steps=%d cycles=%d cost=$%.4f elapsed=%.1fs",
+        "[orchestrator] [%s] Run COMPLETED — chain=%s steps=%d cycles=%d cost=$%.4f elapsed=%.1fs",
         state.run_id[:8],
         integrity,
         report.total_steps,

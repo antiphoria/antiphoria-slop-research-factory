@@ -74,7 +74,7 @@ def _strip_hash_prefix(h: str | None) -> str | None:
     if h is None:
         return None
     if h.startswith(_SHA256_PREFIX):
-        return h[len(_SHA256_PREFIX):]
+        return h[len(_SHA256_PREFIX) :]
     return h
 
 

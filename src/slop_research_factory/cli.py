@@ -246,7 +246,7 @@ async def _cmd_run(args: argparse.Namespace) -> int:
         config = dataclasses.replace(config, enable_provenance=False)
 
     # Run
-    _out(f"Starting factory run…")
+    _out("Starting factory run…")
     _out(f"  Brief: {brief_path}")
     if config_path:
         _out(f"  Config: {config_path}")
@@ -281,7 +281,7 @@ async def _cmd_run(args: argparse.Namespace) -> int:
     elif result.state.status.value == "AWAITING_HUMAN":
         _out("\n⏸️  Run paused — human intervention required.")
         _out(f"   Inspect: {result.workspace_path / 'rescue' / 'request.json'}")
-        _out("   Resume:  slop-factory resume --workspace " f"{result.workspace_path}")
+        _out(f"   Resume:  slop-factory resume --workspace {result.workspace_path}")
         return 2
     else:
         _err(f"\n❌ Run ended with status: {result.state.status.value}")
@@ -353,7 +353,7 @@ async def _cmd_verify(args: argparse.Namespace) -> int:
         _err(f"Workspace not found: {workspace_path}")
         return 1
 
-    workspace = WorkspaceManager(workspace_path)
+    workspace = WorkspaceManager.for_run_directory(workspace_path)
 
     try:
         state = workspace.load_state()
@@ -418,7 +418,7 @@ async def _cmd_status(args: argparse.Namespace) -> int:
         _err(f"Workspace not found: {workspace_path}")
         return 1
 
-    workspace = WorkspaceManager(workspace_path)
+    workspace = WorkspaceManager.for_run_directory(workspace_path)
 
     try:
         state = workspace.load_state()
@@ -448,7 +448,7 @@ def _render_verification_report(report) -> None:
     _out("")
 
     _out(f"{'Step':<6} {'Type':<20} {'Status':<8} {'Errors'}")
-    _out(f"{'─'*6} {'─'*20} {'─'*8} {'─'*40}")
+    _out(f"{'─' * 6} {'─' * 20} {'─' * 8} {'─' * 40}")
 
     for s in report.steps:
         status = "✅" if s.ok else "❌"
@@ -488,18 +488,12 @@ def _render_status_human(state, workspace_path: Path) -> None:
     _out(f"│  Created:     {state.created_at:<41} │")
     _out(f"│  Updated:     {state.updated_at:<41} │")
 
-    if state.latest_hash:
-        hash_display = f"{state.latest_hash[:16]}…"
-    else:
-        hash_display = "—"
+    hash_display = f"{state.latest_hash[:16]}…" if state.latest_hash else "—"
     _out(f"│  Latest Hash: {hash_display:<41} │")
     _out("└─────────────────────────────────────────────────────────┘")
 
     # Brief summary
-    brief_title = (
-        state.brief.get("title_suggestion")
-        or state.brief.get("thesis", "—")[:60]
-    )
+    brief_title = state.brief.get("title_suggestion") or state.brief.get("thesis", "—")[:60]
     _out(f"\n  Brief: {brief_title}")
 
     # Verdict (if available)
@@ -526,10 +520,7 @@ def _render_status_json(state) -> None:
         "total_wall_clock_seconds": state.total_wall_clock_seconds,
         "created_at": state.created_at,
         "updated_at": state.updated_at,
-        "brief_title": (
-            state.brief.get("title_suggestion")
-            or state.brief.get("thesis", "")[:80]
-        ),
+        "brief_title": (state.brief.get("title_suggestion") or state.brief.get("thesis", "")[:80]),
     }
     _out(json.dumps(output, indent=2))
 

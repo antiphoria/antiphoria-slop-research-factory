@@ -18,14 +18,13 @@ import json
 from pathlib import Path
 
 import pytest
+from conftest import StubConfig, StubState, StubWorkspace
 
 from slop_research_factory.nodes.human_rescue_node import (
     _extract_rescue_reason,
     human_rescue_node,
 )
 from slop_research_factory.types.enums import RescueReason, RunStatus, StepType
-
-from conftest import StubConfig, StubState, StubWorkspace
 
 
 @pytest.fixture
@@ -193,9 +192,7 @@ class TestHumanRescueNodeIntegration:
         )
         report = await genesis_seal_engine.verify_chain()
         assert report.chain_intact
-        gate_steps = [
-            s for s in report.steps if s.step_type == StepType.HUMAN_GATE.value
-        ]
+        gate_steps = [s for s in report.steps if s.step_type == StepType.HUMAN_GATE.value]
         assert len(gate_steps) == 1
 
     @pytest.mark.asyncio

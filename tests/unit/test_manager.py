@@ -170,6 +170,19 @@ class TestWorkspaceManagerConstruction:
             WorkspaceManager(tmp_path, "a\0b")
 
 
+class TestWorkspaceManagerForRunDirectory:
+    """``for_run_directory`` matches ``(parent, name)`` constructor."""
+
+    def test_equivalent_to_base_plus_run_id(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        run_dir = tmp_path / "my-run"
+        a = WorkspaceManager(tmp_path, "my-run")
+        b = WorkspaceManager.for_run_directory(run_dir)
+        assert a.run_dir == b.run_dir == run_dir.resolve()
+
+
 # ── Path properties ──────────────────────────────────────
 
 
