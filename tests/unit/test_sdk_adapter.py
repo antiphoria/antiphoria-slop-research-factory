@@ -9,26 +9,30 @@ Tests:
 - Verification report mapping
 - Engine selection logic (provenance on/off)
 
-NOTE: These tests use mock SDK objects — they do NOT require
-antiphoria_sdk to be installed (except for the engine selection
-integration test which is skipped if unavailable).
+NOTE: These tests use mock SDK objects and a stub ``sys.modules``
+entry for ``antiphoria_sdk`` where needed so they do not require a
+working liboqs install.
 """
 
 from __future__ import annotations
 
+import types
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from slop_research_factory.seal.engine import SealReceipt, VerificationReport
 from slop_research_factory.seal.sdk_adapter import (
+    _KEY_B64_VARS,
+    _KEY_LOCATION_VARS,
     _add_hash_prefix,
     _map_receipt,
     _map_step_verification,
     _map_verification_report,
+    _resolve_sdk_hybrid_keys,
     _strip_hash_prefix,
     create_seal_engine,
 )
@@ -37,6 +41,26 @@ from slop_research_factory.types.enums import StepType
 # Non-/tmp paths — ruff S108 flags hard-coded /tmp in tests.
 _FIXTURE_CHAIN_POST = "/workspace/fixture/chain/000003_POST_GENERATOR.json"
 _FIXTURE_CHAIN_GENESIS = "/workspace/fixture/chain/000000_GENESIS.json"
+
+
+@dataclass
+class _FakeHybridKeys:
+    """Stand-in for ``antiphoria_sdk.HybridKeys`` when testing file/env resolution."""
+
+    mldsa_public: bytes
+    ed25519_public: bytes
+    mldsa_private: bytes
+    ed25519_private: bytes
+
+
+def _fake_antiphoria_sdk_module(*, load_keys_from_env: MagicMock | None = None) -> types.ModuleType:
+    """Minimal ``antiphoria_sdk`` so ``_resolve_sdk_hybrid_keys`` can run without liboqs/oqs."""
+
+    mod = types.ModuleType("antiphoria_sdk")
+    mod.HybridKeys = _FakeHybridKeys
+    mod.load_keys_from_env = load_keys_from_env if load_keys_from_env is not None else MagicMock()
+    return mod
+
 
 # ── Hash normalization ────────────────────────────────────────────────
 
@@ -194,6 +218,119 @@ class TestVerificationReportMapping:
         result_broken = _map_step_verification(broken)
         assert result_broken.payload_valid is False
         assert result_broken.ok is False
+
+
+# ── Hybrid key env resolution (B64 vs filesystem) ─────────────────────
+
+
+class TestResolveSdkHybridKeys:
+    """``_resolve_sdk_hybrid_keys`` — path quad vs B64, mutual exclusion."""
+
+    def _clear_key_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        for n in _KEY_LOCATION_VARS + _KEY_B64_VARS:
+            monkeypatch.delenv(n, raising=False)
+
+    def test_partial_location_vars_raise(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """1–3 LOCATION vars set → clear error (no mixing with B64)."""
+        fake = _fake_antiphoria_sdk_module()
+        self._clear_key_env(monkeypatch)
+        monkeypatch.setenv(
+            "ANTIPHORIA_MLDSA_PUBLIC_KEY_LOCATION",
+            str(tmp_path / "only_a"),
+        )
+        monkeypatch.setenv(
+            "ANTIPHORIA_MLDSA_PRIVATE_KEY_LOCATION",
+            str(tmp_path / "only_b"),
+        )
+        with (
+            patch.dict("sys.modules", {"antiphoria_sdk": fake}),
+            pytest.raises(RuntimeError, match="Incomplete ANTIPHORIA"),
+        ):
+            _resolve_sdk_hybrid_keys()
+
+    def test_full_location_and_full_b64_raise(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """Both quads non-empty → mutual exclusion error."""
+        fake = _fake_antiphoria_sdk_module()
+        self._clear_key_env(monkeypatch)
+        for name, content in (
+            ("m_pub", b"a" * 64),
+            ("m_priv", b"b" * 64),
+            ("e_pub", b"c" * 32),
+            ("e_priv", b"d" * 32),
+        ):
+            p = tmp_path / name
+            p.write_bytes(content)
+        monkeypatch.setenv(
+            "ANTIPHORIA_MLDSA_PUBLIC_KEY_LOCATION",
+            str(tmp_path / "m_pub"),
+        )
+        monkeypatch.setenv(
+            "ANTIPHORIA_MLDSA_PRIVATE_KEY_LOCATION",
+            str(tmp_path / "m_priv"),
+        )
+        monkeypatch.setenv(
+            "ANTIPHORIA_ED25519_PUBLIC_KEY_LOCATION",
+            str(tmp_path / "e_pub"),
+        )
+        monkeypatch.setenv(
+            "ANTIPHORIA_ED25519_PRIVATE_KEY_LOCATION",
+            str(tmp_path / "e_priv"),
+        )
+        monkeypatch.setenv("ANTIPHORIA_MLDSA_PUBLIC_KEY_B64", "YQ==")
+        monkeypatch.setenv("ANTIPHORIA_MLDSA_PRIVATE_KEY_B64", "Yg==")
+        monkeypatch.setenv("ANTIPHORIA_ED25519_PUBLIC_KEY_B64", "Yw==")
+        monkeypatch.setenv("ANTIPHORIA_ED25519_PRIVATE_KEY_B64", "ZA==")
+        with (
+            patch.dict("sys.modules", {"antiphoria_sdk": fake}),
+            pytest.raises(RuntimeError, match="not both"),
+        ):
+            _resolve_sdk_hybrid_keys()
+
+    def test_location_quad_skips_load_keys_from_env(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """All four files present → builds HybridKeys from disk; no B64 loader."""
+        load_mock = MagicMock()
+        fake = _fake_antiphoria_sdk_module(load_keys_from_env=load_mock)
+        self._clear_key_env(monkeypatch)
+        for name, content in (
+            ("m_pub", b"a" * 1952),
+            ("m_priv", b"b" * 4000),
+            ("e_pub", b"\x03" * 32),
+            ("e_priv", b"\x04" * 32),
+        ):
+            (tmp_path / name).write_bytes(content)
+        monkeypatch.setenv(
+            "ANTIPHORIA_MLDSA_PUBLIC_KEY_LOCATION",
+            str(tmp_path / "m_pub"),
+        )
+        monkeypatch.setenv(
+            "ANTIPHORIA_MLDSA_PRIVATE_KEY_LOCATION",
+            str(tmp_path / "m_priv"),
+        )
+        monkeypatch.setenv(
+            "ANTIPHORIA_ED25519_PUBLIC_KEY_LOCATION",
+            str(tmp_path / "e_pub"),
+        )
+        monkeypatch.setenv(
+            "ANTIPHORIA_ED25519_PRIVATE_KEY_LOCATION",
+            str(tmp_path / "e_priv"),
+        )
+        with patch.dict("sys.modules", {"antiphoria_sdk": fake}):
+            keys = _resolve_sdk_hybrid_keys()
+        load_mock.assert_not_called()
+        assert keys.mldsa_public == b"a" * 1952
+        assert keys.ed25519_public == b"\x03" * 32
 
 
 # ── Engine selection ──────────────────────────────────────────────────

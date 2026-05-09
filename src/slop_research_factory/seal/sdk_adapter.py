@@ -24,9 +24,10 @@ Design decisions:
   own dataclasses from ``seal/engine.py``. This keeps the factory
   decoupled — SDK types never leak into node code.
 
-* **Key management**: Delegated entirely to the SDK's ``load_keys_from_env``
-  or caller-provided signer/verifier instances. The adapter does not
-  handle key generation or rotation.
+* **Key management**: Environment-based: base64 variables (``*_KEY_B64``),
+  or all four ``*_KEY_LOCATION`` paths (raw ML-DSA files; Ed25519 raw or PEM).
+  Caller-provided signer/verifier instances are also supported via
+  :func:`create_sdk_engine`.
 
 Spec references:
     SDK Spec Sheet §5   Public API surface.
@@ -38,6 +39,7 @@ Spec references:
 from __future__ import annotations
 
 import logging
+import os
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
@@ -318,6 +320,123 @@ class SDKSealEngine:
         return bare
 
 
+# ── SDK hybrid key loading (B64 env vs filesystem) ──────────────────
+
+_KEY_LOCATION_VARS: tuple[str, ...] = (
+    "ANTIPHORIA_MLDSA_PUBLIC_KEY_LOCATION",
+    "ANTIPHORIA_MLDSA_PRIVATE_KEY_LOCATION",
+    "ANTIPHORIA_ED25519_PUBLIC_KEY_LOCATION",
+    "ANTIPHORIA_ED25519_PRIVATE_KEY_LOCATION",
+)
+
+_KEY_B64_VARS: tuple[str, ...] = (
+    "ANTIPHORIA_MLDSA_PUBLIC_KEY_B64",
+    "ANTIPHORIA_MLDSA_PRIVATE_KEY_B64",
+    "ANTIPHORIA_ED25519_PUBLIC_KEY_B64",
+    "ANTIPHORIA_ED25519_PRIVATE_KEY_B64",
+)
+
+
+def _all_b64_vars_non_empty() -> bool:
+    return all(os.environ.get(n, "").strip() for n in _KEY_B64_VARS)
+
+
+def _location_env_nonempty_count() -> int:
+    return sum(1 for n in _KEY_LOCATION_VARS if os.environ.get(n, "").strip())
+
+
+def _read_mldsa_key_file(path: Path) -> bytes:
+    """Load raw ML-DSA key bytes (same bytes as base64-decoded env material)."""
+    data = path.read_bytes()
+    if data.lstrip().startswith(b"-----"):
+        raise RuntimeError(
+            f"ML-DSA key file {path} appears to be PEM; only raw binary is supported.",
+        )
+    return data
+
+
+def _read_ed25519_key_file(path: Path, *, private: bool) -> bytes:
+    """Load Ed25519 key bytes from raw file or PEM."""
+    data = path.read_bytes()
+    if not data.lstrip().startswith(b"-----"):
+        return data
+    try:
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+            Ed25519PrivateKey,
+            Ed25519PublicKey,
+        )
+    except ImportError as exc:
+        raise RuntimeError(
+            "PEM-encoded Ed25519 key files require cryptography "
+            "(install the provenance extra / antiphoria-slop-provenance).",
+        ) from exc
+
+    if private:
+        key = serialization.load_pem_private_key(data, password=None)
+        if not isinstance(key, Ed25519PrivateKey):
+            raise RuntimeError(f"Expected Ed25519 private key in {path}, got {type(key).__name__}.")
+        return key.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+
+    key = serialization.load_pem_public_key(data)
+    if not isinstance(key, Ed25519PublicKey):
+        raise RuntimeError(f"Expected Ed25519 public key in {path}, got {type(key).__name__}.")
+    return key.public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw,
+    )
+
+
+def _hybrid_keys_from_key_files(hybrid_keys_cls: Any) -> Any:
+    paths = tuple(Path(os.environ[n].strip()).expanduser() for n in _KEY_LOCATION_VARS)
+    for p in paths:
+        if not p.is_file():
+            raise RuntimeError(f"Key file does not exist or is not a file: {p}")
+    mldsa_pub = _read_mldsa_key_file(paths[0])
+    mldsa_priv = _read_mldsa_key_file(paths[1])
+    ed_pub = _read_ed25519_key_file(paths[2], private=False)
+    ed_priv = _read_ed25519_key_file(paths[3], private=True)
+    return hybrid_keys_cls(
+        mldsa_public=mldsa_pub,
+        ed25519_public=ed_pub,
+        mldsa_private=mldsa_priv,
+        ed25519_private=ed_priv,
+    )
+
+
+def _resolve_sdk_hybrid_keys() -> Any:
+    """Return ``HybridKeys`` from filesystem paths or base64 env (SDK loader)."""
+
+    try:
+        from antiphoria_sdk import HybridKeys, load_keys_from_env
+    except ImportError as exc:
+        raise RuntimeError(
+            "antiphoria_sdk is required for provenance sealing. "
+            "Install with: pip install antiphoria-slop-provenance",
+        ) from exc
+
+    loc_n = _location_env_nonempty_count()
+    if loc_n == len(_KEY_LOCATION_VARS):
+        if _all_b64_vars_non_empty():
+            raise RuntimeError(
+                "Set either all four ANTIPHORIA_*_KEY_LOCATION paths or all four "
+                "*_KEY_B64 variables, not both.",
+            )
+        return _hybrid_keys_from_key_files(HybridKeys)
+
+    if loc_n != 0:
+        raise RuntimeError(
+            "Incomplete ANTIPHORIA_*_KEY_LOCATION: set all four path variables "
+            "or omit them and use ANTIPHORIA_*_KEY_B64 instead.",
+        )
+
+    return load_keys_from_env(require_private=True)
+
+
 # ── Factory functions ────────────────────────────────────────────────
 
 
@@ -393,14 +512,25 @@ def create_sdk_engine_from_env(
     file_lock_timeout_s: float = 30.0,
     resume: bool = False,
 ) -> SDKSealEngine:
-    """Create an :class:`SDKSealEngine` with keys loaded from environment variables.
+    """Create an :class:`SDKSealEngine` with keys from env (B64 or key files).
 
-    This is the recommended production entry point. Keys are read from:
+    Key material is resolved in one of two mutually exclusive ways:
 
-    * ``ANTIPHORIA_MLDSA_PUBLIC_KEY_B64``
-    * ``ANTIPHORIA_MLDSA_PRIVATE_KEY_B64``
-    * ``ANTIPHORIA_ED25519_PUBLIC_KEY_B64``
-    * ``ANTIPHORIA_ED25519_PRIVATE_KEY_B64``
+    * **Files:** all of ``ANTIPHORIA_MLDSA_PUBLIC_KEY_LOCATION``,
+      ``ANTIPHORIA_MLDSA_PRIVATE_KEY_LOCATION``,
+      ``ANTIPHORIA_ED25519_PUBLIC_KEY_LOCATION``,
+      ``ANTIPHORIA_ED25519_PRIVATE_KEY_LOCATION`` point to readable files.
+      ML-DSA files must be **raw** key bytes. Ed25519 may be raw or **PEM**
+      (requires ``cryptography``, via the provenance package).
+
+    * **Base64 env (default when paths unset):**
+
+        * ``ANTIPHORIA_MLDSA_PUBLIC_KEY_B64``
+        * ``ANTIPHORIA_MLDSA_PRIVATE_KEY_B64``
+        * ``ANTIPHORIA_ED25519_PUBLIC_KEY_B64``
+        * ``ANTIPHORIA_ED25519_PRIVATE_KEY_B64``
+
+    Do not set both full path quads and full B64 quads.
 
     Args:
         workspace:           Workspace directory path.
@@ -413,21 +543,18 @@ def create_sdk_engine_from_env(
         Configured :class:`SDKSealEngine` adapter.
 
     Raises:
-        RuntimeError: If ``antiphoria_sdk`` is not installed or env vars missing.
+        RuntimeError: If ``antiphoria_sdk`` is not installed, env configuration
+            is invalid, or key files are missing.
     """
     try:
-        from antiphoria_sdk import (
-            HybridSigner,
-            HybridVerifier,
-            load_keys_from_env,
-        )
+        from antiphoria_sdk import HybridSigner, HybridVerifier
     except ImportError as exc:
         raise RuntimeError(
             "antiphoria_sdk is required for provenance sealing. "
             "Install with: pip install antiphoria-slop-provenance"
         ) from exc
 
-    keys = load_keys_from_env(require_private=True)
+    keys = _resolve_sdk_hybrid_keys()
     signer = HybridSigner(keys, key_id=key_id)
     verifier = HybridVerifier({keys.fingerprint: keys.public_only()})
 

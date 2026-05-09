@@ -212,3 +212,10 @@ docs/test_research/
 # Skills
 skills-lock.json
 agents/
+
+# Keys
+keys/
+
+# DS_Store
+.DS_Store
+**/.DS_Store
