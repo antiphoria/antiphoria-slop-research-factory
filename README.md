@@ -1,7 +1,7 @@
 # antiphoria-slop-research-factory
 
 ## A human note
-
+```text
 There is so much going on here that I genuinely have no idea about it.
 
 - it's "spec-driven" which I'll never do again
@@ -20,16 +20,17 @@ I recently heard something along the lines of:
 Is that so?
 
 If reading AI code is not a blocker to you - be warned but ofc go ahead and explore it.
+```
 
 For development and coding assistants, see **[AGENTS.md](AGENTS.md)**.
 
-## Disclaimer
+## Disclaimer (for real)
 
 The software must be used in a **research setting only** and **for artistic purposes**.
 
-## Security guarantee
+## Security notice
 
-The provenance system proves **process** integrity, not scientific truth.
+The provenance system is supposed to prove **process** integrity, not scientific truth.
 
 > **Given an unmodified factory installation, an honest operator, and collision-resistant hash functions:**
 >
@@ -61,7 +62,7 @@ These workflows define **`workflow_dispatch`**, so you can run them without a pu
 
 ## License
 
-                Copyright 2026 Georg Popp
+Copyright 2026 Georg Popp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

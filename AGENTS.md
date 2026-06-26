@@ -7,11 +7,6 @@ Humans read [README.md](README.md) for framing; you read this for how the code a
 
 **If this file disagrees with code or tests, code and tests win.** Update AGENTS.md to match.
 
-This is a hobby prototype — spaghetti code, loose ends, unfinished routes. Do not treat it as production software.
-Do not invent features from old spec documents; they were removed. Recover archaeology only via git tag `spec-era-v0.1` if needed.
-
-Use in **research settings** and **for artistic purposes** only (Apache 2.0).
-
 ---
 
 ## Architecture
@@ -94,7 +89,7 @@ Sibling repo for cryptographic sealing: `../antiphoria-slop-provenance` (optiona
 
 ---
 
-## Security guarantee
+## Security notice
 
 The provenance system proves **process** integrity, not scientific truth.
 
