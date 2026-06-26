@@ -1,14 +1,14 @@
 # src/slop_research_factory/engine/routing.py
 
 """
-Verdict routing logic — D-2 §8.4, D-0 §4C, D-0 §8.1.
+Verdict routing logic.4, , .1.
 
 Determines the next node after Verifier assessment:
 
-  - **Demotion** (D-0 §8.1): CORRECT with sub-threshold
+  - **Demotion**: CORRECT with sub-threshold
 
     confidence is demoted to FIXABLE.
-  - **Routing** (D-2 §8.4): effective verdict × state limits
+  - **Routing**: effective verdict × state limits
 
     → next node.
   - **Counter updates**: :func:`apply_routing_deltas` adds the
@@ -20,15 +20,9 @@ Determines the next node after Verifier assessment:
 This module makes no LLM calls, no network requests, and no
 seal-engine invocations.
 
-Loop limits (D-2 §4) are evaluated per branch — see
+Loop limits are evaluated per branch — see
 :class:`~slop_research_factory.config.FactoryConfig` docstring.
 
-Spec references:
-    D-0 §4C   Routing semantics (verdict → next node).
-    D-0 §8.1  Composition and demotion.
-    D-2 §4    Loop limits.
-    D-2 §8.4  Routing pseudocode.
-    D-8 §3.2  E1-R01 through E1-R10 test specifications.
 """
 
 from __future__ import annotations
@@ -68,7 +62,7 @@ FINALIZE_NODE: str = "finalize_manifest"
 REVISER_NODE: str = "reviser_node"
 HUMAN_RESCUE_NODE: str = "human_rescue_queue"
 
-# ── Reviser modes (D-0 §4C) ─────────────────────────────────────────
+# ── Reviser modes ─────────────────────────────────────────
 
 TARGETED_REPAIR: str = "targeted_repair"
 """FIXABLE → patch the existing draft."""
@@ -92,19 +86,18 @@ REASON_MAX_CYCLES: RescueReason = RescueReason.MAX_TOTAL_CYCLES_EXCEEDED
 class RoutingDecision:
     """Immutable result of the verdict routing logic.
 
-    Spec: D-2 §8.4, D-0 §4C.
 
     Attributes:
-        next_node:     One of :data:`FINALIZE_NODE`,
+        next_node: One of :data:`FINALIZE_NODE`,
                        :data:`REVISER_NODE`, or
                        :data:`HUMAN_RESCUE_NODE`.
-        reviser_mode:  ``"targeted_repair"`` or ``"full_rewrite"``
+        reviser_mode: ``"targeted_repair"`` or ``"full_rewrite"``
                        when *next_node* is the Reviser;
                        ``None`` otherwise.
         rescue_reason: Limit that triggered rescue when
                        *next_node* is the human rescue queue;
                        ``None`` otherwise.
-        revision_increment:  Add to ``state.revision_count`` via
+        revision_increment: Add to ``state.revision_count`` via
             :func:`apply_routing_deltas` (0 or 1).
         rejection_increment: Add to ``state.rejection_count`` via
             :func:`apply_routing_deltas` (0 or 1).
@@ -124,7 +117,7 @@ def apply_routing_deltas(
     """Apply counter increments from *decision* to *state* in place.
 
     Call this once after :func:`route_after_verification` when the
-    orchestrator commits the transition.  Idempotent *decisions* are
+    orchestrator commits the transition. Idempotent *decisions* are
     safe to re-apply if you construct a new ``RoutingDecision`` each
     time; do **not** call twice for the same logical routing event.
     """
@@ -134,7 +127,7 @@ def apply_routing_deltas(
         state.rejection_count += decision.rejection_increment
 
 
-# ── Demotion rule (D-0 §8.1) ────────────────────────────────────────
+# ── Demotion rule ────────────────────────────────────────
 
 
 def compute_effective_verdict(
@@ -150,12 +143,12 @@ def compute_effective_verdict(
 
     There is intentionally **no** promotion rule: a
     low-confidence ``WRONG`` verdict is never upgraded.
-    The system fails safe (D-2 §8.4).
+    The system fails safe.
 
     Args:
-        verdict:            Raw verdict from the Verifier LLM.
+        verdict: Raw verdict from the Verifier LLM.
         verdict_confidence: Composed confidence score (0.0–1.0).
-        threshold:          Value of
+        threshold: Value of
             ``config.verifier_confidence_threshold``.
 
     Returns:
@@ -171,7 +164,7 @@ def compute_effective_verdict(
     return verdict
 
 
-# ── Budget / cycle guard (D-2 §4, precedence 3–4) ───────────────────
+# ── Budget / cycle guard ───────────────────
 
 
 def _check_budget_and_cycles(
@@ -202,7 +195,7 @@ def _check_budget_and_cycles(
     return None
 
 
-# ── Main routing function (D-2 §8.4 pseudocode) ─────────────────────
+# ── Main routing function ─────────────────────
 
 
 def route_after_verification(
@@ -215,7 +208,7 @@ def route_after_verification(
     this returns when the orchestrator records the step.
 
     Args:
-        state:             Current ``FactoryState`` (read-only).
+        state: Current ``FactoryState`` (read-only).
         effective_verdict: Post-demotion verdict from
             :func:`compute_effective_verdict`.
 
@@ -240,7 +233,7 @@ def route_after_verification(
 
 
 def _route_fixable(state: FactoryState) -> RoutingDecision:
-    """Route a FIXABLE verdict (D-2 §8.4, FIXABLE branch)."""
+    """Route a FIXABLE verdict."""
     cfg = state.config
 
     if state.revision_count >= cfg.max_revisions:
@@ -281,7 +274,7 @@ def _route_fixable(state: FactoryState) -> RoutingDecision:
 
 
 def _route_wrong(state: FactoryState) -> RoutingDecision:
-    """Route a WRONG verdict (D-2 §8.4, WRONG branch)."""
+    """Route a WRONG verdict."""
     cfg = state.config
 
     if state.rejection_count >= cfg.max_rejections:

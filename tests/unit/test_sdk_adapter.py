@@ -24,17 +24,17 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from slop_research_factory.seal.engine import SealReceipt, SealEngine, VerificationReport
+from slop_research_factory.seal.engine import SealEngine, SealReceipt, VerificationReport
 from slop_research_factory.seal.sdk_adapter import (
     _KEY_B64_VARS,
     _KEY_LOCATION_VARS,
+    SDKSealEngine,
     _add_hash_prefix,
     _map_receipt,
     _map_step_verification,
     _map_verification_report,
     _resolve_sdk_hybrid_keys,
     _strip_hash_prefix,
-    SDKSealEngine,
     create_seal_engine,
 )
 from slop_research_factory.types.enums import StepType

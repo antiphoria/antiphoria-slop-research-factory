@@ -120,7 +120,7 @@ class TestBasicRendering:
 
 
 class TestSecurityGuarantee:
-    """D-1 §9: Security guarantee must be byte-identical."""
+    """Security guarantee must be byte-identical."""
 
     def test_security_guarantee_present(self) -> None:
         """The security guarantee text appears verbatim."""

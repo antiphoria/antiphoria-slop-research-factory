@@ -19,11 +19,6 @@ After M1.1 the engine owns chain bookkeeping (``chain_dir``,
 Any IO / hash / engine failure is wrapped in :class:`SealError`. State
 is left untouched on failure.
 
-Spec references:
-    D-2 §6     FactoryState mutation contract.
-    D-5 §4     Four-phase protocol.
-    D-5 §5     Per-node seal sequences.
-    D-5 §7     Payload composition contract.
 """
 
 from __future__ import annotations
@@ -64,21 +59,21 @@ async def seal_step(
     """Append one PRE- or POST-seal step; update ``state`` with the new hash.
 
     Args:
-        seal_engine:        Engine instance scoped to the run's
+        seal_engine: Engine instance scoped to the run's
             ``(workspace, run_id)``. Must have had
             :meth:`SealEngine.begin_chain` called exactly once before
             the first non-genesis seal.
-        state:              ``FactoryState`` (or compatible duck).
+        state: ``FactoryState`` (or compatible duck).
             ``step_index`` and ``latest_hash`` are overwritten from the
             engine-returned receipt on success only.
-        step_type:          One of :class:`StepType`. Drives both the
+        step_type: One of :class:`StepType`. Drives both the
             chain filenames and the ``(NodeName, SealType)`` derivation
             inside the engine.
         content_file_paths: Workspace-relative POSIX paths for the
             artefacts this seal commits to. The engine SHA-256s each
             file; digests land in the canonical payload's
             ``content_files`` array.
-        metadata:           Free-form metadata dict. Generator-style
+        metadata: Free-form metadata dict. Generator-style
             keys (``model``, ``token_counts``) are normalised to
             payload-stable names; ``None`` values are dropped.
 

@@ -1,0 +1,3473 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.71.2"
+  },
+  "ReportID": "019f02e3-50a8-7232-b804-47e8dea1a29e",
+  "CreatedAt": "2026-06-26T09:44:39.592145+02:00",
+  "ArtifactID": "sha256:87bd2446f21b080980486607e63324a6315ad3fc8e884344b4bfbb3751141f06",
+  "ArtifactName": ".",
+  "ArtifactType": "repository",
+  "Metadata": {
+    "RepoURL": "https://github.com/antiphoria/antiphoria-slop-research-factory",
+    "Branch": "prototype",
+    "Commit": "958c581420deae17d11b66d749be71257fefca6e",
+    "CommitMsg": "starting to like it less since the start of an actual test of this factory",
+    "Author": "Peter Pan \u003cgithub@antiphoria.org\u003e",
+    "Committer": "Peter Pan \u003cgithub@antiphoria.org\u003e"
+  },
+  "Results": [
+    {
+      "Target": "uv.lock",
+      "Class": "lang-pkgs",
+      "Type": "uv",
+      "Packages": [
+        {
+          "ID": "antiphoria-slop-research-factory@0.1.0",
+          "Name": "antiphoria-slop-research-factory",
+          "Identifier": {
+            "PURL": "pkg:pypi/antiphoria-slop-research-factory@0.1.0",
+            "UID": "3d18f608da43df7a"
+          },
+          "Version": "0.1.0",
+          "Relationship": "root",
+          "DependsOn": [
+            "antiphoria-slop-provenance@0.3.0",
+            "anyio@4.13.0",
+            "arq@0.28.0",
+            "filelock@3.29.0",
+            "httpx@0.28.1",
+            "instructor@1.15.1",
+            "langgraph@1.1.10",
+            "litellm@1.83.14",
+            "matplotlib@3.10.9",
+            "mypy@2.0.0",
+            "pydantic@2.12.5",
+            "pytest-asyncio@1.3.0",
+            "pytest-timeout@2.4.0",
+            "pytest@9.0.3",
+            "python-dotenv@1.2.2",
+            "redis@5.3.1",
+            "rich@14.3.4",
+            "ruff@0.15.12",
+            "streamlit@1.57.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "antiphoria-slop-provenance@0.3.0",
+          "Name": "antiphoria-slop-provenance",
+          "Identifier": {
+            "PURL": "pkg:pypi/antiphoria-slop-provenance@0.3.0",
+            "UID": "cd89147b79e6710f"
+          },
+          "Version": "0.3.0",
+          "Relationship": "direct",
+          "DependsOn": [
+            "c2pa-python@0.32.6",
+            "cryptography@48.0.0",
+            "filelock@3.29.0",
+            "liboqs-python@0.14.1",
+            "pydantic@2.12.5",
+            "pygit2@1.19.2",
+            "pyyaml@6.0.3",
+            "rfc8785@0.1.4"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "anyio@4.13.0",
+          "Name": "anyio",
+          "Identifier": {
+            "PURL": "pkg:pypi/anyio@4.13.0",
+            "UID": "5cdd3c6164919502"
+          },
+          "Version": "4.13.0",
+          "Relationship": "direct",
+          "DependsOn": [
+            "idna@3.13",
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "arq@0.28.0",
+          "Name": "arq",
+          "Identifier": {
+            "PURL": "pkg:pypi/arq@0.28.0",
+            "UID": "9338f52997ca92ef"
+          },
+          "Version": "0.28.0",
+          "Relationship": "direct",
+          "DependsOn": [
+            "click@8.1.8",
+            "redis@5.3.1"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "filelock@3.29.0",
+          "Name": "filelock",
+          "Identifier": {
+            "PURL": "pkg:pypi/filelock@3.29.0",
+            "UID": "db9d31313fc114ce"
+          },
+          "Version": "3.29.0",
+          "Relationship": "direct",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "httpx@0.28.1",
+          "Name": "httpx",
+          "Identifier": {
+            "PURL": "pkg:pypi/httpx@0.28.1",
+            "UID": "811bcae62fecb643"
+          },
+          "Version": "0.28.1",
+          "Relationship": "direct",
+          "DependsOn": [
+            "anyio@4.13.0",
+            "certifi@2026.4.22",
+            "httpcore@1.0.9",
+            "idna@3.13"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "instructor@1.15.1",
+          "Name": "instructor",
+          "Identifier": {
+            "PURL": "pkg:pypi/instructor@1.15.1",
+            "UID": "66179ce38c6698cd"
+          },
+          "Version": "1.15.1",
+          "Relationship": "direct",
+          "DependsOn": [
+            "aiohttp@3.13.4",
+            "docstring-parser@0.18.0",
+            "jinja2@3.1.6",
+            "jiter@0.13.0",
+            "openai@2.24.0",
+            "pydantic-core@2.41.5",
+            "pydantic@2.12.5",
+            "requests@2.33.1",
+            "rich@14.3.4",
+            "tenacity@9.1.4",
+            "typer@0.23.1"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "langgraph@1.1.10",
+          "Name": "langgraph",
+          "Identifier": {
+            "PURL": "pkg:pypi/langgraph@1.1.10",
+            "UID": "c04fb48c54fc8cd1"
+          },
+          "Version": "1.1.10",
+          "Relationship": "direct",
+          "DependsOn": [
+            "langchain-core@1.3.3",
+            "langgraph-checkpoint@4.0.3",
+            "langgraph-prebuilt@1.0.13",
+            "langgraph-sdk@0.3.14",
+            "pydantic@2.12.5",
+            "xxhash@3.7.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "litellm@1.83.14",
+          "Name": "litellm",
+          "Identifier": {
+            "PURL": "pkg:pypi/litellm@1.83.14",
+            "UID": "da384f465fe018d1"
+          },
+          "Version": "1.83.14",
+          "Relationship": "direct",
+          "DependsOn": [
+            "aiohttp@3.13.4",
+            "click@8.1.8",
+            "fastuuid@0.14.0",
+            "httpx@0.28.1",
+            "importlib-metadata@8.5.0",
+            "jinja2@3.1.6",
+            "jsonschema@4.23.0",
+            "openai@2.24.0",
+            "pydantic@2.12.5",
+            "python-dotenv@1.2.2",
+            "tiktoken@0.12.0",
+            "tokenizers@0.22.2"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "matplotlib@3.10.9",
+          "Name": "matplotlib",
+          "Identifier": {
+            "PURL": "pkg:pypi/matplotlib@3.10.9",
+            "UID": "2841d5b5ad1df274"
+          },
+          "Version": "3.10.9",
+          "Relationship": "direct",
+          "DependsOn": [
+            "contourpy@1.3.3",
+            "cycler@0.12.1",
+            "fonttools@4.62.1",
+            "kiwisolver@1.5.0",
+            "numpy@2.4.4",
+            "packaging@26.2",
+            "pillow@12.2.0",
+            "pyparsing@3.3.2",
+            "python-dateutil@2.9.0.post0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "mypy@2.0.0",
+          "Name": "mypy",
+          "Identifier": {
+            "PURL": "pkg:pypi/mypy@2.0.0",
+            "UID": "16e777a8afd50916"
+          },
+          "Version": "2.0.0",
+          "Relationship": "direct",
+          "DependsOn": [
+            "ast-serialize@0.3.0",
+            "librt@0.10.0",
+            "mypy-extensions@1.1.0",
+            "pathspec@1.1.1",
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pydantic@2.12.5",
+          "Name": "pydantic",
+          "Identifier": {
+            "PURL": "pkg:pypi/pydantic@2.12.5",
+            "UID": "dc5668b0f2f99905"
+          },
+          "Version": "2.12.5",
+          "Relationship": "direct",
+          "DependsOn": [
+            "annotated-types@0.7.0",
+            "pydantic-core@2.41.5",
+            "typing-extensions@4.15.0",
+            "typing-inspection@0.4.2"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pytest@9.0.3",
+          "Name": "pytest",
+          "Identifier": {
+            "PURL": "pkg:pypi/pytest@9.0.3",
+            "UID": "c183a16fabfc5c38"
+          },
+          "Version": "9.0.3",
+          "Relationship": "direct",
+          "DependsOn": [
+            "colorama@0.4.6",
+            "iniconfig@2.3.0",
+            "packaging@26.2",
+            "pluggy@1.6.0",
+            "pygments@2.20.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pytest-asyncio@1.3.0",
+          "Name": "pytest-asyncio",
+          "Identifier": {
+            "PURL": "pkg:pypi/pytest-asyncio@1.3.0",
+            "UID": "9b0515b19d0210e5"
+          },
+          "Version": "1.3.0",
+          "Relationship": "direct",
+          "DependsOn": [
+            "pytest@9.0.3",
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pytest-timeout@2.4.0",
+          "Name": "pytest-timeout",
+          "Identifier": {
+            "PURL": "pkg:pypi/pytest-timeout@2.4.0",
+            "UID": "f6437baed04d6854"
+          },
+          "Version": "2.4.0",
+          "Relationship": "direct",
+          "DependsOn": [
+            "pytest@9.0.3"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "python-dotenv@1.2.2",
+          "Name": "python-dotenv",
+          "Identifier": {
+            "PURL": "pkg:pypi/python-dotenv@1.2.2",
+            "UID": "a6b7b624c50e71e1"
+          },
+          "Version": "1.2.2",
+          "Relationship": "direct",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "redis@5.3.1",
+          "Name": "redis",
+          "Identifier": {
+            "PURL": "pkg:pypi/redis@5.3.1",
+            "UID": "7b8a87866dbc046a"
+          },
+          "Version": "5.3.1",
+          "Relationship": "direct",
+          "DependsOn": [
+            "hiredis@3.3.1",
+            "pyjwt@2.12.1"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "rich@14.3.4",
+          "Name": "rich",
+          "Identifier": {
+            "PURL": "pkg:pypi/rich@14.3.4",
+            "UID": "87783c4254c65263"
+          },
+          "Version": "14.3.4",
+          "Relationship": "direct",
+          "DependsOn": [
+            "markdown-it-py@4.2.0",
+            "pygments@2.20.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "ruff@0.15.12",
+          "Name": "ruff",
+          "Identifier": {
+            "PURL": "pkg:pypi/ruff@0.15.12",
+            "UID": "b61f6793ab5898a7"
+          },
+          "Version": "0.15.12",
+          "Relationship": "direct",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "streamlit@1.57.0",
+          "Name": "streamlit",
+          "Identifier": {
+            "PURL": "pkg:pypi/streamlit@1.57.0",
+            "UID": "72ed502111ab455b"
+          },
+          "Version": "1.57.0",
+          "Relationship": "direct",
+          "DependsOn": [
+            "altair@6.1.0",
+            "anyio@4.13.0",
+            "blinker@1.9.0",
+            "cachetools@7.1.1",
+            "click@8.1.8",
+            "gitpython@3.1.50",
+            "httptools@0.7.1",
+            "itsdangerous@2.2.0",
+            "numpy@2.4.4",
+            "packaging@26.2",
+            "pandas@3.0.2",
+            "pillow@12.2.0",
+            "protobuf@7.34.1",
+            "pyarrow@24.0.0",
+            "pydeck@0.9.2",
+            "python-multipart@0.0.27",
+            "requests@2.33.1",
+            "starlette@1.0.0",
+            "tenacity@9.1.4",
+            "toml@0.10.2",
+            "typing-extensions@4.15.0",
+            "uvicorn@0.46.0",
+            "watchdog@6.0.0",
+            "websockets@16.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "aiohappyeyeballs@2.6.1",
+          "Name": "aiohappyeyeballs",
+          "Identifier": {
+            "PURL": "pkg:pypi/aiohappyeyeballs@2.6.1",
+            "UID": "3c1d60f4dcdea8c1"
+          },
+          "Version": "2.6.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "aiohttp@3.13.4",
+          "Name": "aiohttp",
+          "Identifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "Version": "3.13.4",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "aiohappyeyeballs@2.6.1",
+            "aiosignal@1.4.0",
+            "attrs@26.1.0",
+            "frozenlist@1.8.0",
+            "multidict@6.7.1",
+            "propcache@0.5.2",
+            "yarl@1.23.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "aiosignal@1.4.0",
+          "Name": "aiosignal",
+          "Identifier": {
+            "PURL": "pkg:pypi/aiosignal@1.4.0",
+            "UID": "5a1eedfe1585d136"
+          },
+          "Version": "1.4.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "frozenlist@1.8.0",
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "altair@6.1.0",
+          "Name": "altair",
+          "Identifier": {
+            "PURL": "pkg:pypi/altair@6.1.0",
+            "UID": "215ea32c8e0fdbd5"
+          },
+          "Version": "6.1.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "jinja2@3.1.6",
+            "jsonschema@4.23.0",
+            "narwhals@2.21.0",
+            "packaging@26.2",
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "annotated-doc@0.0.4",
+          "Name": "annotated-doc",
+          "Identifier": {
+            "PURL": "pkg:pypi/annotated-doc@0.0.4",
+            "UID": "20932edb8023b337"
+          },
+          "Version": "0.0.4",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "annotated-types@0.7.0",
+          "Name": "annotated-types",
+          "Identifier": {
+            "PURL": "pkg:pypi/annotated-types@0.7.0",
+            "UID": "a4a7cc319376fb9e"
+          },
+          "Version": "0.7.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "ast-serialize@0.3.0",
+          "Name": "ast-serialize",
+          "Identifier": {
+            "PURL": "pkg:pypi/ast-serialize@0.3.0",
+            "UID": "c6700ef3b567798f"
+          },
+          "Version": "0.3.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "attrs@26.1.0",
+          "Name": "attrs",
+          "Identifier": {
+            "PURL": "pkg:pypi/attrs@26.1.0",
+            "UID": "2910de77ff6d92f1"
+          },
+          "Version": "26.1.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "blinker@1.9.0",
+          "Name": "blinker",
+          "Identifier": {
+            "PURL": "pkg:pypi/blinker@1.9.0",
+            "UID": "9d24a61aeb844dca"
+          },
+          "Version": "1.9.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "c2pa-python@0.32.6",
+          "Name": "c2pa-python",
+          "Identifier": {
+            "PURL": "pkg:pypi/c2pa-python@0.32.6",
+            "UID": "3b997a54085ef874"
+          },
+          "Version": "0.32.6",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "cryptography@48.0.0",
+            "pytest@9.0.3",
+            "requests@2.33.1",
+            "setuptools@82.0.1",
+            "toml@0.10.2",
+            "wheel@0.47.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "cachetools@7.1.1",
+          "Name": "cachetools",
+          "Identifier": {
+            "PURL": "pkg:pypi/cachetools@7.1.1",
+            "UID": "c19d22c6efaa6c98"
+          },
+          "Version": "7.1.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "certifi@2026.4.22",
+          "Name": "certifi",
+          "Identifier": {
+            "PURL": "pkg:pypi/certifi@2026.4.22",
+            "UID": "75f622f705c12799"
+          },
+          "Version": "2026.4.22",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "cffi@2.0.0",
+          "Name": "cffi",
+          "Identifier": {
+            "PURL": "pkg:pypi/cffi@2.0.0",
+            "UID": "a78e151c4e3c8b65"
+          },
+          "Version": "2.0.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "pycparser@3.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "charset-normalizer@3.4.7",
+          "Name": "charset-normalizer",
+          "Identifier": {
+            "PURL": "pkg:pypi/charset-normalizer@3.4.7",
+            "UID": "7abf2ef27b51b809"
+          },
+          "Version": "3.4.7",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "click@8.1.8",
+          "Name": "click",
+          "Identifier": {
+            "PURL": "pkg:pypi/click@8.1.8",
+            "UID": "4358ba2717909d5e"
+          },
+          "Version": "8.1.8",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "colorama@0.4.6"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "colorama@0.4.6",
+          "Name": "colorama",
+          "Identifier": {
+            "PURL": "pkg:pypi/colorama@0.4.6",
+            "UID": "a9b0f41cf3bb79cc"
+          },
+          "Version": "0.4.6",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "contourpy@1.3.3",
+          "Name": "contourpy",
+          "Identifier": {
+            "PURL": "pkg:pypi/contourpy@1.3.3",
+            "UID": "e2bbd2705877a3e8"
+          },
+          "Version": "1.3.3",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "numpy@2.4.4"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "cryptography@48.0.0",
+          "Name": "cryptography",
+          "Identifier": {
+            "PURL": "pkg:pypi/cryptography@48.0.0",
+            "UID": "8c70ad1e2af95899"
+          },
+          "Version": "48.0.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "cffi@2.0.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "cycler@0.12.1",
+          "Name": "cycler",
+          "Identifier": {
+            "PURL": "pkg:pypi/cycler@0.12.1",
+            "UID": "4b3e03bd63b7edf5"
+          },
+          "Version": "0.12.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "distro@1.9.0",
+          "Name": "distro",
+          "Identifier": {
+            "PURL": "pkg:pypi/distro@1.9.0",
+            "UID": "22f853bfd9b90f72"
+          },
+          "Version": "1.9.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "docstring-parser@0.18.0",
+          "Name": "docstring-parser",
+          "Identifier": {
+            "PURL": "pkg:pypi/docstring-parser@0.18.0",
+            "UID": "4af4449aa5b6de79"
+          },
+          "Version": "0.18.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "fastuuid@0.14.0",
+          "Name": "fastuuid",
+          "Identifier": {
+            "PURL": "pkg:pypi/fastuuid@0.14.0",
+            "UID": "23b7208c077c6c19"
+          },
+          "Version": "0.14.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "fonttools@4.62.1",
+          "Name": "fonttools",
+          "Identifier": {
+            "PURL": "pkg:pypi/fonttools@4.62.1",
+            "UID": "27ac4183efa1bfa5"
+          },
+          "Version": "4.62.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "frozenlist@1.8.0",
+          "Name": "frozenlist",
+          "Identifier": {
+            "PURL": "pkg:pypi/frozenlist@1.8.0",
+            "UID": "6e474ed64970b17e"
+          },
+          "Version": "1.8.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "fsspec@2026.4.0",
+          "Name": "fsspec",
+          "Identifier": {
+            "PURL": "pkg:pypi/fsspec@2026.4.0",
+            "UID": "6e3b52489fad8a32"
+          },
+          "Version": "2026.4.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "gitdb@4.0.12",
+          "Name": "gitdb",
+          "Identifier": {
+            "PURL": "pkg:pypi/gitdb@4.0.12",
+            "UID": "96ebadbf3721a488"
+          },
+          "Version": "4.0.12",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "smmap@5.0.3"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "gitpython@3.1.50",
+          "Name": "gitpython",
+          "Identifier": {
+            "PURL": "pkg:pypi/gitpython@3.1.50",
+            "UID": "b3bd2f556906aa3c"
+          },
+          "Version": "3.1.50",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "gitdb@4.0.12"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "h11@0.16.0",
+          "Name": "h11",
+          "Identifier": {
+            "PURL": "pkg:pypi/h11@0.16.0",
+            "UID": "d50a8db9ed31c7b5"
+          },
+          "Version": "0.16.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "hf-xet@1.5.0",
+          "Name": "hf-xet",
+          "Identifier": {
+            "PURL": "pkg:pypi/hf-xet@1.5.0",
+            "UID": "3e37808cf9642a8a"
+          },
+          "Version": "1.5.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "hiredis@3.3.1",
+          "Name": "hiredis",
+          "Identifier": {
+            "PURL": "pkg:pypi/hiredis@3.3.1",
+            "UID": "4f0fc22b5ea1cec8"
+          },
+          "Version": "3.3.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "httpcore@1.0.9",
+          "Name": "httpcore",
+          "Identifier": {
+            "PURL": "pkg:pypi/httpcore@1.0.9",
+            "UID": "81d87c0eeae709dc"
+          },
+          "Version": "1.0.9",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "certifi@2026.4.22",
+            "h11@0.16.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "httptools@0.7.1",
+          "Name": "httptools",
+          "Identifier": {
+            "PURL": "pkg:pypi/httptools@0.7.1",
+            "UID": "569d572e0cbe9dac"
+          },
+          "Version": "0.7.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "huggingface-hub@1.14.0",
+          "Name": "huggingface-hub",
+          "Identifier": {
+            "PURL": "pkg:pypi/huggingface-hub@1.14.0",
+            "UID": "4fd01d789bc97292"
+          },
+          "Version": "1.14.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "filelock@3.29.0",
+            "fsspec@2026.4.0",
+            "hf-xet@1.5.0",
+            "httpx@0.28.1",
+            "packaging@26.2",
+            "pyyaml@6.0.3",
+            "tqdm@4.67.3",
+            "typer@0.23.1",
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "idna@3.13",
+          "Name": "idna",
+          "Identifier": {
+            "PURL": "pkg:pypi/idna@3.13",
+            "UID": "f0cbbc5580850e59"
+          },
+          "Version": "3.13",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "importlib-metadata@8.5.0",
+          "Name": "importlib-metadata",
+          "Identifier": {
+            "PURL": "pkg:pypi/importlib-metadata@8.5.0",
+            "UID": "ee2e8be977ba5440"
+          },
+          "Version": "8.5.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "zipp@3.23.1"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "iniconfig@2.3.0",
+          "Name": "iniconfig",
+          "Identifier": {
+            "PURL": "pkg:pypi/iniconfig@2.3.0",
+            "UID": "dbea2b4a1a557d3e"
+          },
+          "Version": "2.3.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "itsdangerous@2.2.0",
+          "Name": "itsdangerous",
+          "Identifier": {
+            "PURL": "pkg:pypi/itsdangerous@2.2.0",
+            "UID": "3a52d0aa92252a6c"
+          },
+          "Version": "2.2.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "jinja2@3.1.6",
+          "Name": "jinja2",
+          "Identifier": {
+            "PURL": "pkg:pypi/jinja2@3.1.6",
+            "UID": "9c3befdce47c8a32"
+          },
+          "Version": "3.1.6",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "markupsafe@3.0.3"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "jiter@0.13.0",
+          "Name": "jiter",
+          "Identifier": {
+            "PURL": "pkg:pypi/jiter@0.13.0",
+            "UID": "a5d762e5f9fbc2a2"
+          },
+          "Version": "0.13.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "jsonpatch@1.33",
+          "Name": "jsonpatch",
+          "Identifier": {
+            "PURL": "pkg:pypi/jsonpatch@1.33",
+            "UID": "15932b163930e5fa"
+          },
+          "Version": "1.33",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "jsonpointer@3.1.1"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "jsonpointer@3.1.1",
+          "Name": "jsonpointer",
+          "Identifier": {
+            "PURL": "pkg:pypi/jsonpointer@3.1.1",
+            "UID": "16de606c35b00955"
+          },
+          "Version": "3.1.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "jsonschema@4.23.0",
+          "Name": "jsonschema",
+          "Identifier": {
+            "PURL": "pkg:pypi/jsonschema@4.23.0",
+            "UID": "f2252c3b3f0ede4f"
+          },
+          "Version": "4.23.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "attrs@26.1.0",
+            "jsonschema-specifications@2025.9.1",
+            "referencing@0.37.0",
+            "rpds-py@0.30.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "jsonschema-specifications@2025.9.1",
+          "Name": "jsonschema-specifications",
+          "Identifier": {
+            "PURL": "pkg:pypi/jsonschema-specifications@2025.9.1",
+            "UID": "e7b469c5a674ceb2"
+          },
+          "Version": "2025.9.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "referencing@0.37.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "kiwisolver@1.5.0",
+          "Name": "kiwisolver",
+          "Identifier": {
+            "PURL": "pkg:pypi/kiwisolver@1.5.0",
+            "UID": "d7e6468df498b4f8"
+          },
+          "Version": "1.5.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "langchain-core@1.3.3",
+          "Name": "langchain-core",
+          "Identifier": {
+            "PURL": "pkg:pypi/langchain-core@1.3.3",
+            "UID": "6be96e5aecd9e065"
+          },
+          "Version": "1.3.3",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "jsonpatch@1.33",
+            "langchain-protocol@0.0.15",
+            "langsmith@0.8.3",
+            "packaging@26.2",
+            "pydantic@2.12.5",
+            "pyyaml@6.0.3",
+            "tenacity@9.1.4",
+            "typing-extensions@4.15.0",
+            "uuid-utils@0.14.1"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "langchain-protocol@0.0.15",
+          "Name": "langchain-protocol",
+          "Identifier": {
+            "PURL": "pkg:pypi/langchain-protocol@0.0.15",
+            "UID": "a20ebe7da71bc1f1"
+          },
+          "Version": "0.0.15",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "langgraph-checkpoint@4.0.3",
+          "Name": "langgraph-checkpoint",
+          "Identifier": {
+            "PURL": "pkg:pypi/langgraph-checkpoint@4.0.3",
+            "UID": "a8be0052063d687f"
+          },
+          "Version": "4.0.3",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "langchain-core@1.3.3",
+            "ormsgpack@1.12.2"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "langgraph-prebuilt@1.0.13",
+          "Name": "langgraph-prebuilt",
+          "Identifier": {
+            "PURL": "pkg:pypi/langgraph-prebuilt@1.0.13",
+            "UID": "dab923838cf841e0"
+          },
+          "Version": "1.0.13",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "langchain-core@1.3.3",
+            "langgraph-checkpoint@4.0.3"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "langgraph-sdk@0.3.14",
+          "Name": "langgraph-sdk",
+          "Identifier": {
+            "PURL": "pkg:pypi/langgraph-sdk@0.3.14",
+            "UID": "83b891b29719ca39"
+          },
+          "Version": "0.3.14",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "httpx@0.28.1",
+            "orjson@3.11.9"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "langsmith@0.8.3",
+          "Name": "langsmith",
+          "Identifier": {
+            "PURL": "pkg:pypi/langsmith@0.8.3",
+            "UID": "f0232d2a0118368e"
+          },
+          "Version": "0.8.3",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "httpx@0.28.1",
+            "orjson@3.11.9",
+            "packaging@26.2",
+            "pydantic@2.12.5",
+            "requests-toolbelt@1.0.0",
+            "requests@2.33.1",
+            "uuid-utils@0.14.1",
+            "xxhash@3.7.0",
+            "zstandard@0.25.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "liboqs-python@0.14.1",
+          "Name": "liboqs-python",
+          "Identifier": {
+            "PURL": "pkg:pypi/liboqs-python@0.14.1",
+            "UID": "a388c9077799f4ec"
+          },
+          "Version": "0.14.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "librt@0.10.0",
+          "Name": "librt",
+          "Identifier": {
+            "PURL": "pkg:pypi/librt@0.10.0",
+            "UID": "3e0b43b8b52b4edb"
+          },
+          "Version": "0.10.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "markdown-it-py@4.2.0",
+          "Name": "markdown-it-py",
+          "Identifier": {
+            "PURL": "pkg:pypi/markdown-it-py@4.2.0",
+            "UID": "df54c05291b54b31"
+          },
+          "Version": "4.2.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "mdurl@0.1.2"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "markupsafe@3.0.3",
+          "Name": "markupsafe",
+          "Identifier": {
+            "PURL": "pkg:pypi/markupsafe@3.0.3",
+            "UID": "c97703c32c4879f7"
+          },
+          "Version": "3.0.3",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "mdurl@0.1.2",
+          "Name": "mdurl",
+          "Identifier": {
+            "PURL": "pkg:pypi/mdurl@0.1.2",
+            "UID": "9dc632b33acb56d1"
+          },
+          "Version": "0.1.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "multidict@6.7.1",
+          "Name": "multidict",
+          "Identifier": {
+            "PURL": "pkg:pypi/multidict@6.7.1",
+            "UID": "b85b6627b2607e18"
+          },
+          "Version": "6.7.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "mypy-extensions@1.1.0",
+          "Name": "mypy-extensions",
+          "Identifier": {
+            "PURL": "pkg:pypi/mypy-extensions@1.1.0",
+            "UID": "5d0c5240f9f8304e"
+          },
+          "Version": "1.1.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "narwhals@2.21.0",
+          "Name": "narwhals",
+          "Identifier": {
+            "PURL": "pkg:pypi/narwhals@2.21.0",
+            "UID": "22ba173f61af0172"
+          },
+          "Version": "2.21.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "numpy@2.4.4",
+          "Name": "numpy",
+          "Identifier": {
+            "PURL": "pkg:pypi/numpy@2.4.4",
+            "UID": "5f1f2658b471127c"
+          },
+          "Version": "2.4.4",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "openai@2.24.0",
+          "Name": "openai",
+          "Identifier": {
+            "PURL": "pkg:pypi/openai@2.24.0",
+            "UID": "54138451aa9b2b2c"
+          },
+          "Version": "2.24.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "anyio@4.13.0",
+            "distro@1.9.0",
+            "httpx@0.28.1",
+            "jiter@0.13.0",
+            "pydantic@2.12.5",
+            "sniffio@1.3.1",
+            "tqdm@4.67.3",
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "orjson@3.11.9",
+          "Name": "orjson",
+          "Identifier": {
+            "PURL": "pkg:pypi/orjson@3.11.9",
+            "UID": "e3fbc14c6580b56e"
+          },
+          "Version": "3.11.9",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "ormsgpack@1.12.2",
+          "Name": "ormsgpack",
+          "Identifier": {
+            "PURL": "pkg:pypi/ormsgpack@1.12.2",
+            "UID": "c03e8faf35748ff8"
+          },
+          "Version": "1.12.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "packaging@26.2",
+          "Name": "packaging",
+          "Identifier": {
+            "PURL": "pkg:pypi/packaging@26.2",
+            "UID": "139d7b3635829535"
+          },
+          "Version": "26.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pandas@3.0.2",
+          "Name": "pandas",
+          "Identifier": {
+            "PURL": "pkg:pypi/pandas@3.0.2",
+            "UID": "361df620c2b5cb0c"
+          },
+          "Version": "3.0.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "numpy@2.4.4",
+            "python-dateutil@2.9.0.post0",
+            "tzdata@2026.2"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pathspec@1.1.1",
+          "Name": "pathspec",
+          "Identifier": {
+            "PURL": "pkg:pypi/pathspec@1.1.1",
+            "UID": "5461a91c92013aeb"
+          },
+          "Version": "1.1.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pillow@12.2.0",
+          "Name": "pillow",
+          "Identifier": {
+            "PURL": "pkg:pypi/pillow@12.2.0",
+            "UID": "3a3b5de04786361"
+          },
+          "Version": "12.2.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pluggy@1.6.0",
+          "Name": "pluggy",
+          "Identifier": {
+            "PURL": "pkg:pypi/pluggy@1.6.0",
+            "UID": "fb8af1ba97572ef7"
+          },
+          "Version": "1.6.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "propcache@0.5.2",
+          "Name": "propcache",
+          "Identifier": {
+            "PURL": "pkg:pypi/propcache@0.5.2",
+            "UID": "2553045b6d95cee6"
+          },
+          "Version": "0.5.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "protobuf@7.34.1",
+          "Name": "protobuf",
+          "Identifier": {
+            "PURL": "pkg:pypi/protobuf@7.34.1",
+            "UID": "19740290fba63d89"
+          },
+          "Version": "7.34.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pyarrow@24.0.0",
+          "Name": "pyarrow",
+          "Identifier": {
+            "PURL": "pkg:pypi/pyarrow@24.0.0",
+            "UID": "6be67bcc7e657c9e"
+          },
+          "Version": "24.0.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pycparser@3.0",
+          "Name": "pycparser",
+          "Identifier": {
+            "PURL": "pkg:pypi/pycparser@3.0",
+            "UID": "c92284e7051d4ada"
+          },
+          "Version": "3.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pydantic-core@2.41.5",
+          "Name": "pydantic-core",
+          "Identifier": {
+            "PURL": "pkg:pypi/pydantic-core@2.41.5",
+            "UID": "ba407f9fef614bf8"
+          },
+          "Version": "2.41.5",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pydeck@0.9.2",
+          "Name": "pydeck",
+          "Identifier": {
+            "PURL": "pkg:pypi/pydeck@0.9.2",
+            "UID": "9de97ecdde76dd5"
+          },
+          "Version": "0.9.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "jinja2@3.1.6",
+            "numpy@2.4.4"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pygit2@1.19.2",
+          "Name": "pygit2",
+          "Identifier": {
+            "PURL": "pkg:pypi/pygit2@1.19.2",
+            "UID": "ff47f563f057af13"
+          },
+          "Version": "1.19.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "cffi@2.0.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pygments@2.20.0",
+          "Name": "pygments",
+          "Identifier": {
+            "PURL": "pkg:pypi/pygments@2.20.0",
+            "UID": "a97e8b3301b61131"
+          },
+          "Version": "2.20.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pyjwt@2.12.1",
+          "Name": "pyjwt",
+          "Identifier": {
+            "PURL": "pkg:pypi/pyjwt@2.12.1",
+            "UID": "36c9dc0eb1918a06"
+          },
+          "Version": "2.12.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pyparsing@3.3.2",
+          "Name": "pyparsing",
+          "Identifier": {
+            "PURL": "pkg:pypi/pyparsing@3.3.2",
+            "UID": "da06b90908eab3ce"
+          },
+          "Version": "3.3.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "python-dateutil@2.9.0.post0",
+          "Name": "python-dateutil",
+          "Identifier": {
+            "PURL": "pkg:pypi/python-dateutil@2.9.0.post0",
+            "UID": "7ff8c30198898771"
+          },
+          "Version": "2.9.0.post0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "six@1.17.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "python-multipart@0.0.27",
+          "Name": "python-multipart",
+          "Identifier": {
+            "PURL": "pkg:pypi/python-multipart@0.0.27",
+            "UID": "7e4696a0fb40a7b1"
+          },
+          "Version": "0.0.27",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "pyyaml@6.0.3",
+          "Name": "pyyaml",
+          "Identifier": {
+            "PURL": "pkg:pypi/pyyaml@6.0.3",
+            "UID": "691cc315a4054d72"
+          },
+          "Version": "6.0.3",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "referencing@0.37.0",
+          "Name": "referencing",
+          "Identifier": {
+            "PURL": "pkg:pypi/referencing@0.37.0",
+            "UID": "ee3efb21365ae404"
+          },
+          "Version": "0.37.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "attrs@26.1.0",
+            "rpds-py@0.30.0",
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "regex@2026.4.4",
+          "Name": "regex",
+          "Identifier": {
+            "PURL": "pkg:pypi/regex@2026.4.4",
+            "UID": "f9954dd41cc536c1"
+          },
+          "Version": "2026.4.4",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "requests@2.33.1",
+          "Name": "requests",
+          "Identifier": {
+            "PURL": "pkg:pypi/requests@2.33.1",
+            "UID": "93feaebfac786160"
+          },
+          "Version": "2.33.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "certifi@2026.4.22",
+            "charset-normalizer@3.4.7",
+            "idna@3.13",
+            "urllib3@2.7.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "requests-toolbelt@1.0.0",
+          "Name": "requests-toolbelt",
+          "Identifier": {
+            "PURL": "pkg:pypi/requests-toolbelt@1.0.0",
+            "UID": "8b6fb715ad4fafe8"
+          },
+          "Version": "1.0.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "requests@2.33.1"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "rfc8785@0.1.4",
+          "Name": "rfc8785",
+          "Identifier": {
+            "PURL": "pkg:pypi/rfc8785@0.1.4",
+            "UID": "20de9ffb5464b5e2"
+          },
+          "Version": "0.1.4",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "rpds-py@0.30.0",
+          "Name": "rpds-py",
+          "Identifier": {
+            "PURL": "pkg:pypi/rpds-py@0.30.0",
+            "UID": "e858ddf621f143f2"
+          },
+          "Version": "0.30.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "setuptools@82.0.1",
+          "Name": "setuptools",
+          "Identifier": {
+            "PURL": "pkg:pypi/setuptools@82.0.1",
+            "UID": "50513508d3ccb352"
+          },
+          "Version": "82.0.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "shellingham@1.5.4",
+          "Name": "shellingham",
+          "Identifier": {
+            "PURL": "pkg:pypi/shellingham@1.5.4",
+            "UID": "7e72312c22e72a3"
+          },
+          "Version": "1.5.4",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "six@1.17.0",
+          "Name": "six",
+          "Identifier": {
+            "PURL": "pkg:pypi/six@1.17.0",
+            "UID": "ac79dc21f2d40ee4"
+          },
+          "Version": "1.17.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "smmap@5.0.3",
+          "Name": "smmap",
+          "Identifier": {
+            "PURL": "pkg:pypi/smmap@5.0.3",
+            "UID": "50fe0929a5f98e0a"
+          },
+          "Version": "5.0.3",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "sniffio@1.3.1",
+          "Name": "sniffio",
+          "Identifier": {
+            "PURL": "pkg:pypi/sniffio@1.3.1",
+            "UID": "2b2bc555d7ea120"
+          },
+          "Version": "1.3.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "starlette@1.0.0",
+          "Name": "starlette",
+          "Identifier": {
+            "PURL": "pkg:pypi/starlette@1.0.0",
+            "UID": "40780e72487e4f09"
+          },
+          "Version": "1.0.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "anyio@4.13.0",
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "tenacity@9.1.4",
+          "Name": "tenacity",
+          "Identifier": {
+            "PURL": "pkg:pypi/tenacity@9.1.4",
+            "UID": "f43afc0974e70bf8"
+          },
+          "Version": "9.1.4",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "tiktoken@0.12.0",
+          "Name": "tiktoken",
+          "Identifier": {
+            "PURL": "pkg:pypi/tiktoken@0.12.0",
+            "UID": "679d7538dc7ea579"
+          },
+          "Version": "0.12.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "regex@2026.4.4",
+            "requests@2.33.1"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "tokenizers@0.22.2",
+          "Name": "tokenizers",
+          "Identifier": {
+            "PURL": "pkg:pypi/tokenizers@0.22.2",
+            "UID": "dc2ab0606b6fb9b0"
+          },
+          "Version": "0.22.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "huggingface-hub@1.14.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "toml@0.10.2",
+          "Name": "toml",
+          "Identifier": {
+            "PURL": "pkg:pypi/toml@0.10.2",
+            "UID": "98325713ffa33b75"
+          },
+          "Version": "0.10.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "tqdm@4.67.3",
+          "Name": "tqdm",
+          "Identifier": {
+            "PURL": "pkg:pypi/tqdm@4.67.3",
+            "UID": "c66695e708b9f512"
+          },
+          "Version": "4.67.3",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "colorama@0.4.6"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "typer@0.23.1",
+          "Name": "typer",
+          "Identifier": {
+            "PURL": "pkg:pypi/typer@0.23.1",
+            "UID": "4ff3562a4e8edbe"
+          },
+          "Version": "0.23.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "annotated-doc@0.0.4",
+            "click@8.1.8",
+            "rich@14.3.4",
+            "shellingham@1.5.4"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "typing-extensions@4.15.0",
+          "Name": "typing-extensions",
+          "Identifier": {
+            "PURL": "pkg:pypi/typing-extensions@4.15.0",
+            "UID": "67cbda23a41e6bb9"
+          },
+          "Version": "4.15.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "typing-inspection@0.4.2",
+          "Name": "typing-inspection",
+          "Identifier": {
+            "PURL": "pkg:pypi/typing-inspection@0.4.2",
+            "UID": "e141c01a2a6a5097"
+          },
+          "Version": "0.4.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "typing-extensions@4.15.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "tzdata@2026.2",
+          "Name": "tzdata",
+          "Identifier": {
+            "PURL": "pkg:pypi/tzdata@2026.2",
+            "UID": "a0b3b92d2000fd30"
+          },
+          "Version": "2026.2",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "urllib3@2.7.0",
+          "Name": "urllib3",
+          "Identifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "2aebb341a689f5c"
+          },
+          "Version": "2.7.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "uuid-utils@0.14.1",
+          "Name": "uuid-utils",
+          "Identifier": {
+            "PURL": "pkg:pypi/uuid-utils@0.14.1",
+            "UID": "cb970ab101ba3363"
+          },
+          "Version": "0.14.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "uvicorn@0.46.0",
+          "Name": "uvicorn",
+          "Identifier": {
+            "PURL": "pkg:pypi/uvicorn@0.46.0",
+            "UID": "35728c5ec7a5966a"
+          },
+          "Version": "0.46.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "click@8.1.8",
+            "h11@0.16.0"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "watchdog@6.0.0",
+          "Name": "watchdog",
+          "Identifier": {
+            "PURL": "pkg:pypi/watchdog@6.0.0",
+            "UID": "e4d451a0cce89283"
+          },
+          "Version": "6.0.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "websockets@16.0",
+          "Name": "websockets",
+          "Identifier": {
+            "PURL": "pkg:pypi/websockets@16.0",
+            "UID": "2a16316553f5ea6c"
+          },
+          "Version": "16.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "wheel@0.47.0",
+          "Name": "wheel",
+          "Identifier": {
+            "PURL": "pkg:pypi/wheel@0.47.0",
+            "UID": "6ba084648117103b"
+          },
+          "Version": "0.47.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "packaging@26.2"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "xxhash@3.7.0",
+          "Name": "xxhash",
+          "Identifier": {
+            "PURL": "pkg:pypi/xxhash@3.7.0",
+            "UID": "61d73f76a36db572"
+          },
+          "Version": "3.7.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "yarl@1.23.0",
+          "Name": "yarl",
+          "Identifier": {
+            "PURL": "pkg:pypi/yarl@1.23.0",
+            "UID": "2f7827a684efab6e"
+          },
+          "Version": "1.23.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "idna@3.13",
+            "multidict@6.7.1",
+            "propcache@0.5.2"
+          ],
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "zipp@3.23.1",
+          "Name": "zipp",
+          "Identifier": {
+            "PURL": "pkg:pypi/zipp@3.23.1",
+            "UID": "e3029063bba3e1b7"
+          },
+          "Version": "3.23.1",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        },
+        {
+          "ID": "zstandard@0.25.0",
+          "Name": "zstandard",
+          "Identifier": {
+            "PURL": "pkg:pypi/zstandard@0.25.0",
+            "UID": "4a51e98e701fc643"
+          },
+          "Version": "0.25.0",
+          "Indirect": true,
+          "Relationship": "indirect",
+          "AnalyzedBy": "uv"
+        }
+      ],
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-34993",
+          "VendorIDs": [
+            "GHSA-jg22-mg44-37j8"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-34993",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:563c73481a15b6de74dd45841c077c6e4265c506ea88a42a5c9c09475b1cbf05",
+          "Title": "aiohttp: AIOHTTP: Arbitrary code execution via untrusted input to CookieJar.load()",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to version 3.14.0, using ``CookieJar.load()`` with untrusted input may allow arbitrary code execution. Most applications using this function will be doing so with the user's own data, so this is unlikely to affect many applications. Version 3.14.0 patches the issue. If an application does allow attacker controlled files to be loaded, a workaround on older releases would be to sanitize the files before loading.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:H/UI:R/S:C/C:L/I:H/A:L",
+              "V3Score": 6.4
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:H/UI:R/S:C/C:H/I:H/A:H",
+              "V3Score": 7.2
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-34993",
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/dcf40f30637e8752c76781cf6703b5a236749a00",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-jg22-mg44-37j8",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-34993",
+            "https://www.cve.org/CVERecord?id=CVE-2026-34993"
+          ],
+          "PublishedDate": "2026-06-02T20:16:34.857Z",
+          "LastModifiedDate": "2026-06-17T10:39:57.45Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-47265",
+          "VendorIDs": [
+            "GHSA-hg6j-4rv6-33pg"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-47265",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:e2f8ea6fd5cca5c92ddf1764ec4eb7b1c16adb5bac19209a8431a32ee5c6bc28",
+          "Title": "python-aiohttp: AIOHTTP: Information disclosure via improper handling of cookies during cross-origin redirects",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to version 3.14.0, cookies set with the `cookies` parameter on requests are sent after following a cross-origin redirect. If a developer uses the `cookies` parameter on a per-request basis then sensitive data might be leaked to an attacker if they manage to control a redirect. Version 3.14.0 patches the issue. If unable to upgrade, using a `Cookie` header in the `headers` parameter is not vulnerable.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-346"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 6.6
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N",
+              "V3Score": 6.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-47265",
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/f54c40851b0d6c4bbdab97ba518a223adda32478",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-hg6j-4rv6-33pg",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-47265",
+            "https://www.cve.org/CVERecord?id=CVE-2026-47265"
+          ],
+          "PublishedDate": "2026-06-02T20:16:37.903Z",
+          "LastModifiedDate": "2026-06-17T10:54:26.62Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54273",
+          "VendorIDs": [
+            "GHSA-4fvr-rgm6-gqmc"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54273",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a14e1419226d7cf8e1a9d46934e86bfaa714efff5541eaafd9845a2dca74e273",
+          "Title": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio an ...",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to 3.14.1, no limit was present on the number of pipelined requests that could be queued. An attacker may be able to use pipelined requests to use excessive amounts of memory, potentially leading to DoS. This vulnerability is fixed in 3.14.1.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 6.6
+            }
+          },
+          "References": [
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/dfdfa9d5aad5d21f91c79fb2ceeba0f8046cb6cf",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-4fvr-rgm6-gqmc"
+          ],
+          "PublishedDate": "2026-06-22T18:16:45.743Z",
+          "LastModifiedDate": "2026-06-22T19:17:15.06Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54274",
+          "VendorIDs": [
+            "GHSA-xcgm-r5h9-7989"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54274",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:26f475cfb2afcd2d3e31116759fbd53a1fdfb6ce70cba23e433ff5ca79ddf082",
+          "Title": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio an ...",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to 3.14.1, if an attacker sends large incomplete websocket frame payloads, it may be possible to bypass the usual size limits on memory use. This vulnerability is fixed in 3.14.1.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 6.6
+            }
+          },
+          "References": [
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/14b6ee851fb16ec199acb950de0c82d476799e7d",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-xcgm-r5h9-7989"
+          ],
+          "PublishedDate": "2026-06-22T18:16:45.877Z",
+          "LastModifiedDate": "2026-06-22T19:17:15.693Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54276",
+          "VendorIDs": [
+            "GHSA-hpj7-wq8m-9hgp"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54276",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:7c547c5195370ce81b0513296b627d18dd7c62cd6fdae8ddf2b365f7f2ab9c06",
+          "Title": "aiohttp: aiohttp: Information disclosure via DigestAuthMiddleware after cross-origin redirect",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to 3.14.1, DigestAuthMiddleware can send an authentication response after following a cross-origin redirect. This likely requires an open redirect vulnerability or similar on the target domain for an attacker to be able to execute. Further, the attacker is only receiving the digest, so should only be able to extract the user's credentials if the cryptography is weak or there is some kind of password reuse. This vulnerability is fixed in 3.14.1.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-200",
+            "CWE-522"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "redhat": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 6.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N",
+              "V3Score": 3.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-54276",
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/38d16060037e1bfcd6d677abababa3c2a4bb58fa",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-hpj7-wq8m-9hgp",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54276",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54276"
+          ],
+          "PublishedDate": "2026-06-22T18:16:46.133Z",
+          "LastModifiedDate": "2026-06-23T17:17:05.447Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54277",
+          "VendorIDs": [
+            "GHSA-63hw-fmq6-xxg2"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54277",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:7e1c2403f80796dc839214d0ed2903bac96f4c4d38501af45e066ef7d4b9e4e0",
+          "Title": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio an ...",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to 3.14.1, it is possible to bypass the max_line_size check in parts of an HTTP request in the C parser. If using the optimised C parser (the default in pre-built wheels), then an attacker may be able to send oversized lines through the HTTP parser and use an excessive amount of memory, potentially leading to DoS. This vulnerability is fixed in 3.14.1.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 6.6
+            }
+          },
+          "References": [
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/5ab61bb4cd88f19b712f12c7c9295fe262bf804d",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-63hw-fmq6-xxg2"
+          ],
+          "PublishedDate": "2026-06-22T18:16:46.263Z",
+          "LastModifiedDate": "2026-06-23T16:17:01.23Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54278",
+          "VendorIDs": [
+            "GHSA-g3cq-j2xw-wf74"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54278",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d0c8173236f42037a37f1cc5d378a976a2b67b3cb87c685fbc511785e4188918",
+          "Title": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio an ...",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to 3.14.1, during cleanup it is possible for a compressed request body to be decompressed into memory in one chunk. An attacker may be able to send a compressed payload in specific situations that could be decompressed into memory, potentially leading to DoS (a zip bomb edge case). This vulnerability is fixed in 3.14.1.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-409"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 6.6
+            }
+          },
+          "References": [
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/4f7480e474cccc6a8cc2c92ad3f17a31dedf8232",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-g3cq-j2xw-wf74"
+          ],
+          "PublishedDate": "2026-06-22T18:16:46.393Z",
+          "LastModifiedDate": "2026-06-23T15:16:37.103Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-50269",
+          "VendorIDs": [
+            "GHSA-m6qw-4cw2-hm4m"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-50269",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:75bb3f59f7bcfd30d87b41f5d40cd886f1db81e4805cd1a849e2aad2bccf2fa2",
+          "Title": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio an ...",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to 3.14.0, attacker-controlled input included into multipart/payload headers can be used to modify a request to inject additional headers or similar. In the unlikely situation that an application is passing user-controlled strings into MultipartWriter.append(headers=...) or Payload.headers, then an attacker may be able to modify the request to inject headers or change the contents of the request. This vulnerability is fixed in 3.14.0.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-93",
+            "CWE-113"
+          ],
+          "VendorSeverity": {
+            "ghsa": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 2.7
+            }
+          },
+          "References": [
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/bf88077ebb14f4c29924b8e8904cba20c55c28b8",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-m6qw-4cw2-hm4m"
+          ],
+          "PublishedDate": "2026-06-22T18:16:42.92Z",
+          "LastModifiedDate": "2026-06-22T19:17:06.103Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54275",
+          "VendorIDs": [
+            "GHSA-4m7w-qmgq-4wj5"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54275",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d0a7c1cca86bee1d1d35109e9f87328e695e7c6084b57525321d3610c1a898a1",
+          "Title": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio an ...",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to 3.14.1, the server_hostname TLS SNI check can be bypassed when an existing connection is reused. If an application makes multiple requests to the same domain, but with different per-request server_hostname parameters, then the later calls may succeed by reusing the existing connection when they should have been rejected due to the TLS SNI check. This vulnerability is fixed in 3.14.1.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-297"
+          ],
+          "VendorSeverity": {
+            "ghsa": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 2.7
+            }
+          },
+          "References": [
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-4m7w-qmgq-4wj5"
+          ],
+          "PublishedDate": "2026-06-22T18:16:46.01Z",
+          "LastModifiedDate": "2026-06-22T19:17:16.33Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54279",
+          "VendorIDs": [
+            "GHSA-2fqr-mr3j-6wp8"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54279",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:72219b13d02e55854efa4dd0973801a6a0d7b58d1aab67a576f0c24c8f1fdbbd",
+          "Title": "aiohttp: AIOHTTP: Host-Only Cookies Become Domain Cookies After CookieJar Persistence",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to 3.14.1, host-only cookies that are saved with CookieJar.save() and then restored later with CookieJar.load() lose their host-only status. This vulnerability is fixed in 3.14.1.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-665"
+          ],
+          "VendorSeverity": {
+            "ghsa": 1,
+            "redhat": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:N/SC:L/SI:N/SA:N/E:U",
+              "V40Score": 1.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-54279",
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/a329a7aacad5284f087af36103aff778746da0f2",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-2fqr-mr3j-6wp8",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54279",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54279"
+          ],
+          "PublishedDate": "2026-06-22T18:16:46.527Z",
+          "LastModifiedDate": "2026-06-22T19:17:16.98Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54280",
+          "VendorIDs": [
+            "GHSA-9x8q-7h8h-wcw9"
+          ],
+          "PkgID": "aiohttp@3.13.4",
+          "PkgName": "aiohttp",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.13.4",
+            "UID": "9cb38b20de759d63"
+          },
+          "InstalledVersion": "3.13.4",
+          "FixedVersion": "3.14.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54280",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:4381cee702a825faa1c623659f37d940a06a6f75e96ed248047f3c9966f3d386",
+          "Title": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio an ...",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to 3.14.1, payload resources are not closed correctly when a client disconnects in the middle of a write. If a payload is using an open file or similar limited resource, then an attacker may be able to cause resource starvation temporarily until garbage collection or similar closes the file. This vulnerability is fixed in 3.14.1.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-404"
+          ],
+          "VendorSeverity": {
+            "ghsa": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 1.7
+            }
+          },
+          "References": [
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/a762eda5242f6490d6ba667533193f8b473ad587",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-9x8q-7h8h-wcw9"
+          ],
+          "PublishedDate": "2026-06-22T18:16:46.67Z",
+          "LastModifiedDate": "2026-06-22T19:17:17.703Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-537c-gmf6-5ccf",
+          "PkgID": "cryptography@48.0.0",
+          "PkgName": "cryptography",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/cryptography@48.0.0",
+            "UID": "8c70ad1e2af95899"
+          },
+          "InstalledVersion": "48.0.0",
+          "FixedVersion": "48.0.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-537c-gmf6-5ccf",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:f3850fd4bf56ae710693aa5cf2a02d937986f28446b1fc6e8497a2a4ceffabc8",
+          "Title": "Vulnerable OpenSSL included in cryptography wheels",
+          "Description": "pyca/cryptography's wheels include a statically linked copy of OpenSSL. The versions of OpenSSL included in wheels prior to cryptograph 48.01 are vulnerable to a security issue. More details about the vulnerability itself can be found in https://openssl-library.org/news/secadv/20260609.txt.\n\nIf you are building cryptography source (\"sdist\") then you are responsible for upgrading your copy of OpenSSL. Only users installing from wheels built by the cryptography project (i.e., those distributed on PyPI) need to update their cryptography versions.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/pyca/cryptography",
+            "https://github.com/pyca/cryptography/security/advisories/GHSA-537c-gmf6-5ccf",
+            "https://openssl-library.org/news/secadv/20260609.txt"
+          ],
+          "PublishedDate": "2026-06-15T20:12:27Z",
+          "LastModifiedDate": "2026-06-15T20:12:27Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-45409",
+          "VendorIDs": [
+            "GHSA-65pc-fj4g-8rjx"
+          ],
+          "PkgID": "idna@3.13",
+          "PkgName": "idna",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/idna@3.13",
+            "UID": "f0cbbc5580850e59"
+          },
+          "InstalledVersion": "3.13",
+          "FixedVersion": "3.15",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-45409",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:18d78abb565129789e657c1b227bfa63ae985b44187e131c5e22dfbcabf5ccc0",
+          "Title": "Internationalized Domain Names in Applications (IDNA) for Python provi ...",
+          "Description": "Internationalized Domain Names in Applications (IDNA) for Python provides support for Internationalized Domain Names in Applications (IDNA) and Unicode IDNA Compatibility Processing. In versions prior to 3.15, payloads such as `\"\\u0660\" * N` or `\"\\u30fb\" * N + \"\\u6f22\"` utilize the `valid_contexto` function prior to length rejection, and for high values of `N` will take a long time to process. This is the same issue as CVE-2024-3651, however the original remediation in 2024 was not a complete fix. A specially crafted argument to the `idna.encode()` function could consume significant resources. This may lead to a denial-of-service. Starting in version 3.14, the function rejects long inputs as soon as practicable prior to any further processing to minimize resource consumption. In version 3.15, this approach was extended to lesser used alternate functions (i.e. per-label conversions and codec support). A workaround is available. Domain names cannot exceed 253 characters in length. If this length limit is enforced prior to passing the domain to the `idna.encode()` function, it should no longer consume significant resources. This is triggered by arbitrarily large inputs that would not occur in normal usage, but may be passed to the library assuming there is no preliminary input validation by the higher-level application.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "nvd": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+              "V40Score": 6.9
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://github.com/kjd/idna",
+            "https://github.com/kjd/idna/security/advisories/GHSA-65pc-fj4g-8rjx",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-45409"
+          ],
+          "PublishedDate": "2026-06-05T23:16:43.343Z",
+          "LastModifiedDate": "2026-06-17T10:52:01.58Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-48775",
+          "VendorIDs": [
+            "GHSA-fjqc-hq36-qh5p"
+          ],
+          "PkgID": "langgraph-checkpoint@4.0.3",
+          "PkgName": "langgraph-checkpoint",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/langgraph-checkpoint@4.0.3",
+            "UID": "a8be0052063d687f"
+          },
+          "InstalledVersion": "4.0.3",
+          "FixedVersion": "4.1.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-48775",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:5d1da6a6dd1b252ba07093472cc5fc06f7026cf75e0c72fbbc8793c5290cfac5",
+          "Title": "langgraph: langgraph-checkpoint: LangGraph: Arbitrary code execution via insecure deserialization of modified checkpoint bytes",
+          "Description": "LangGraph SQLite Checkpoint is an implementation of LangGraph CheckpointSaver that uses SQLite DB (both sync and async, via aiosqlite). In versions 4.1.0 and prior, the JsonPlusSerializer can reconstruct Python objects from JSON checkpoint payloads. Under conditions where someone could modify checkpoint bytes at rest in the backing store, the deserialization path could reconstruct objects beyond what the application expects, which could in turn result in code execution at checkpoint load time. This is a defense-in-depth issue. The affected behavior is reachable only when checkpoint bytes at rest in the backing store can be modified by an unauthorized party. In most deployments that prerequisite already implies a serious incident; the additional concern is turning \"checkpoint-store write access\" into code execution in the application runtime. This issue has been fixed in version 4.1.1.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-502",
+            "CWE-913"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:A/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 6.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:A/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 6.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-48775",
+            "https://github.com/langchain-ai/langgraph",
+            "https://github.com/langchain-ai/langgraph/security/advisories/GHSA-fjqc-hq36-qh5p",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-48775",
+            "https://www.cve.org/CVERecord?id=CVE-2026-48775"
+          ],
+          "PublishedDate": "2026-06-16T19:16:58.88Z",
+          "LastModifiedDate": "2026-06-24T18:53:55.94Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-48776",
+          "VendorIDs": [
+            "GHSA-w39p-vh2g-g8g5"
+          ],
+          "PkgID": "langgraph-sdk@0.3.14",
+          "PkgName": "langgraph-sdk",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/langgraph-sdk@0.3.14",
+            "UID": "83b891b29719ca39"
+          },
+          "InstalledVersion": "0.3.14",
+          "FixedVersion": "0.3.15",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-48776",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:297d9a0f85d75fa502f5e7e88540d2a5807734f88280e93256ed4117058bb5c9",
+          "Title": "langgraph: langgraph-sdk: LangGraph Python SDK: Unsafe URL path construction leads to unauthorized resource access",
+          "Description": "LangGraph Python SDK is used to connect to running LangGraph API servers, manage assistants, threads and stream runs from Python applications. Versions 0.3.14 and prior have unsafe URL path construction through unsanitized caller-supplied identifier values used in HTTP request paths for resource operations. Without sanitization of those values, identifiers that contain characters with special meaning in URL paths could cause the resulting request to address a different resource (and potentially a different resource type) than the SDK method's call site indicates. In deployments where the SDK receives identifier values that originate from untrusted sources, this could result in unintended access, modification, or deletion of resources beyond the calling user's authorization scope. This issue is most consequential in deployments that forward end-user-supplied values directly into SDK identifier parameters without first validating them against an expected format (such as a UUID), and rely on URL-prefix-based authorization at an upstream layer (reverse proxy, edge gateway, WAF), where the authorization decision is made on the SDK call's intended path rather than on the final delivered request path. The issue has been fixed in version 0.3.15.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-22",
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:N",
+              "V3Score": 4.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:L",
+              "V3Score": 6
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-48776",
+            "https://github.com/langchain-ai/langgraph",
+            "https://github.com/langchain-ai/langgraph/releases/tag/sdk%3D%3D0.3.15",
+            "https://github.com/langchain-ai/langgraph/security/advisories/GHSA-w39p-vh2g-g8g5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-48776",
+            "https://www.cve.org/CVERecord?id=CVE-2026-48776"
+          ],
+          "PublishedDate": "2026-06-17T10:55:15.113Z",
+          "LastModifiedDate": "2026-06-17T16:30:36.937Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-f4xh-w4cj-qxq8",
+          "PkgID": "langsmith@0.8.3",
+          "PkgName": "langsmith",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/langsmith@0.8.3",
+            "UID": "f0232d2a0118368e"
+          },
+          "InstalledVersion": "0.8.3",
+          "FixedVersion": "0.8.18",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-f4xh-w4cj-qxq8",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:0041dfc5569155ee7bf7a1c89f43c0033a4fc146ed4e862a7d7f8dc9652316a8",
+          "Title": "LangSmith SDK TracingMiddleware: Arbitrary server-side file read",
+          "Description": "# Summary\n\nAn attacker who can send an HTTP request to a server running the LangSmith SDK's `TracingMiddleware` can cause that server to read an arbitrary file from its local filesystem and upload the contents to LangSmith as a trace attachment. Depending on how the distributed trace system is deployed, triggering a read may not require authentication. Retrieving the contents requires read access to the LangSmith workspace the traces are sent to. The net effect is a trust-boundary crossing: a party with workspace trace-read access (for example a low-privilege workspace member, a contractor, or a compromised teammate account) gains the ability to read files from any server running `TracingMiddleware`, a capability outside that workspace's intended trust boundary.\n\n# Impact\n\nConfidentiality (High): arbitrary read of files accessible to the server process, exposed to anyone with workspace trace-read access.\n\n# Details\n\nTwo defects combine. A field supplied through a tracing-propagation header was merged into the run without validation, allowing injection of run attributes including attachments (CWE-346). A type check intended to gate filesystem access did not match the type of the decoded input, so the guard never engaged (CWE-843). As a result, an attacker-named file is opened by the server and uploaded as a trace attachment by the background tracing thread (CWE-22).\n\n## Who can exploit this\n\n- Anyone reachable by HTTP can trigger the file read. Depending on how the distributed trace system is deployed, triggering may not require authentication.\n- Retrieving the file contents requires read access to the destination LangSmith workspace. The upload uses the server's own configured API key and workspace, which the attacker cannot redirect, so a zero-access outsider cannot retrieve the result; a workspace member, or anyone who has compromised one, can.\n\n# Remediation\n\nUpgrade the Python SDK to `\u003e= 0.8.18`.\n\n# Workarounds\n\nUntil upgrading, do not expose `TracingMiddleware` to untrusted HTTP traffic, and limit workspace trace-read access to trusted members.\n\n# Credits\n\nFirst reported by @Ryu7zz.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
+              "V3Score": 7.7
+            }
+          },
+          "References": [
+            "https://github.com/langchain-ai/langsmith-sdk",
+            "https://github.com/langchain-ai/langsmith-sdk/security/advisories/GHSA-f4xh-w4cj-qxq8"
+          ],
+          "PublishedDate": "2026-06-19T22:10:34Z",
+          "LastModifiedDate": "2026-06-19T22:10:34Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-49468",
+          "VendorIDs": [
+            "GHSA-4xpc-pv4p-pm3w"
+          ],
+          "PkgID": "litellm@1.83.14",
+          "PkgName": "litellm",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/litellm@1.83.14",
+            "UID": "da384f465fe018d1"
+          },
+          "InstalledVersion": "1.83.14",
+          "FixedVersion": "1.84.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-49468",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:892b09ced2b83aa91b3ebf94dd8f41f1041bcb726c7dc0990a29ddb972989c58",
+          "Title": "litellm: LiteLLM: Authentication Bypass via Host Header Injection",
+          "Description": "LiteLLM is a proxy server (AI Gateway) to call LLM APIs in OpenAI (or native) format. Prior to 1.84.0,  This vulnerability is fixed in 1.84.0.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-290"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4,
+            "nvd": 4,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+              "V40Score": 9.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-49468",
+            "https://github.com/BerriAI/litellm",
+            "https://github.com/BerriAI/litellm/releases/tag/v1.84.0",
+            "https://github.com/BerriAI/litellm/security/advisories/GHSA-4xpc-pv4p-pm3w",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-49468",
+            "https://www.cve.org/CVERecord?id=CVE-2026-49468"
+          ],
+          "PublishedDate": "2026-06-22T21:16:25.19Z",
+          "LastModifiedDate": "2026-06-24T19:16:25.85Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-48526",
+          "VendorIDs": [
+            "GHSA-xgmm-8j9v-c9wx"
+          ],
+          "PkgID": "pyjwt@2.12.1",
+          "PkgName": "pyjwt",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.12.1",
+            "UID": "36c9dc0eb1918a06"
+          },
+          "InstalledVersion": "2.12.1",
+          "FixedVersion": "2.13.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-48526",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d53ea1cdd08a5f0ffe166abcf4caf4fdee3716712956b3c9a2e4e4aef52b7bbf",
+          "Title": "python-pyjwt: PyJWT: Authentication bypass due to forged JSON Web Tokens",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. Prior to 2.13.0, when the verifier is decoding JSON Web Tokens, while supporting both asymmetric and HMAC algorithms, the library does not validate use of JSON Web Keys in HMAC algorithm, allowing attacker to use the issuer public key as the secret key for HMAC algorithm. This vulnerability is fixed in 2.13.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-287",
+            "CWE-347"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-48526",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2482734",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-48526",
+            "https://errata.rockylinux.org/RLSA-2026:26206",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-xgmm-8j9v-c9wx",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pyjwt/PYSEC-2026-179.yaml",
+            "https://linux.oracle.com/cve/CVE-2026-48526.html",
+            "https://linux.oracle.com/errata/ELSA-2026-26206.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-48526",
+            "https://www.cve.org/CVERecord?id=CVE-2026-48526"
+          ],
+          "PublishedDate": "2026-05-28T16:16:29.657Z",
+          "LastModifiedDate": "2026-06-17T10:55:04.143Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-48522",
+          "VendorIDs": [
+            "GHSA-993g-76c3-p5m4"
+          ],
+          "PkgID": "pyjwt@2.12.1",
+          "PkgName": "pyjwt",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.12.1",
+            "UID": "36c9dc0eb1918a06"
+          },
+          "InstalledVersion": "2.12.1",
+          "FixedVersion": "2.13.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-48522",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:8941e522af7423ffcd135a7faaffe078469766ce729d7a8c9426fbcc4e55a07e",
+          "Title": "python-pyjwt: PyJWT: Server-Side Request Forgery (SSRF) via uncontrolled URL fetching in PyJWKClient",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. Prior to 2.13.0, PyJWKClient passes its uri argument directly to urllib.request.urlopen() which uses Python stdlib's default OpenerDirector registering HTTPHandler, HTTPSHandler, FTPHandler, FileHandler, and DataHandler. There is currently no documented option to restrict which schemes PyJWKClient will fetch. If an application's jku URL ingestion path accepts attacker-influenced URLs (e.g., from JWT header, configuration file, OAuth flow parameter), the attacker can cause PyJWKClient to read arbitrary local files via file:// (SSRF on local filesystem), cause PyJWKClient to attempt FTP / data-URI fetches (broader SSRF surface), or forge tokens that PyJWT verifies as valid. The library does not directly return non-HTTP(S) URI contents to the attacker; the chained \"plant a JWKS to forge tokens\" scenario described in the original report requires additional application-layer flaws (attacker write access to a filesystem path, untrusted jku derivation) that this fix does not address. This vulnerability is fixed in 2.13.0.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-441",
+            "CWE-918"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:N",
+              "V3Score": 4.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:N",
+              "V3Score": 4.2
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-48522",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-993g-76c3-p5m4",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pyjwt/PYSEC-2026-175.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-48522",
+            "https://www.cve.org/CVERecord?id=CVE-2026-48522"
+          ],
+          "PublishedDate": "2026-05-28T16:16:29.15Z",
+          "LastModifiedDate": "2026-06-17T10:55:03.53Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-48523",
+          "VendorIDs": [
+            "GHSA-jq35-7prp-9v3f"
+          ],
+          "PkgID": "pyjwt@2.12.1",
+          "PkgName": "pyjwt",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.12.1",
+            "UID": "36c9dc0eb1918a06"
+          },
+          "InstalledVersion": "2.12.1",
+          "FixedVersion": "2.13.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-48523",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:0e87567aa385e4e9ffe2f55f53e246e984c6a73dd66e0f4b54ce955fabbb3974",
+          "Title": "python-pyjwt: PyJWT: Verifier-side algorithm bypass leads to unauthorized information access",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. From 2.9.0 to 2.12.1, there is a verifier-side algorithm allow-list bypass when jwt.decode() or jwt.decode_complete() are called with a PyJWK key. The token header alg is checked against the caller-supplied algorithms allow-list, but signature verification is performed with the algorithm bound to the PyJWK object instead of the header algorithm. An attacker who controls a registered JWK/JWKS private key can sign with a disallowed algorithm, advertise an allowed algorithm in the JWT header, and still be accepted. The issue affects the documented PyJWKClient.get_signing_key_from_jwt(...) flow. This vulnerability is fixed in 2.13.0.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-347"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N",
+              "V3Score": 5.4
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N",
+              "V3Score": 5.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-48523",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-jq35-7prp-9v3f",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pyjwt/PYSEC-2026-176.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-48523",
+            "https://www.cve.org/CVERecord?id=CVE-2026-48523"
+          ],
+          "PublishedDate": "2026-05-28T16:16:29.28Z",
+          "LastModifiedDate": "2026-06-17T10:55:03.693Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-48525",
+          "VendorIDs": [
+            "GHSA-w7vc-732c-9m39"
+          ],
+          "PkgID": "pyjwt@2.12.1",
+          "PkgName": "pyjwt",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.12.1",
+            "UID": "36c9dc0eb1918a06"
+          },
+          "InstalledVersion": "2.12.1",
+          "FixedVersion": "2.13.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-48525",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:07e005c42152096c933cf014a38e6cb000e868b2df756dfc43d02545476a4574",
+          "Title": "python-pyjwt: PyJWT: Denial of Service via processing of crafted detached JWS tokens",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. From 2.8.0 to 2.12.1, when verifying detached JWS tokens using the unencoded-payload option (\"b64\": false, RFC 7797), PyJWT performs Base64URL decoding of the compact-serialization payload segment before enforcing the detached-payload rules. For b64=false, PyJWT later discards that decoded payload and replaces it with the caller-provided detached_payload. In practice, this turns the middle segment into an attacker-controlled “work amplifier”: a remote client can supply an arbitrarily large Base64URL payload segment that forces CPU work + memory allocations even if the signature is invalid. This creates an unauthenticated DoS vector against any endpoint that verifies detached JWS using PyJWT. This vulnerability is fixed in 2.13.0.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-48525",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-w7vc-732c-9m39",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pyjwt/PYSEC-2026-178.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-48525",
+            "https://www.cve.org/CVERecord?id=CVE-2026-48525"
+          ],
+          "PublishedDate": "2026-05-28T16:16:29.533Z",
+          "LastModifiedDate": "2026-06-17T10:55:04.01Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-48524",
+          "VendorIDs": [
+            "GHSA-fhv5-28vv-h8m8"
+          ],
+          "PkgID": "pyjwt@2.12.1",
+          "PkgName": "pyjwt",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.12.1",
+            "UID": "36c9dc0eb1918a06"
+          },
+          "InstalledVersion": "2.12.1",
+          "FixedVersion": "2.13.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-48524",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:0ac100f20412d356185757d36bd8cabc7e079171d4bc9b594c8d603bab2ba423",
+          "Title": "python-pyjwt: PyJWT: Denial of Service via unverified JSON Web Token key IDs",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. Prior to 2.13.0, PyJWKClient.get_signing_key() forces a fresh HTTP request to the JWKS endpoint for every JWT with an unknown kid value, with no rate limiting. Since kid comes from the unverified token header, an attacker can trigger unlimited outbound requests. The vulnerability surfaces only when a JWKS fetch fails; an attacker can attempt to provoke that with sustained unknown-kid traffic, but the outcome depends on upstream JWKS-endpoint behavior (rate limiting, transient errors) which is beyond the attacker's control. This vulnerability is fixed in 2.13.0.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-460",
+            "CWE-755"
+          ],
+          "VendorSeverity": {
+            "ghsa": 1,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 3.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-48524",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-fhv5-28vv-h8m8",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pyjwt/PYSEC-2026-177.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-48524",
+            "https://www.cve.org/CVERecord?id=CVE-2026-48524"
+          ],
+          "PublishedDate": "2026-05-28T16:16:29.403Z",
+          "LastModifiedDate": "2026-06-17T10:55:03.867Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53539",
+          "VendorIDs": [
+            "GHSA-5rvq-cxj2-64vf"
+          ],
+          "PkgID": "python-multipart@0.0.27",
+          "PkgName": "python-multipart",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/python-multipart@0.0.27",
+            "UID": "7e4696a0fb40a7b1"
+          },
+          "InstalledVersion": "0.0.27",
+          "FixedVersion": "0.0.30",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53539",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:ebbdd78ee1f9e5932705d3dbc13a91d60e73fcba663ae653d1a7b540ed979c7d",
+          "Title": "Python-Multipart is a streaming multipart parser for Python. Prior to  ...",
+          "Description": "Python-Multipart is a streaming multipart parser for Python. Prior to 0.0.30, when parsing application/x-www-form-urlencoded bodies, QuerystringParser located the field separator with a two step lookup: it first scanned the entire remaining buffer for \u0026, and only when no \u0026 existed anywhere ahead did it fall back to scanning for ;. For a body that uses ; as the separator and contains no \u0026, every field iteration performed a full failed \u0026 scan over the entire remaining buffer before locating the nearby ;. With N semicolon separated fields in a chunk of size B, this yields O(B^2) byte comparisons per chunk. An attacker can submit a small crafted body of the form a;a;a;... and cause the parser to spend seconds of CPU per request. A handful of concurrent requests can exhaust worker processes. This vulnerability is fixed in 0.0.30.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-407"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/Kludex/python-multipart",
+            "https://github.com/Kludex/python-multipart/security/advisories/GHSA-5rvq-cxj2-64vf"
+          ],
+          "PublishedDate": "2026-06-22T18:16:44.36Z",
+          "LastModifiedDate": "2026-06-23T15:50:26.92Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53537",
+          "VendorIDs": [
+            "GHSA-vffw-93wf-4j4q"
+          ],
+          "PkgID": "python-multipart@0.0.27",
+          "PkgName": "python-multipart",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/python-multipart@0.0.27",
+            "UID": "7e4696a0fb40a7b1"
+          },
+          "InstalledVersion": "0.0.27",
+          "FixedVersion": "0.0.30",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53537",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:0fbac65ce10710b91323c4dd1decc104d62ff84899bd0a4d743dd89cbe9bfd04",
+          "Title": "Python-Multipart is a streaming multipart parser for Python. Prior to  ...",
+          "Description": "Python-Multipart is a streaming multipart parser for Python. Prior to 0.0.30, parse_options_header parsed Content-Disposition (and Content-Type) headers with email.message.Message, which transparently applies RFC 2231/5987 decoding. The extended parameter syntax (filename*=charset'lang'value, name*=..., and the filename*0/filename*1 continuation form) is decoded and surfaced under the bare filename/name key, and overrides the plain parameter when both are present. RFC 7578 §4.2 explicitly forbids the filename* form in multipart/form-data. Components that follow RFC 7578, or that do not implement RFC 2231/5987 decoding for multipart/form-data (WAFs, proxies, gateways), may interpret such a header differently. An attacker can exploit that difference to smuggle a different field name or filename past an upstream inspector to the backend. This vulnerability is fixed in 0.0.30.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-20",
+            "CWE-436"
+          ],
+          "VendorSeverity": {
+            "ghsa": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 3.7
+            }
+          },
+          "References": [
+            "https://github.com/Kludex/python-multipart",
+            "https://github.com/Kludex/python-multipart/security/advisories/GHSA-vffw-93wf-4j4q"
+          ],
+          "PublishedDate": "2026-06-22T18:16:44.077Z",
+          "LastModifiedDate": "2026-06-23T17:17:03.74Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53538",
+          "VendorIDs": [
+            "GHSA-6jv3-5f52-599m"
+          ],
+          "PkgID": "python-multipart@0.0.27",
+          "PkgName": "python-multipart",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/python-multipart@0.0.27",
+            "UID": "7e4696a0fb40a7b1"
+          },
+          "InstalledVersion": "0.0.27",
+          "FixedVersion": "0.0.30",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53538",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:69ceca3a82db248f229ec5733f8c96095d91a8641692829dccaeb3fdc95c0dba",
+          "Title": "Python-Multipart is a streaming multipart parser for Python. Prior to  ...",
+          "Description": "Python-Multipart is a streaming multipart parser for Python. Prior to 0.0.30, QuerystringParser treated ; as a field separator in application/x-www-form-urlencoded bodies, in addition to \u0026. The WHATWG URL standard, modern browsers, and Python's urllib.parse (since the CVE-2021-23336 fix) treat only \u0026 as a separator. This creates a parser differential: the same bytes are tokenized into different fields than a WHATWG compliant intermediary would produce, allowing an attacker to smuggle extra form fields past an upstream body inspecting component. This vulnerability is fixed in 0.0.30.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-436",
+            "CWE-444"
+          ],
+          "VendorSeverity": {
+            "ghsa": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 3.7
+            }
+          },
+          "References": [
+            "https://github.com/Kludex/python-multipart",
+            "https://github.com/Kludex/python-multipart/security/advisories/GHSA-6jv3-5f52-599m"
+          ],
+          "PublishedDate": "2026-06-22T18:16:44.223Z",
+          "LastModifiedDate": "2026-06-23T16:17:00.863Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53540",
+          "VendorIDs": [
+            "GHSA-v9pg-7xvm-68hf"
+          ],
+          "PkgID": "python-multipart@0.0.27",
+          "PkgName": "python-multipart",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/python-multipart@0.0.27",
+            "UID": "7e4696a0fb40a7b1"
+          },
+          "InstalledVersion": "0.0.27",
+          "FixedVersion": "0.0.31",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53540",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:e8ab6e82e6b8aa8ec0fabd32b68bb8cfa95d00c4658703791587c1ac2f2786fa",
+          "Title": "Python-Multipart is a streaming multipart parser for Python. Prior to  ...",
+          "Description": "Python-Multipart is a streaming multipart parser for Python. Prior to 0.0.31, parse_form() did not validate the Content-Length header before using it to bound its chunked read of the request body. A negative Content-Length turned the bounded read into a read-until-EOF, so the entire body was loaded into memory in a single read instead of in fixed-size chunks. This vulnerability is fixed in 0.0.31.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-1284"
+          ],
+          "VendorSeverity": {
+            "ghsa": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 3.7
+            }
+          },
+          "References": [
+            "https://github.com/Kludex/python-multipart",
+            "https://github.com/Kludex/python-multipart/security/advisories/GHSA-v9pg-7xvm-68hf"
+          ],
+          "PublishedDate": "2026-06-22T18:16:44.497Z",
+          "LastModifiedDate": "2026-06-23T15:56:11.243Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-48818",
+          "VendorIDs": [
+            "GHSA-wqp7-x3pw-xc5r"
+          ],
+          "PkgID": "starlette@1.0.0",
+          "PkgName": "starlette",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/starlette@1.0.0",
+            "UID": "40780e72487e4f09"
+          },
+          "InstalledVersion": "1.0.0",
+          "FixedVersion": "1.1.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-48818",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:6a924db8cad53481286b52c6cae9479e310d8070b5981ff615d17e03c8e5a6f0",
+          "Title": "starlette: Starlette: SSRF and NTLM credential theft via UNC paths in StaticFiles on Windows",
+          "Description": "Starlette is a lightweight ASGI framework/toolkit. In versions 1.0.1 and earlier, StaticFiles on Windows is vulnerable to SSRF. An UNC path such as \\\\attacker.com\\share can cause os.path.realpath to initiate an outbound SMB connection before the path is rejected, exposing the service account’s NTLMv2 credentials for offline cracking or relay even though the HTTP response is only a 404. The issue affects default follow_symlink=False deployments, including frameworks built on Starlette such as FastAPI; POSIX systems and follow_symlink=True are unaffected. The issue is fixed in 1.1.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-918"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-48818",
+            "https://github.com/Kludex/starlette",
+            "https://github.com/Kludex/starlette/commit/fd53168a7767b6b55ba5af787fd88f49e33cabc5",
+            "https://github.com/Kludex/starlette/pull/3287",
+            "https://github.com/Kludex/starlette/releases/tag/1.1.0",
+            "https://github.com/Kludex/starlette/security/advisories/GHSA-wqp7-x3pw-xc5r",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-48818",
+            "https://www.cve.org/CVERecord?id=CVE-2026-48818"
+          ],
+          "PublishedDate": "2026-06-17T19:18:09.807Z",
+          "LastModifiedDate": "2026-06-22T18:28:19.33Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54283",
+          "VendorIDs": [
+            "GHSA-82w8-qh3p-5jfq"
+          ],
+          "PkgID": "starlette@1.0.0",
+          "PkgName": "starlette",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/starlette@1.0.0",
+            "UID": "40780e72487e4f09"
+          },
+          "InstalledVersion": "1.0.0",
+          "FixedVersion": "1.3.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54283",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:fed3468a7e8abe6c4e22223e971b888ef5c5f4d9d6cb29b34439bd5966ccb8e3",
+          "Title": "Starlette is a lightweight ASGI framework/toolkit. From 0.4.1 until 1. ...",
+          "Description": "Starlette is a lightweight ASGI framework/toolkit. From 0.4.1 until 1.3.1, request.form() accepts max_fields and max_part_size to bound resource consumption while parsing form data. These limits are enforced for multipart/form-data, but silently ignored for application/x-www-form-urlencoded. An unauthenticated attacker can therefore send a urlencoded body with an arbitrarily large number of fields or an arbitrarily large field, even when the application configured limits it believed would apply. This vulnerability is fixed in 1.3.1.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/Kludex/starlette",
+            "https://github.com/Kludex/starlette/security/advisories/GHSA-82w8-qh3p-5jfq"
+          ],
+          "PublishedDate": "2026-06-22T18:16:46.943Z",
+          "LastModifiedDate": "2026-06-23T17:17:05.707Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-48710",
+          "VendorIDs": [
+            "GHSA-86qp-5c8j-p5mr"
+          ],
+          "PkgID": "starlette@1.0.0",
+          "PkgName": "starlette",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/starlette@1.0.0",
+            "UID": "40780e72487e4f09"
+          },
+          "InstalledVersion": "1.0.0",
+          "FixedVersion": "1.0.1",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-48710",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:1294c9102af24652d9987e880f7fd2d644d4dcb62c81d73eb4f0270a5b72895d",
+          "Title": "starlette: Starlette: Security restriction bypass via malformed HTTP Host header",
+          "Description": "Starlette is a lightweight ASGI framework/toolkit. Prior to version 1.0.1, the HTTP `Host` request header was not validated before being used to reconstruct `request.url`. Because the routing algorithm relies on the raw HTTP path while `request.url` is rebuilt from the `Host` header, a malformed header could make `request.url.path` differ from the path that was actually requested. Middleware and endpoints that apply security restrictions based on `request.url` (rather than the raw `scope` path) could therefore be bypassed. Users should upgrade to a version greater than or equal to version 1.0.1, which validates the `Host` header against the grammar of RFC 9112 §3.2 / RFC 3986 §3.2.2 when constructing `request.url` and falls back to `scope[\"server\"]` for malformed values.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-444",
+            "CWE-1289"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "nvd": 2,
+            "redhat": 4
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+              "V3Score": 6.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+              "V3Score": 6.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+              "V3Score": 6.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-48710",
+            "https://badhost.org",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2481742",
+            "https://github.com/Kludex/starlette",
+            "https://github.com/Kludex/starlette/commit/764dab0dcfb9033d75442d7a359645c9f94648c6",
+            "https://github.com/Kludex/starlette/security/advisories/GHSA-86qp-5c8j-p5mr",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/starlette/PYSEC-2026-161.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-48710",
+            "https://ostif.org/disclosing-the-badhost-vulnerability-in-starlette",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-48710.json",
+            "https://www.cve.org/CVERecord?id=CVE-2026-48710",
+            "https://www.secwest.net/starlette",
+            "https://www.x41-dsec.de/lab/advisories/x41-2026-002-starlette"
+          ],
+          "PublishedDate": "2026-05-26T22:16:44.02Z",
+          "LastModifiedDate": "2026-06-23T20:16:48.247Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-48817",
+          "VendorIDs": [
+            "GHSA-x746-7m8f-x49c"
+          ],
+          "PkgID": "starlette@1.0.0",
+          "PkgName": "starlette",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/starlette@1.0.0",
+            "UID": "40780e72487e4f09"
+          },
+          "InstalledVersion": "1.0.0",
+          "FixedVersion": "1.1.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-48817",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:e4cf4ba262c97f8c5847ca74d5f37f9cc19faaeae2da17be7cd9e98c0459e9a0",
+          "Title": "starlette: Starlette: Information disclosure and unintended method execution via non-standard HTTP methods",
+          "Description": "Starlette is a lightweight ASGI framework/toolkit. In versions 1.0.1 and below, when dispatching a request, HTTPEndpoint selects the handler by lowercasing the HTTP method and looking it up as an attribute with getattr, without restricting the lookup to a known set of HTTP verbs. When an HTTPEndpoint subclass is registered through Route(...) without an explicit methods= argument, the route does not constrain the method and every method reaches the endpoint. If a non-standard HTTP method whose lowercased name matches an attribute on the endpoint subclass reaches the endpoint, that attribute is invoked as if it were a request handler. An attacker can use this to reach methods that were never meant to be HTTP handlers, such as internal helpers, without the authorization checks applied by the intended public handler. An application (including Starlette-based frameworks like FastAPI) is affected if it registers an HTTPEndpoint subclass via Route(...) without explicitly setting methods=, and that subclass includes extra methods named like non-standard HTTP verbs that take one request argument and return a response. This issue has been fixed in version 1.1.0.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-470"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-48817",
+            "https://github.com/Kludex/starlette",
+            "https://github.com/Kludex/starlette/releases/tag/1.1.0",
+            "https://github.com/Kludex/starlette/security/advisories/GHSA-x746-7m8f-x49c",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-48817",
+            "https://www.cve.org/CVERecord?id=CVE-2026-48817"
+          ],
+          "PublishedDate": "2026-06-17T20:17:22.427Z",
+          "LastModifiedDate": "2026-06-22T18:28:19.33Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54282",
+          "VendorIDs": [
+            "GHSA-jp82-jpqv-5vv3"
+          ],
+          "PkgID": "starlette@1.0.0",
+          "PkgName": "starlette",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/starlette@1.0.0",
+            "UID": "40780e72487e4f09"
+          },
+          "InstalledVersion": "1.0.0",
+          "FixedVersion": "1.3.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54282",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:29e2b7cb98a4973cc27a959334040af646085bafdafc9d284e0975ca0e8a3f30",
+          "Title": "Starlette is a lightweight ASGI framework/toolkit. Prior to 1.3.0, the ...",
+          "Description": "Starlette is a lightweight ASGI framework/toolkit. Prior to 1.3.0, the HTTP request path is not validated before being used to reconstruct request.url. Because request.url is rebuilt by concatenating {scheme}://{host}{path} and re-parsing the result, a path that does not begin with / (for example @google.com) moves the authority boundary during re-parsing, so request.url.hostname and request.url.netloc become attacker-controlled. Code that reads request.url.hostname (rather than the Host header or scope) can therefore be misled into trusting an attacker-supplied host. This vulnerability is fixed in 1.3.0.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-706"
+          ],
+          "VendorSeverity": {
+            "ghsa": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 3.7
+            }
+          },
+          "References": [
+            "https://github.com/Kludex/starlette",
+            "https://github.com/Kludex/starlette/security/advisories/GHSA-jp82-jpqv-5vv3"
+          ],
+          "PublishedDate": "2026-06-22T18:16:46.807Z",
+          "LastModifiedDate": "2026-06-22T19:17:18.33Z"
+        }
+      ]
+    }
+  ]
+}

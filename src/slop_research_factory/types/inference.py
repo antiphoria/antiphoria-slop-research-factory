@@ -3,12 +3,12 @@
 """
 InferenceRecord — metadata for a single LLM API call.
 
-Spec reference: D-2 §9.  One record per Generator, Verifier,
+Spec reference: . One record per Generator, Verifier,
 or Reviser invocation, written to disk as::
 
     drafts/cycle_{NN}_{role}_record.json
 
-Sealed as part of the POST-seal step (D-5 §5.2–§5.4).
+Sealed as part of the POST-seal step.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ __all__ = ["InferenceRecord"]
 
 # ── Module-level constants ────────────────────────────────────
 
-# Allowed values for ``InferenceRecord.role`` (D-2 §9).
+# Allowed values for ``InferenceRecord.role``.
 _VALID_ROLES: frozenset[str] = frozenset(
     {
         "generator",
@@ -39,7 +39,6 @@ class InferenceRecord:
     Frozen: instances are immutable after construction.
     Serialise via :func:`dataclasses.asdict` or :meth:`to_dict`.
 
-    Spec: D-2 §9.
     """
 
     # ── Identity ──────────────────────────────────────────
@@ -103,7 +102,7 @@ class InferenceRecord:
 
     api_response_id: str | None
     """Provider response ID, if available.
-    For future provider-side signing (D-1 §11)."""
+    For future provider-side signing."""
 
     # ── Error handling (with defaults) ────────────────────
 

@@ -1,4 +1,4 @@
-"""Lowercase SHA-256 hex digest validation (D-2 §7, D-2 §9)."""
+"""Lowercase SHA-256 hex digest validation."""
 
 from __future__ import annotations
 

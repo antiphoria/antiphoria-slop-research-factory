@@ -107,9 +107,7 @@ class TestLiteLLMOpenRouterFallback:
             await client.complete(model="vendor/model", messages=[])
 
     @pytest.mark.asyncio
-    async def test_no_retry_on_unrelated_error(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    async def test_no_retry_on_unrelated_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-test")
 
         async def fake_acompletion(**kw: object) -> dict:

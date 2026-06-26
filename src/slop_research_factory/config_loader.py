@@ -4,19 +4,14 @@
 Configuration loader: antiphoria.toml + env → FactoryConfig.
 
 Reads the optional ``antiphoria.toml`` file, applies programmatic
-overrides, validates D-4/D-5 invariants, and returns a frozen
+overrides, validates config invariants, and returns a frozen
 ``FactoryConfig``.
 
 Resolution order (last wins):
-    1. ``FactoryConfig`` defaults  (D-2 §4)
+    1. ``FactoryConfig`` defaults
     2. ``antiphoria.toml`` on disk
-    3. *overrides* dict            (CLI flags / programmatic callers)
+    3. *overrides* dict (CLI flags / programmatic callers)
 
-Spec references:
-    D-2 §4   FactoryConfig field definitions and defaults.
-    D-4 §8   Confidence weights must sum to 1.0.
-    D-5 §11  Provenance disable requires env-var safety gate.
-    D-1 §10  ANTIPHORIA_I_UNDERSTAND_NO_PROVENANCE.
 """
 
 from __future__ import annotations
@@ -273,7 +268,7 @@ def _warn_unknown_fields(flat: dict[str, Any]) -> None:
 
 
 def _validate_weights(cfg: FactoryConfig) -> None:
-    """D-4 §8: confidence dimension weights must sum to 1.0."""
+    """confidence dimension weights must sum to 1.0."""
     total = (
         cfg.weight_logical_soundness
         + cfg.weight_mathematical_rigor
@@ -288,9 +283,9 @@ def _validate_weights(cfg: FactoryConfig) -> None:
 
 
 def _validate_provenance_gate(cfg: FactoryConfig) -> None:
-    """D-5 §11 / D-1 §10: disabling provenance requires env-var.
+    """/ disabling provenance requires env-var.
 
-    The error message below is verbatim from D-5 §11.
+    The error message below is verbatim from .
     """
     if cfg.enable_provenance:
         return
@@ -312,12 +307,12 @@ def _validate_provenance_gate(cfg: FactoryConfig) -> None:
             'to "true".\n'
             "\n"
             "Disabling provenance removes all tamper-evidence and\n"
-            "auditability guarantees.  The output will carry NO\n"
+            "auditability guarantees. The output will carry NO\n"
             "cryptographic proof of how it was generated.\n"
             "\n"
             "If you understand this and wish to proceed, set:\n"
             "\n"
-            "    export ANTIPHORIA_I_UNDERSTAND_NO_PROVENANCE=true"
+            " export ANTIPHORIA_I_UNDERSTAND_NO_PROVENANCE=true"
             "\n"
             "\n"
             "For production use, set enabled = true under "
@@ -325,8 +320,8 @@ def _validate_provenance_gate(cfg: FactoryConfig) -> None:
         )
 
     logger.warning(
-        "Provenance is DISABLED.  No cryptographic seals will be "
-        "generated for this run.  Output is NOT auditable."
+        "Provenance is DISABLED. No cryptographic seals will be "
+        "generated for this run. Output is NOT auditable."
     )
 
 
@@ -345,7 +340,7 @@ def load_config(
     """Load, merge, and validate a ``FactoryConfig``.
 
     Args:
-        toml_path: Explicit path to a TOML file.  When ``None``,
+        toml_path: Explicit path to a TOML file. When ``None``,
             the default search paths are tried:
             ``./antiphoria.toml`` → ``./config/antiphoria.toml``
             → ``~/.config/antiphoria/antiphoria.toml``.
@@ -380,7 +375,7 @@ def load_config(
         if bad_override:
             raise ConfigLoadError(
                 "Unknown FactoryConfig override keys: "
-                f"{sorted(bad_override)}.  Valid field names: "
+                f"{sorted(bad_override)}. Valid field names: "
                 f"{sorted(_KNOWN_FIELDS)}."
             )
         flat.update(overrides)
@@ -401,7 +396,7 @@ def load_config(
     _validate_provenance_gate(cfg)
 
     logger.info(
-        "FactoryConfig ready — generator=%s  verifier=%s  provenance=%s  threshold=%.2f",
+        "FactoryConfig ready — generator=%s verifier=%s provenance=%s threshold=%.2f",
         cfg.generator_model,
         cfg.verifier_model,
         cfg.enable_provenance,

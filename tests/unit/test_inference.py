@@ -1,12 +1,11 @@
 # tests/unit/test_inference.py
 
 """
-E1 unit tests for types/inference.py — D-2 §9.
+E1 unit tests for types/inference.py.
 
 Test-to-spec traceability
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-  E1-S15  InferenceRecord construction, immutability, JSON round-trip.
-          (D-2 §9, D-2 §16 invariants #2 and #6.)
+  E1-S15 InferenceRecord construction, immutability, JSON round-trip.
 """
 
 from __future__ import annotations
@@ -161,7 +160,7 @@ class TestInferenceRecord(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):
             rec.role = "verifier"  # type: ignore[misc]
 
-    # ── E1-S15: JSON round-trip (D-2 §16 #2 & #6) ───────
+    # ── E1-S15: JSON round-trip ───────
 
     def test_s15_round_trip_through_json(self) -> None:
         """asdict → json.dumps → json.loads → InferenceRecord."""
@@ -181,7 +180,7 @@ class TestInferenceRecord(unittest.TestCase):
         self.assertEqual(rec.to_dict(), asdict(rec))
 
     def test_s15_serialised_contains_only_plain_types(self) -> None:
-        """D-2 §16 #6: serialised form has only JSON-native types."""
+        """#6: serialised form has only JSON-native types."""
         rec = self._make_record()
         data = json.loads(json.dumps(asdict(rec)))
         self.assertIsInstance(data["role"], str)

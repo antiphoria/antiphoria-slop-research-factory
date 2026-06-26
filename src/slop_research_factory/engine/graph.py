@@ -8,9 +8,9 @@ The compiled graph encodes the M2 control flow:
     genesis (already sealed by orchestrator)
         │
         ▼
-    GENERATOR ──► VERIFIER ──┬── CORRECT  ─► FINALIZE
-                             ├── FIXABLE  ─► REVISER ──► VERIFIER ↻
-                             ├── WRONG    ─► REVISER ──► VERIFIER ↻
+    GENERATOR ──► VERIFIER ──┬── CORRECT ─► FINALIZE
+                             ├── FIXABLE ─► REVISER ──► VERIFIER ↻
+                             ├── WRONG ─► REVISER ──► VERIFIER ↻
                              └── caps hit ─► HUMAN_RESCUE
 
 Implementation notes:
@@ -24,11 +24,6 @@ Implementation notes:
 * FINALIZE assembles terminal output artifacts and seals the MANIFEST.
 * HUMAN_RESCUE persists a rescue request and halts the pipeline.
 
-Spec references:
-    D-0 §13   Implementation step plan.
-    D-2 §8.4  Verdict routing.
-    D-5 §4    Four-phase node protocol.
-    D-5 §5.5  Finalize + rescue node contracts.
 """
 
 from __future__ import annotations

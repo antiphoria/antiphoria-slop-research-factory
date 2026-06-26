@@ -54,7 +54,7 @@ class _StubState:
 
 # ── Valid metadata helpers ─────────────────────────────
 #
-# Strict metadata schema registry (D-2 §15) now enforces required
+# Strict metadata schema registry now enforces required
 # keys for every StepType. Tests that don't otherwise care about the
 # wire metadata pull a minimal valid dict from these helpers.
 

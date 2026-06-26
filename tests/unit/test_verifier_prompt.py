@@ -1,6 +1,6 @@
 # tests/unit/test_verifier_prompt.py
 
-"""Unit tests for the Verifier prompt renderer (D-3 §4)."""
+"""Unit tests for the Verifier prompt renderer."""
 
 from __future__ import annotations
 

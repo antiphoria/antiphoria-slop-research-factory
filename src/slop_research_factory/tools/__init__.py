@@ -2,10 +2,6 @@
 
 """External tool clients — Crossref, Semantic Scholar, Tavily.
 
-Spec references:
-    D-2 §11   Tool query/result types.
-    D-4 §5    Tool-grounded citation checking sequence.
-    D-5 §5.3  TOOL_CALL seal contract.
 
 The :class:`CitationCheckClient` Protocol abstracts the wire-level
 client. M2 ships canned (deterministic fake) implementations only;

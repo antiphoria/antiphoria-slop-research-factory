@@ -4,15 +4,13 @@
 Verifier output types — Pydantic models for LLM-coerced structured output.
 
 These types are produced by the Verifier node via the Instructor library
-(D-3 §4.5).  The Generator and Reviser produce free-form Markdown text;
+. The Generator and Reviser produce free-form Markdown text;
 only the Verifier requires Pydantic output schemas.
 
-Reference
 ---------
-D-2 §8   — Schema definitions (CitationEntry, CitationCheckEntry,
+ — Schema definitions (CitationEntry, CitationCheckEntry,
             CritiqueEntry, VerifierOutput).
-D-3 §4.5 — Instructor integration and semantic post-validation.
-D-4 §5   — Verifier execution sequence consuming these types.
+.5 — Instructor integration and semantic post-validation.
 """
 
 from __future__ import annotations
@@ -36,7 +34,7 @@ __all__ = [
     "VerifierOutput",
 ]
 
-# ── Value-set constants (D-2 §8.3) ─────────────────────────────────────
+# ── Value-set constants ─────────────────────────────────────
 
 VALID_CRITIQUE_CATEGORIES: frozenset[str] = frozenset(
     {
@@ -71,14 +69,11 @@ VALID_RESOLUTION_TYPES: frozenset[str] = frozenset(
 :pyattr:`VerifierOutput.resolution_type`."""
 
 
-# ── §8.1  CitationEntry ────────────────────────────────────────────────
+# ── §8.1 CitationEntry ────────────────────────────────────────────────
 
 
 class CitationEntry(BaseModel):
-    """A single citation found in the generated draft.
-
-    Reference: D-2 §8.1.
-    """
+    """A single citation found in the generated draft."""
 
     citation_text: str
     """The citation as it appears in the draft text."""
@@ -106,16 +101,15 @@ class CitationEntry(BaseModel):
     """
 
 
-# ── §8.2  CitationCheckEntry ───────────────────────────────────────────
+# ── §8.2 CitationCheckEntry ───────────────────────────────────────────
 
 
 class CitationCheckEntry(BaseModel):
     """Result of checking a single citation against external sources.
 
     One instance is produced per citation during the Verifier's
-    tool-grounded citation checking phase (D-4 §5, Phase 3).
+    tool-grounded citation checking phase.
 
-    Reference: D-2 §8.2.
     """
 
     citation: CitationEntry
@@ -131,7 +125,7 @@ class CitationCheckEntry(BaseModel):
     crossref_match: dict[str, Any] | None = None
     """Raw metadata returned by Crossref, if queried.
 
-    Stored for audit trail (D-1 §6, Attack 3 mitigation).
+    Stored for audit trail.
     """
 
     semantic_scholar_match: dict[str, Any] | None = None
@@ -144,7 +138,7 @@ class CitationCheckEntry(BaseModel):
     """
 
     confidence: float
-    """0.0–1.0.  Deterministic checks yield 1.0 or 0.0;
+    """0.0–1.0. Deterministic checks yield 1.0 or 0.0;
     LLM-assessed claim relevance is probabilistic."""
 
     notes: str | None = None
@@ -161,17 +155,16 @@ class CitationCheckEntry(BaseModel):
         return v
 
 
-# ── §8.3  CritiqueEntry ───────────────────────────────────────────────
+# ── §8.3 CritiqueEntry ───────────────────────────────────────────────
 
 
 class CritiqueEntry(BaseModel):
     """A single specific observation from the Verifier's critique.
 
     ``category`` and ``severity`` are validated against their documented
-    value sets.  Malformed LLM outputs are schema errors, not tolerated
-    strings (D-2 §8.3 validation requirement).
+    value sets. Malformed LLM outputs are schema errors, not tolerated
+    strings.
 
-    Reference: D-2 §8.3.
     """
 
     category: str
@@ -211,22 +204,21 @@ class CritiqueEntry(BaseModel):
         return v
 
 
-# ── §8.4  VerifierOutput ──────────────────────────────────────────────
+# ── §8.4 VerifierOutput ──────────────────────────────────────────────
 
 
 class VerifierOutput(BaseModel):
     """Complete structured output of the Verifier node.
 
     Modeled on Aletheia's Verification-and-Extraction prompt
-    (Feng et al., 2026a, Appendix A).  The Verifier must produce
+    (Feng et al., 2026a, Appendix A). The Verifier must produce
     the critique BEFORE the verdict, forcing it to commit to
     specific observations before making a judgment call.
 
     The model validator enforces the semantic invariant from
-    D-3 §4.5: FIXABLE and WRONG verdicts require at least one
+    .5: FIXABLE and WRONG verdicts require at least one
     critique entry.
 
-    Reference: D-2 §8.4.
     """
 
     # --- §1. Critique ───────────────────────────────────────────────
@@ -250,11 +242,11 @@ class VerifierOutput(BaseModel):
     | ``"remediation_plan"``."""
 
     verdict_confidence: float
-    """0.0–1.0.  Primary routing signal.
+    """0.0–1.0. Primary routing signal.
 
     If ``verdict == CORRECT`` but this value is below
     ``config.verifier_confidence_threshold``, the orchestrator
-    demotes the verdict to FIXABLE (D-2 §8.4 demotion rule).
+    demotes the verdict to FIXABLE.
     """
 
     # --- §3. Resolution ────────────────────────────────────────────
@@ -267,26 +259,26 @@ class VerifierOutput(BaseModel):
     # --- Dimensional confidence scores ──────────────────────────────
 
     confidence_logical_soundness: float
-    """0.0–1.0.  Argumentation validity confidence."""
+    """0.0–1.0. Argumentation validity confidence."""
 
     confidence_mathematical_rigor: float
-    """0.0–1.0.  Mathematical correctness confidence."""
+    """0.0–1.0. Mathematical correctness confidence."""
 
     confidence_citation_accuracy: float
-    """0.0–1.0.  Citation existence and relevance confidence.
+    """0.0–1.0. Citation existence and relevance confidence.
 
     NOTE: This is the Verifier's *pre-tool-check* estimate.
     Tool-grounded CitationCheckEntry results may override it
-    during confidence composition (D-4 §3.1).
+    during confidence composition.
     """
 
     confidence_scope_compliance: float
-    """0.0–1.0.  Brief addressal and constraint compliance."""
+    """0.0–1.0. Brief addressal and constraint compliance."""
 
     confidence_novelty_plausibility: float
-    """0.0–1.0.  Per D-0 §6.1 this dimension is LOW-RELIABILITY.
+    """0.0–1.0. Per .1 this dimension is LOW-RELIABILITY.
 
-    Architecturally capped at 0.5 (D-4 §3.4).
+    Architecturally capped at 0.5.
     """
 
     # ── Field validators ────────────────────────────────────────────
@@ -320,7 +312,7 @@ class VerifierOutput(BaseModel):
     def _critique_required_for_non_correct(self) -> Self:
         """FIXABLE / WRONG verdicts must include ≥ 1 critique entry.
 
-        Per D-3 §4.5 post-Instructor semantic validation: if the
+        Per .5 post-Instructor semantic validation: if the
         verdict is FIXABLE or WRONG but ``critique_entries`` is
         empty, the output is semantically invalid.
         """
@@ -371,7 +363,7 @@ class VerifierOutput(BaseModel):
                     "resolution_type": "remediation_plan",
                     "resolution": (
                         "The core approach via Smith theory "
-                        "is sound.  A corrected version "
+                        "is sound. A corrected version "
                         "should address the finiteness gap."
                     ),
                     "confidence_logical_soundness": 0.6,

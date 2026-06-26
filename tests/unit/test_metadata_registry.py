@@ -1,6 +1,6 @@
 # tests/unit/test_metadata_registry.py
 
-"""Unit tests for :mod:`slop_research_factory.seal.registry` (D-2 §15)."""
+"""Unit tests for :mod:`slop_research_factory.seal.registry`."""
 
 from __future__ import annotations
 

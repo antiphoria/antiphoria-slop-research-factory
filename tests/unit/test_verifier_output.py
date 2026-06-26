@@ -1,15 +1,15 @@
 # tests/unit/test_verifier_output.py
 
 """
-E1 unit tests for types/verifier_output.py — D-2 §8.
+E1 unit tests for types/verifier_output.py.
 
 Test-to-spec traceability
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-  E1-S07  VerifierOutput round-trip (D-2 §16 invariant 3).
-  E1-S08  VerifierOutput JSON Schema (D-2 §16 invariant 4).
-  E1-S16  Invalid verdict string rejected (D-2 §16 invariant 11).
-  E1-S17  CORRECT + empty critique_entries valid.
-  E1-S18  Non-CORRECT + empty critique rejected (D-3 §4.5).
+  E1-S07 VerifierOutput round-trip.
+  E1-S08 VerifierOutput JSON Schema.
+  E1-S16 Invalid verdict string rejected.
+  E1-S17 CORRECT + empty critique_entries valid.
+  E1-S18 Non-CORRECT + empty critique rejected.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ def _make_verifier_output_data(
     """Return a dict of valid VerifierOutput fields.
 
     Defaults to a CORRECT verdict with empty critique_entries,
-    which is the simplest valid state.  Pass keyword arguments
+    which is the simplest valid state. Pass keyword arguments
     to override any field.
     """
     base: dict[str, Any] = {
@@ -60,7 +60,7 @@ class TestE1S07VerifierOutputRoundTrip:
     """VerifierOutput round-trips through Pydantic JSON
     serialization: model_dump_json → model_validate_json.
 
-    D-2 §16 Invariant 3.
+     Invariant 3.
     """
 
     def test_correct_verdict_round_trips(self) -> None:
@@ -116,7 +116,7 @@ class TestE1S08VerifierOutputJsonSchema:
     """VerifierOutput.model_json_schema() produces a valid
     JSON Schema containing all expected fields.
 
-    D-2 §16 Invariant 4.
+     Invariant 4.
     """
 
     EXPECTED_FIELDS: frozenset[str] = frozenset(
@@ -161,7 +161,7 @@ class TestE1S08VerifierOutputJsonSchema:
 class TestE1S16VerifierOutputRejectsInvalidVerdict:
     """VerifierOutput with invalid verdict raises ValidationError.
 
-    D-2 §16 Invariant 11.
+    Invariant 11.
     """
 
     def test_invalid_verdict_string(self) -> None:
@@ -222,7 +222,7 @@ class TestE1S18NonCorrectEmptyCritiqueRejected:
     """VerifierOutput with non-CORRECT verdict and empty
     critique_entries is rejected by model validator.
 
-    D-3 §4.5 post-Instructor semantic validation.
+    .5 post-Instructor semantic validation.
     """
 
     def test_fixable_empty_critique_rejected(self) -> None:

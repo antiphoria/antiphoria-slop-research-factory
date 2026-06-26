@@ -3,25 +3,10 @@
 """
 Enumeration types for the antiphoria slop-research-factory.
 
-Specification references
-~~~~~~~~~~~~~~~~~~~~~~~~
-  D-0 §7.3  Human rescue semantics
-  D-1 §9    Security guarantee
-  D-1 §10   SealedStepReceipt / seal classification
-  D-2 §3.1  Verdict
-  D-2 §3.2  StepType
-  D-2 §3.3  RunStatus  (incl. legal-transition table)
-  D-2 §3.4  CitationCheckResult
-  D-2 §3.5  ConfidenceTier
-  D-2 §4    CheckpointBackend
-  D-2 §10   HAI Card schema / HumanReviewStatus
-  D-2 §12   Human rescue schema / HumanRescueAction
-  D-5 §5.5  Human gate node contract
-  D-7 §7.4  Human review governance
 
 All string-valued enums use :class:`enum.StrEnum` so every member
 serialises to its ``.value`` string in ``json.dumps`` without a custom
-encoder (design principle D-2 §2: "JSON-serializable everywhere").
+encoder.
 """
 
 from __future__ import annotations
@@ -47,14 +32,14 @@ __all__ = [
 ]
 
 
-# ── D-2 §3.1  Verdict ───────────────────────────────────────────────
+# ── Verdict ───────────────────────────────────────────────────
 
 
 class Verdict(StrEnum):
-    """Verifier verdict (D-2 §3.1).
+    """Verifier verdict.
 
     Modeled on Aletheia's Verification-and-Extraction prompt
-    (Feng et al., 2026a, Appendix A).  Three values, no more.
+    (Feng et al., 2026a, Appendix A). Three values, no more.
     """
 
     CORRECT = "CORRECT"
@@ -67,13 +52,13 @@ class Verdict(StrEnum):
     """Draft is fundamentally flawed; needs full rewrite."""
 
 
-# ── D-2 §3.2  StepType ──────────────────────────────────────────────
+# ── StepType ──────────────────────────────────────────────────
 
 
 class StepType(StrEnum):
-    """Seal-chain step classification (D-2 §3.2).
+    """Seal-chain step classification.
 
-    Per D-1 §10: auditors must distinguish node types structurally.
+    Per auditors must distinguish node types structurally.
     """
 
     GENESIS = "GENESIS"
@@ -88,13 +73,13 @@ class StepType(StrEnum):
     MANIFEST = "MANIFEST"
 
 
-# ── D-2 §3.3  RunStatus ─────────────────────────────────────────────
+# ── RunStatus ─────────────────────────────────────────────────
 
 
 class RunStatus(StrEnum):
-    """Run lifecycle status (D-2 §3.3).
+    """Run lifecycle status.
 
-    Forward-only state machine.  Illegal transitions MUST raise
+    Forward-only state machine. Illegal transitions MUST raise
     ``IllegalTransitionError`` rather than silently mutate state.
     """
 
@@ -115,12 +100,12 @@ class RunStatus(StrEnum):
 
 
 class IllegalTransitionError(Exception):
-    """Raised when a ``RunStatus`` transition violates D-2 §3.3."""
+    """Raised when a ``RunStatus`` transition violates .3."""
 
 
-# Legal-transition table ── D-2 §3.3
+# Legal-transition table ── .3
 
-# Key: source status.  Value: frozenset of allowed target statuses.
+# Key: source status. Value: frozenset of allowed target statuses.
 
 # Any pair not listed here is illegal and must raise.
 
@@ -181,7 +166,7 @@ def validate_status_transition(
 ) -> None:
     """Raise if *current -> target* is not in the legal-transition table.
 
-    Per D-2 §3.3: "Any transition not listed above is illegal and
+    Per .3: "Any transition not listed above is illegal and
     MUST raise an orchestrator error rather than mutating the state
     silently."
     """
@@ -192,11 +177,11 @@ def validate_status_transition(
         )
 
 
-# ── D-2 §3.4  CitationCheckResult ───────────────────────────────────
+# ── CitationCheckResult ───────────────────────────────────────
 
 
 class CitationCheckResult(StrEnum):
-    """Citation verification outcome (D-2 §3.4)."""
+    """Citation verification outcome."""
 
     VERIFIED = "VERIFIED"
     METADATA_MISMATCH = "METADATA_MISMATCH"
@@ -205,20 +190,20 @@ class CitationCheckResult(StrEnum):
     INCONCLUSIVE = "INCONCLUSIVE"
 
 
-# ── D-2 §3.5  ConfidenceTier ────────────────────────────────────────
+# ── ConfidenceTier ────────────────────────────────────────────
 
 
 class ConfidenceTier(StrEnum):
-    """Human-readable confidence bucketing (D-2 §3.5).
+    """Human-readable confidence bucketing.
 
     Boundary semantics (explicit per spec)::
 
-        HIGH      confidence >= 0.8
-        MEDIUM    0.5 <= confidence < 0.8
-        LOW       0.2 <= confidence < 0.5
-        VERY_LOW  confidence < 0.2
+        HIGH confidence >= 0.8
+        MEDIUM 0.5 <= confidence < 0.8
+        LOW 0.2 <= confidence < 0.5
+        VERY_LOW confidence < 0.2
 
-    ``1.0`` maps to HIGH.  ``0.0`` maps to VERY_LOW.
+    ``1.0`` maps to HIGH. ``0.0`` maps to VERY_LOW.
     """
 
     HIGH = "HIGH"
@@ -244,11 +229,11 @@ class ConfidenceTier(StrEnum):
         return cls.VERY_LOW
 
 
-# ── D-2 §4  CheckpointBackend ───────────────────────────────────────
+# ── CheckpointBackend ───────────────────────────────────────
 # Re-export from config (canonical definition) — see module docstring above.
 
 
-# ── Human rescue routing (D-2 §4, D-2 §12) ────────────────────────────
+# ── Human rescue routing ────────────────────────────
 
 
 class RescueReason(StrEnum):
@@ -271,15 +256,14 @@ class NodeName(StrEnum):
     and :class:`~slop_research_factory.types.human_rescue.HumanRescueRequest`
     to label which node produced a given record.
 
-    Values derived from the routing table in ``engine.routing``
-    (D-0 §4, D-5 §5).
+    Values derived from the routing table in ``engine.routing``.
     """
 
     GENERATOR = "GENERATOR"
     """Draft generation node."""
 
     REVISER = "REVISER"
-    """Draft revision node (D-0 §4, D-3 §5). Distinct from ``GENERATOR`` for
+    """Draft revision node. Distinct from ``GENERATOR`` for
     seals, usage records, and step directories."""
 
     VERIFICATION = "VERIFICATION"
@@ -298,53 +282,53 @@ class NodeName(StrEnum):
     """Normal completion terminal node."""
 
 
-# ── D-1 §10 / D-0 §5  SealType ──────────────────────────────────────
+# ── / SealType ──────────────────────────────────────
 
 
 class SealType(StrEnum):
-    """Provenance seal operation category (D-1 §10, D-0 §5.1–§5.2).
+    """Provenance seal operation category.
 
     Classifies chain entries at the **provenance layer** (Layer 4).
     Coarser than :class:`StepType`, which tracks per-node
-    orchestration detail.  Every position in the chain structure
-    defined in D-0 §5.2 maps to exactly one ``SealType``.
+    orchestration detail. Every position in the chain structure
+    defined in .2 maps to exactly one ``SealType``.
 
-    ============  =======================================
-    Value         Chain role
-    ============  =======================================
-    GENESIS       Chain root (step_index=0)
-    PRE_SEAL      Intent seal before node inference
-    POST_SEAL     Outcome seal after node inference
-    TOOL_CALL     External tool invocation seal
-    HUMAN_GATE    Human review decision seal
-    MANIFEST      Terminal compiled-manifest seal
-    ============  =======================================
+    ============ =======================================
+    Value Chain role
+    ============ =======================================
+    GENESIS Chain root (step_index=0)
+    PRE_SEAL Intent seal before node inference
+    POST_SEAL Outcome seal after node inference
+    TOOL_CALL External tool invocation seal
+    HUMAN_GATE Human review decision seal
+    MANIFEST Terminal compiled-manifest seal
+    ============ =======================================
     """
 
     GENESIS = "GENESIS"
-    """Chain root created by ``begin_chain`` (D-0 §5.1)."""
+    """Chain root created by ``begin_chain``."""
 
     PRE_SEAL = "PRE_SEAL"
-    """Intent seal before any node inference (D-1 §10)."""
+    """Intent seal before any node inference."""
 
     POST_SEAL = "POST_SEAL"
-    """Outcome seal after any node inference (D-1 §10)."""
+    """Outcome seal after any node inference."""
 
     TOOL_CALL = "TOOL_CALL"
-    """External tool invocation seal (D-1 §10, D-2 §11)."""
+    """External tool invocation seal."""
 
     HUMAN_GATE = "HUMAN_GATE"
-    """Human review decision seal (D-1 §10, D-2 §12)."""
+    """Human review decision seal."""
 
     MANIFEST = "MANIFEST"
-    """Terminal compiled-manifest seal (D-0 §5.2)."""
+    """Terminal compiled-manifest seal."""
 
 
-# ── D-2 §12  HumanRescueAction ──────────────────────────────────────
+# ── HumanRescueAction ──────────────────────────────────────
 
 
 class HumanRescueAction(StrEnum):
-    """Resolution action for a human rescue request (D-2 §12).
+    """Resolution action for a human rescue request.
 
     Governs how the orchestrator resumes (or terminates)
     after a human has reviewed the rescue queue item.
@@ -366,15 +350,15 @@ class HumanRescueAction(StrEnum):
     """Supply guidance text for the next generation cycle."""
 
 
-# ── D-2 §10 / D-7 §7.4  HumanReviewStatus ──────────────────────────
+# ── / .4 HumanReviewStatus ──────────────────────────
 
 
 class HumanReviewStatus(StrEnum):
-    """HAI Card review state (D-2 §10, D-7 §7.4).
+    """HAI Card review state.
 
     ``UNREVIEWED`` is the only valid factory default.
     ``REVIEWED`` must be set explicitly by a human with
-    reviewer identity and timestamp.  System code must
+    reviewer identity and timestamp. System code must
     **never** auto-set ``REVIEWED``.
     """
 

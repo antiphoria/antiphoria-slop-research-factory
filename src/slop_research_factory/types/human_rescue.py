@@ -1,20 +1,20 @@
 # src/slop_research_factory/types/human_rescue.py
 
 """
-Human rescue queue types — D-2 §12.
+Human rescue queue types.
 
 Two frozen dataclasses model the rescue flow:
 
   :class:`HumanRescueRequest`
       Created by the routing logic when any loop-limit cap
-      is breached.  Captures a snapshot of pipeline state
+      is breached. Captures a snapshot of pipeline state
       sufficient for a human reviewer to understand *why*
       the run escalated and *what* the current draft looks
       like.
 
   :class:`HumanRescueResolution`
       Created by the human gate node after a reviewer acts
-      on a request.  Carries the chosen action and any
+      on a request. Carries the chosen action and any
       action-specific payloads (limit overrides, guidance
       text).
 
@@ -39,10 +39,6 @@ Design notes:
 - Timestamps: timezone-aware (UTC expected).
 - ``to_dict`` produces a JSON-friendly dict for ``rescue/request.json``.
 
-Spec references:
-    D-0 §7.3   Rescue queue semantics.
-    D-2 §12    Human rescue schema.
-    D-5 §5.5   Human gate node contract.
 """
 
 from __future__ import annotations
@@ -65,7 +61,7 @@ __all__ = [
 ]
 
 
-# ── HumanRescueRequest (D-2 §12.1) ──────────────────────
+# ── HumanRescueRequest ──────────────────────
 
 
 @dataclass(frozen=True)
@@ -73,34 +69,34 @@ class HumanRescueRequest:
     """Pipeline state snapshot at point of rescue escalation.
 
     Created by the routing logic and written to the
-    workspace ``rescue/`` directory.  A human reviewer
+    workspace ``rescue/`` directory. A human reviewer
     reads this to decide how to proceed.
 
     Attributes:
-        request_id:         Unique request identifier
+        request_id: Unique request identifier
                             (typically a UUID).
-        run_id:             Run that triggered the rescue.
-        created_at:         UTC timestamp of escalation
+        run_id: Run that triggered the rescue.
+        created_at: UTC timestamp of escalation
                             (timezone-aware).
-        rescue_reason:      Why the run hit the rescue queue
+        rescue_reason: Why the run hit the rescue queue
                             (:class:`~slop_research_factory.types.enums.RescueReason`).
-        node_name:          Node active when rescue was
+        node_name: Node active when rescue was
                             triggered.
-        step_index:         Zero-based step index at
+        step_index: Zero-based step index at
                             escalation.
-        cycle_count:        Completed generate → verify
+        cycle_count: Completed generate → verify
                             (→ revise) cycles.
-        rejection_count:    WRONG verdicts accumulated.
-        revision_count:     FIXABLE verdicts accumulated.
-        brief_title:        Human-readable brief title for
+        rejection_count: WRONG verdicts accumulated.
+        revision_count: FIXABLE verdicts accumulated.
+        brief_title: Human-readable brief title for
                             context.
-        summary:            Auto-generated explanation of
+        summary: Auto-generated explanation of
                             the escalation.
-        latest_verdict:     Verdict that triggered rescue
+        latest_verdict: Verdict that triggered rescue
                             (``None`` if budget-only).
         verdict_confidence: Confidence of that verdict
                             (0.0–1.0 when set).
-        latest_seal_hash:   SHA-256 of the most recent
+        latest_seal_hash: SHA-256 of the most recent
                             seal (``None`` if no seals
                             yet).
     """
@@ -221,20 +217,20 @@ class HumanRescueResolution:
       non-empty.
 
     Attributes:
-        request_id:               Links back to the
+        request_id: Links back to the
                                   :class:`HumanRescueRequest`.
-        resolved_at:              UTC timestamp of
+        resolved_at: UTC timestamp of
                                   resolution (tz-aware).
-        resolver_id:              Identity of the human
+        resolver_id: Identity of the human
                                   reviewer.
-        action:                   Chosen resolution action.
-        notes:                    Free-text reviewer notes.
-        guidance:                 Guidance text for next
+        action: Chosen resolution action.
+        notes: Free-text reviewer notes.
+        guidance: Guidance text for next
                                   cycle (required for
                                   ``PROVIDE_GUIDANCE``).
-        revised_max_rejections:   New rejection cap
+        revised_max_rejections: New rejection cap
                                   (``INCREASE_LIMITS``).
-        revised_max_revisions:    New revision cap.
+        revised_max_revisions: New revision cap.
         revised_max_total_cycles: New total cycle cap.
         revised_max_total_tokens: New token budget.
         revised_max_total_cost_usd: New cost budget.

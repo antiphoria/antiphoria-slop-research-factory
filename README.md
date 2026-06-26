@@ -1,12 +1,35 @@
 # antiphoria-slop-research-factory
 
+## A human note
+
+There is so much going on here that I genuinely have no idea about it.
+
+- it's "spec-driven" which I'll never do again
+- it's all over the place: spaghetti code, loose-ends, unfinished routes
+- [...]
+
+Do not mistake this for a solid piece of software. It's a vibe-coded mess.
+
+Yet, I absolutely did as best as I could within the given timeframe for hobby-projects.
+
+Moreover, this is heavily leaning into the exploration of all these AI-era promises.
+
+I recently heard something along the lines of:
+> "coding is solved"
+
+Is that so?
+
+If reading AI code is not a blocker to you - be warned but ofc go ahead and explore it.
+
+For development and coding assistants, see **[AGENTS.md](AGENTS.md)**.
+
 ## Disclaimer
 
 The software must be used in a **research setting only** and **for artistic purposes**.
 
-## Security guarantee (D-1 §9)
+## Security guarantee
 
-The provenance system proves **process** integrity, not scientific truth. The following is the honest security guarantee from **D-1 §9** (see [`glascannon-ai-draft/d1.md`](glascannon-ai-draft/d1.md)):
+The provenance system proves **process** integrity, not scientific truth.
 
 > **Given an unmodified factory installation, an honest operator, and collision-resistant hash functions:**
 >
@@ -20,28 +43,21 @@ The provenance system proves **process** integrity, not scientific truth. The fo
 > - That all runs performed by the operator have been disclosed
 > - That the Verifier's approval reflects genuine quality
 
-## Governance
-
-Community rules, licensing split, and communication standards are in the **[D-7 governance charter](glascannon-ai-draft/d7.md)**. Implementers should read **D-7 §16** (invariant checklist) alongside the specs.
-
 ## Shiny badges to fill the inner void
 
+[![CI Lint](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-lint.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-lint.yml)
 [![CI Tests](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-tests.yml)
 [![CI Trivy](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-trivy.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-trivy.yml)
-[![CI CodeAudit](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-codeaudit.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/ci-codeaudit.yml)
 [![Gitleaks](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/antiphoria/antiphoria-slop-research-factory/actions/workflows/gitleaks.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/antiphoria/antiphoria-slop-research-factory/badge)](https://securityscorecards.dev/viewer/?uri=github.com/antiphoria/antiphoria-slop-research-factory)
 
 ## Manual workflow runs
 
 These workflows define **`workflow_dispatch`**, so you can run them without a push:
 
 1. Open **[Actions](https://github.com/antiphoria/antiphoria-slop-research-factory/actions)** for this repository.
-2. Select the workflow in the left sidebar (**CI Tests**, **CI Trivy**, **CI CodeAudit**, or **Gitleaks**).
+2. Select the workflow in the left sidebar (**CI Lint**, **CI Tests**, **CI Trivy**, **Gitleaks**, or **Org Quality (OpenSSF Scorecard)**).
 3. Use **Run workflow** (branch dropdown, then the green button).
-
-## Architecture diagrams
-
-Rendered **Mermaid** views (C4-style context, containers, components, trust boundaries) live under [`docs/architecture/`](docs/architecture/README.md). They track the specification drafts in [`glascannon-ai-draft/`](glascannon-ai-draft/).
 
 ## License
 

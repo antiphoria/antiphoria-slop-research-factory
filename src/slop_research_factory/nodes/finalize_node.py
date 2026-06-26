@@ -18,12 +18,6 @@ Its work is deterministic assembly:
 There is no PRE/POST split because no LLM call occurs; the MANIFEST
 seal is the single terminal chain entry.
 
-Spec references:
-    D-0 §5.2   MANIFEST seal as chain terminal.
-    D-2 §4     configuration_overrides computation.
-    D-2 §10    HAI Card schema.
-    D-5 §5.5   Finalize node contract.
-    D-6 §6     Renderer contract.
 """
 
 from __future__ import annotations
@@ -67,17 +61,17 @@ def _now_iso() -> str:
 
 
 def _serialize_with_version(obj: dict[str, Any], version: str = "0.1") -> dict[str, Any]:
-    """Add ``_schema_version`` key per D-2 §15."""
+    """Add ``_schema_version`` key per ."""
     return {"_schema_version": version, **obj}
 
 
-# ── Configuration overrides (D-2 §4) ────────────────────────────────
+# ── Configuration overrides ────────────────────────────────
 
 
 def compute_configuration_overrides(config: FactoryConfig) -> dict[str, Any]:
     """Return fields whose effective value differs from FactoryConfig defaults.
 
-    Per D-2 §4: "only fields whose effective value differs from the
+    Per "only fields whose effective value differs from the
     default are recorded."
     """
     from slop_research_factory.config import FactoryConfig as FC
@@ -292,9 +286,9 @@ async def finalize_node(
     """Assemble terminal output artifacts and seal the MANIFEST.
 
     Args:
-        state:       Current ``FactoryState`` — mutated in place.
+        state: Current ``FactoryState`` — mutated in place.
         seal_engine: Engine instance scoped to the run.
-        workspace:   Workspace I/O helper.
+        workspace: Workspace I/O helper.
 
     Returns:
         The updated ``FactoryState`` with ``status == COMPLETED``.

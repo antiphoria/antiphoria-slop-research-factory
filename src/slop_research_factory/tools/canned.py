@@ -146,7 +146,7 @@ class CannedCitationCheckClient:
 
     The optional ``elapsed_seconds`` field is filled with the wall-clock
     delta between :meth:`time.monotonic` reads — typically microseconds
-    — to make the field non-zero in audit dumps without violating
+    to make the field non-zero in audit dumps without violating
     determinism (the field is rounded to 6 decimal places).
     """
 

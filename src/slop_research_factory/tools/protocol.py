@@ -1,10 +1,10 @@
 # src/slop_research_factory/tools/protocol.py
 
-"""External tool client Protocol — D-2 §11 / D-4 §5.
+"""External tool client Protocol.
 
 The Verifier node executes citation checks before its own LLM
-inference (D-3 §4.6, Option B). Each lookup is sealed as a
-TOOL_CALL step (D-5 §5.3). To keep the node testable without HTTP
+inference. Each lookup is sealed as a
+TOOL_CALL step. To keep the node testable without HTTP
 mocks, the wire-level client is abstracted behind a Protocol; the
 node accepts any object that satisfies this contract.
 
@@ -15,7 +15,7 @@ Design notes:
 
 * Methods MUST return a populated ``raw_response`` dict even on
   failure — the seal stores the full request/response interaction
-  for audit (D-1 §6, Attack 3 mitigation).
+  for audit.
 
 * :class:`ToolInvocation` is the serialisable record handed to
   :func:`json.dumps` and persisted to ``tools/{tool}_{idx}.json``
@@ -49,7 +49,7 @@ class ToolInvocation:
     """Serialisable record of a single tool call.
 
     Persisted to ``{workspace}/tools/{tool_name}_{idx}.json`` and
-    sealed under :class:`StepType.TOOL_CALL` (D-5 §5.3).
+    sealed under :class:`StepType.TOOL_CALL`.
 
     Both *query* and *result* dataclasses are serialised by
     :meth:`to_dict` to produce a single canonical JSON document.
@@ -94,7 +94,7 @@ class CitationCheckClient(Protocol):
     Implementations:
 
     * :class:`~slop_research_factory.tools.canned.CannedCitationCheckClient`
-      — deterministic fake (M2 ships this).
+      deterministic fake (M2 ships this).
     * ``HTTPCitationCheckClient`` — real Crossref / Semantic Scholar /
       Tavily client (M3, not part of M2).
 

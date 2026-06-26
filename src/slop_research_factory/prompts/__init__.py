@@ -4,25 +4,16 @@
 Prompt-file loader for the antiphoria slop-research-factory.
 
 All prompts are stored as plain text files in subdirectories of
-this package, organised by node role.  Each file carries a
-two-line documentary header that mirrors D-3's specification
-layout (title + ``═`` separator).  The loader strips this header
+this package, organised by node role. Each file carries a
+two-line documentary header (title + ``═`` separator). The loader strips this header
 by default so callers receive clean text ready for LLM messages.
 
-File naming convention  (D-3 §11)::
+File naming convention::
 
     {role}/{kind}_{version}.txt
 
     generator/system_v0.1.txt
     verifier/user_template_v0.1.txt
-
-Reference
----------
-D-3 §11 — Prompt File Organisation.
-D-3 §3  — Generator Prompt.
-D-3 §4  — Verifier Prompt.
-D-3 §5  — Reviser Prompt.
-D-3 §6  — Citation Extraction Prompt.
 """
 
 import re
@@ -61,13 +52,13 @@ _PROMPT_DIR: Path = Path(__file__).resolve().parent
 # e.g. v0.1, 1.2.3 — must not embed path components.
 _VERSION_RE = re.compile(r"^v?[0-9]+(?:\.[0-9]+)*$")
 
-# U+2550 — BOX DRAWINGS DOUBLE HORIZONTAL  (the ═ character)
+# U+2550 — BOX DRAWINGS DOUBLE HORIZONTAL (the ═ character)
 
 _SEPARATOR_CHAR: str = "\u2550"
 
 
 def _strip_documentary_header(text: str) -> str:
-    """Remove the D-3 documentary header from raw file text.
+    """Remove the documentary header from raw file text.
 
     Each prompt file carries a two-line header::
 
@@ -104,17 +95,16 @@ def load_prompt(
     Parameters
     ----------
     role:
-        Node role.  One of :data:`VALID_ROLES`.
+        Node role. One of :data:`VALID_ROLES`.
     kind:
-        Prompt kind.  One of :data:`VALID_KINDS`.
+        Prompt kind. One of :data:`VALID_KINDS`.
     version:
         Prompt version string (default: current
         :data:`PROMPT_VERSION`).
     strip_header:
-        When ``True`` (default) the D-3 documentary header
-        is removed before the text is returned.  Set to
-        ``False`` for audit comparisons against the
-        specification text.
+        When ``True`` (default) the documentary header
+        is removed before the text is returned. Set to
+        ``False`` to include the header in returned text.
 
     Returns
     -------
@@ -147,9 +137,7 @@ def load_prompt(
 
     if not filepath.is_file():
         msg = (
-            f"Prompt file not found: {filepath}  "
-            f"(role={role!r}, kind={kind!r}, "
-            f"version={version!r})"
+            f"Prompt file not found: {filepath} (role={role!r}, kind={kind!r}, version={version!r})"
         )
         raise FileNotFoundError(msg)
 

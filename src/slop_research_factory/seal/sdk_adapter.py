@@ -29,11 +29,6 @@ Design decisions:
   Caller-provided signer/verifier instances are also supported via
   :func:`create_sdk_engine`.
 
-Spec references:
-    SDK Spec Sheet §5   Public API surface.
-    SDK Spec Sheet §6   Signing & key management.
-    SDK Spec Sheet §9   On-disk format.
-    D-0 §5.2            Provenance chain requirements.
 """
 
 from __future__ import annotations
@@ -195,7 +190,7 @@ class SDKSealEngine:
 
         Args:
             sdk_engine: An instance of ``antiphoria_sdk.SealEngine``.
-            workspace:  The workspace root (for path resolution context).
+            workspace: The workspace root (for path resolution context).
         """
         self._engine = sdk_engine
         self._workspace = workspace
@@ -239,7 +234,7 @@ class SDKSealEngine:
 
         Args:
             research_brief: Research brief dict stored in genesis metadata.
-            metadata:       Additional metadata for the genesis record.
+            metadata: Additional metadata for the genesis record.
 
         Returns:
             A :class:`SealReceipt` for the genesis record.
@@ -268,9 +263,9 @@ class SDKSealEngine:
         """Seal a pipeline step.
 
         Args:
-            step_type:          Pipeline step type enum value.
+            step_type: Pipeline step type enum value.
             content_file_paths: Relative paths to content files within workspace.
-            metadata:           Step metadata dict.
+            metadata: Step metadata dict.
 
         Returns:
             A :class:`SealReceipt` for the sealed record.
@@ -460,23 +455,23 @@ def create_sdk_engine(
     """Create an :class:`SDKSealEngine` wrapping a fresh or resumed SDK engine.
 
     Args:
-        workspace:           Factory run directory (``workspace_root / run_id``),
+        workspace: Factory run directory (``workspace_root / run_id``),
                             same as ``antiphoria_sdk.SealEngine`` expects.
-        run_id:              Unique run identifier.
-        verifier:            Object satisfying SDK's ``Verifier`` protocol.
+        run_id: Unique run identifier.
+        verifier: Object satisfying SDK's ``Verifier`` protocol.
         file_lock_timeout_s: Timeout for cross-process file lock.
-        resume:              If True, resume an existing chain (verifies integrity).
+        resume: If True, resume an existing chain (verifies integrity).
 
     Returns:
         Configured :class:`SDKSealEngine` adapter.
 
     Raises:
         RuntimeError: If ``antiphoria_sdk`` is not installed.
-        ChainError:   If ``resume=True`` and the chain is broken.
+        ChainError: If ``resume=True`` and the chain is broken.
 
     Note:
         *workspace* must be the factory **run directory**
-        (``workspace_root / run_id``), matching ``antiphoria_sdk.SealEngine`` —
+        (``workspace_root / run_id``), matching ``antiphoria_sdk.SealEngine``
         chain and content paths live directly under that directory.
     """
     try:
@@ -541,12 +536,12 @@ def create_sdk_engine_from_env(
     Do not set both full path quads and full B64 quads.
 
     Args:
-        workspace:           Run workspace directory (``workspace_root / run_id``), as used by
+        workspace: Run workspace directory (``workspace_root / run_id``), as used by
                             ``antiphoria_sdk.SealEngine``.
-        run_id:              Unique run identifier.
-        key_id:              Optional key epoch identifier (e.g. "2025-Q3").
+        run_id: Unique run identifier.
+        key_id: Optional key epoch identifier (e.g. "2025-Q3").
         file_lock_timeout_s: Timeout for cross-process file lock.
-        resume:              If True, resume an existing chain.
+        resume: If True, resume an existing chain.
 
     Returns:
         Configured :class:`SDKSealEngine` adapter.
@@ -592,14 +587,14 @@ def create_seal_engine(
     the seal engine. All downstream code is engine-agnostic.
 
     Args:
-        workspace:          Run workspace directory (``workspace_root / run_id``).
+        workspace: Run workspace directory (``workspace_root / run_id``).
                             Prefer a resolved absolute path so genesis hashing does not
                             pick up accidental ``workspace/…`` relative prefixes.
-        run_id:             Unique run identifier.
-        enable_provenance:  If True, use SDK adapter; if False, use InMemory.
-        key_id:             Key epoch for SDK signer (ignored if InMemory).
+        run_id: Unique run identifier.
+        enable_provenance: If True, use SDK adapter; if False, use InMemory.
+        key_id: Key epoch for SDK signer (ignored if InMemory).
         file_lock_timeout_s: Lock timeout (ignored if InMemory).
-        resume:             If True, resume existing chain.
+        resume: If True, resume existing chain.
 
     Returns:
         An object satisfying the factory's ``SealEngine`` protocol.

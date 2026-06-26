@@ -1,13 +1,13 @@
 # tests/unit/test_brief.py
 
 """
-E1 unit tests for types/brief.py — D-2 §5.
+E1 unit tests for types/brief.py.
 
 Test-to-spec traceability
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-  E1-S04  ResearchBrief valid construction.
-  E1-S05  ResearchBrief thesis rejection (D-2 §16 invariant #5).
-  E1-S06  ResearchBrief JSON round-trip and key_references validation.
+  E1-S04 ResearchBrief valid construction.
+  E1-S05 ResearchBrief thesis rejection.
+  E1-S06 ResearchBrief JSON round-trip and key_references validation.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ class TestResearchBrief(unittest.TestCase):
 
     def test_s04_thesis_is_stripped_on_input(self) -> None:
         """Leading/trailing whitespace is removed from thesis."""
-        brief = ResearchBrief(thesis="  spaced thesis  ")
+        brief = ResearchBrief(thesis=" spaced thesis ")
         self.assertEqual(brief.thesis, "spaced thesis")
 
     def test_s04_full_construction_accepted(self) -> None:
@@ -59,7 +59,7 @@ class TestResearchBrief(unittest.TestCase):
         )
         self.assertEqual(brief.domain, "number theory")
 
-    # ── E1-S05: thesis rejection (D-2 §16 invariant #5) ─────────
+    # ── E1-S05: thesis rejection ─────────
 
     def test_s05_empty_thesis_rejected(self) -> None:
         """Empty string raises ValidationError."""
@@ -69,7 +69,7 @@ class TestResearchBrief(unittest.TestCase):
     def test_s05_whitespace_only_thesis_rejected(self) -> None:
         """Whitespace-only string rejected after strip."""
         with self.assertRaises(ValidationError):
-            ResearchBrief(thesis="   \t\n  ")
+            ResearchBrief(thesis=" \t\n ")
 
     def test_s05_overlength_thesis_rejected(self) -> None:
         """Thesis exceeding 10 000 characters is rejected."""
@@ -104,7 +104,7 @@ class TestResearchBrief(unittest.TestCase):
     def test_s06_model_dump_produces_plain_dict(self) -> None:
         """model_dump() returns a JSON-serialisable dict.
 
-        D-2 §6 stores the brief as ``dict`` in FactoryState.
+        stores the brief as ``dict`` in FactoryState.
         """
         brief = ResearchBrief(
             thesis="A thesis.",
@@ -130,7 +130,7 @@ class TestResearchBrief(unittest.TestCase):
         with self.assertRaises(ValidationError):
             ResearchBrief(
                 thesis="Valid thesis.",
-                key_references=["  "],
+                key_references=[" "],
             )
 
     def test_s06_key_references_none_is_valid(self) -> None:

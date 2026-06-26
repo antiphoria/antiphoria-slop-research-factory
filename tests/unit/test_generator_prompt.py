@@ -1,7 +1,7 @@
 # tests/unit/test_generator_prompt.py
 
 """
-E1 unit tests for Generator prompt rendering (Step 6 / D-3 §3).
+E1 unit tests for Generator prompt rendering.
 
 No LLM calls, no network, no filesystem side-effects beyond tmpdir.
 """
@@ -56,17 +56,17 @@ class TestGeneratorSystemPrompt:
         assert len(_sys) > 200, "System prompt looks too short"
 
     def test_contains_no_output_instruction(self):
-        """D-3 §3.1: system prompt must include NO_OUTPUT instruction."""
+        """.1: system prompt must include NO_OUTPUT instruction."""
         _sys, _, _ = render_generator_prompt(_make_brief(), _StubConfig())
         assert "NO_OUTPUT" in _sys
 
     def test_contains_unverified_instruction(self):
-        """D-3 §3.1: system prompt must instruct [UNVERIFIED] tagging."""
+        """.1: system prompt must instruct [UNVERIFIED] tagging."""
         _sys, _, _ = render_generator_prompt(_make_brief(), _StubConfig())
         assert "[UNVERIFIED]" in _sys
 
     def test_no_persona_inflation(self):
-        """D-3 §12 anti-pattern: no 'world-class expert' phrasing."""
+        """anti-pattern: no 'world-class expert' phrasing."""
         _sys, _, _ = render_generator_prompt(_make_brief(), _StubConfig())
         lower = _sys.lower()
         assert "world-class" not in lower
@@ -90,7 +90,7 @@ class TestGeneratorUserMessage:
         assert "Investigate Erdős–Ko–Rado" in msg
 
     def test_xml_brief_tags(self):
-        """D-3 §2.2 rule 4: brief inside XML tags, verbatim."""
+        """.2 rule 4: brief inside XML tags, verbatim."""
         msg = render_generator_user_message(_make_brief(), _StubConfig())
         assert "<research_brief>" in msg
         assert "</research_brief>" in msg
@@ -130,7 +130,7 @@ class TestGeneratorUserMessage:
         )
         assert "arXiv:2301.12345" in msg
         assert "doi:10/abc" in msg
-        # D-3 §3.2: partial-reference tolerance note
+        # .2: partial-reference tolerance note
         assert "partial" in msg.lower()
 
     def test_optional_constraints(self):
@@ -165,7 +165,7 @@ class TestGeneratorUserMessage:
         assert "Outline" not in msg
 
     def test_unverified_reminder(self):
-        """D-3 §3.2: final instruction to flag uncertain citations."""
+        """.2: final instruction to flag uncertain citations."""
         msg = render_generator_user_message(_make_brief(), _StubConfig())
         assert "[UNVERIFIED]" in msg
 

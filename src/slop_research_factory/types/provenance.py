@@ -1,25 +1,25 @@
 # src/slop_research_factory/types/provenance.py
 
 """
-Provenance types — D-2 §7.1–7.3.
+Provenance types.1–7.3.
 
 Three layers, bottom-up:
 
   :class:`ProvenanceMetadata`
       Content-specific key-value pairs embedded in each
       seal (model identifiers, artifact hashes, token
-      counts).  D-2 §7.3.
+      counts). .3.
 
   :class:`SealRecord`
       One ``slop-seal`` invocation: structural fields
       (hash, parent, timestamp, node, step) plus a
-      :class:`ProvenanceMetadata` payload.  D-2 §7.1.
+      :class:`ProvenanceMetadata` payload. .1.
 
   :class:`ProvenanceChain`
       Append-only ordered sequence of :class:`SealRecord`
       instances forming a Merkle-like hash chain.
       Enforces parent-hash linkage on every
-      :meth:`~ProvenanceChain.append`.  D-2 §7.2.
+      :meth:`~ProvenanceChain.append`. .2.
 
 Design notes:
 
@@ -35,12 +35,6 @@ Design notes:
 
   handles persistence.
 
-Spec references:
-    D-0 §4B, §5     Seal semantics, chain invariants.
-    D-2 §7.1         SealRecord schema.
-    D-2 §7.2         ProvenanceChain schema.
-    D-2 §7.3         ProvenanceMetadata schema.
-    D-5 §3.1, §7     Seal engine interface.
 """
 
 from __future__ import annotations
@@ -89,7 +83,7 @@ class ProvenanceChainError(Exception):
     """
 
 
-# ── ProvenanceMetadata (D-2 §7.3) ───────────────────────
+# ── ProvenanceMetadata ───────────────────────
 
 
 @dataclass(frozen=True)
@@ -97,7 +91,7 @@ class ProvenanceMetadata:
     """Content-specific key-values embedded in a seal.
 
     All hash fields, when not ``None``, must be 64-character
-    lowercase hexadecimal strings (SHA-256 digests).  Token
+    lowercase hexadecimal strings (SHA-256 digests). Token
     counts and ``critique_step`` must be non-negative.
 
     PRE seals typically populate:
@@ -110,22 +104,22 @@ class ProvenanceMetadata:
         ``input_tokens``, ``output_tokens``.
 
     Attributes:
-        model_id:         LLM model identifier
+        model_id: LLM model identifier
                           (e.g. ``"claude-sonnet-4-20250514"``).
-        input_tokens:     Tokens consumed by the prompt.
-        output_tokens:    Tokens in the LLM response.
-        prompt_hash:      SHA-256 of the rendered prompt.
-        response_hash:    SHA-256 of the raw LLM response.
-        config_hash:      SHA-256 of the config snapshot.
-        brief_hash:       SHA-256 of the research brief.
-        output_hash:      SHA-256 of the parsed output file.
+        input_tokens: Tokens consumed by the prompt.
+        output_tokens: Tokens in the LLM response.
+        prompt_hash: SHA-256 of the rendered prompt.
+        response_hash: SHA-256 of the raw LLM response.
+        config_hash: SHA-256 of the config snapshot.
+        brief_hash: SHA-256 of the research brief.
+        output_hash: SHA-256 of the parsed output file.
         think_block_hash: SHA-256 of the ``<think>`` block
                           (if present).
-        critique_hash:    SHA-256 of the Verifier critique
+        critique_hash: SHA-256 of the Verifier critique
                           (Reviser PRE seals only).
-        critique_step:    Step index of the critique that
+        critique_step: Step index of the critique that
                           triggered revision.
-        extra:            Arbitrary additional key-value
+        extra: Arbitrary additional key-value
                           pairs as an immutable tuple of
                           ``(key, value)`` pairs.
     """
@@ -156,7 +150,7 @@ class ProvenanceMetadata:
             raise ValueError(f"critique_step must be >= 0, got {self.critique_step}")
 
 
-# ── SealRecord (D-2 §7.1) ───────────────────────────────
+# ── SealRecord ───────────────────────────────
 
 
 @dataclass(frozen=True)
@@ -164,7 +158,7 @@ class SealRecord:
     """One ``slop-seal`` invocation result.
 
     Structural fields identify *where* and *when* the seal
-    was created.  The :attr:`metadata` payload captures
+    was created. The :attr:`metadata` payload captures
     *what* was sealed.
 
     Validation (``__post_init__``):
@@ -176,19 +170,19 @@ class SealRecord:
     - ``seal_id``: must be non-empty.
 
     Attributes:
-        seal_id:          Unique identifier for this seal
+        seal_id: Unique identifier for this seal
                           (typically a UUID or sequential ID).
-        content_hash:     SHA-256 hex of the sealed content.
-        parent_hash:      ``content_hash`` of the previous
+        content_hash: SHA-256 hex of the sealed content.
+        parent_hash: ``content_hash`` of the previous
                           seal in the chain; ``None`` for
                           the first seal.
-        timestamp:        UTC datetime of seal creation.
-        node_name:        Pipeline node that produced this
+        timestamp: UTC datetime of seal creation.
+        node_name: Pipeline node that produced this
                           seal.
-        seal_type:        ``PRE`` or ``POST``.
-        step_index:       Zero-based step index in the run.
-        metadata:         Content-specific key-value payload.
-        raw_seal_output:  Raw stdout from ``slop-seal`` CLI
+        seal_type: ``PRE`` or ``POST``.
+        step_index: Zero-based step index in the run.
+        metadata: Content-specific key-value payload.
+        raw_seal_output: Raw stdout from ``slop-seal`` CLI
                           invocation (for debugging).
     """
 
@@ -219,7 +213,7 @@ class SealRecord:
             raise ValueError(f"step_index must be >= 0, got {self.step_index}")
 
 
-# ── ProvenanceChain (D-2 §7.2) ──────────────────────────
+# ── ProvenanceChain ──────────────────────────
 
 
 class ProvenanceChain:

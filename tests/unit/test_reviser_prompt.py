@@ -1,6 +1,6 @@
 # tests/unit/test_reviser_prompt.py
 
-"""Unit tests for the Reviser prompt renderer (D-3 §5)."""
+"""Unit tests for the Reviser prompt renderer."""
 
 from __future__ import annotations
 

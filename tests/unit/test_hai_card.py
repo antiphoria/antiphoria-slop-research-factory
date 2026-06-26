@@ -15,10 +15,6 @@ Covers:
     invariant, security guarantee byte-identity,
     disclaimer enforcement, non-negative numerics.
 
-Spec references:
-    D-1 §9    Security guarantee.
-    D-2 §10   HAI Card schema.
-    D-7 §7.4  Human review governance.
 """
 
 from __future__ import annotations
@@ -475,7 +471,7 @@ class TestHaiCardTimestampValidation:
             )
 
 
-# ── HaiCard: human review invariant (D-7 §7.4) ─────────
+# ── HaiCard: human review invariant ─────────
 
 
 class TestHaiCardHumanReview:
@@ -536,7 +532,7 @@ class TestHaiCardHumanReview:
         assert card.human_reviewer == "Dr. Y"
 
 
-# ── HaiCard: security guarantee (D-1 §9) ────────────────
+# ── HaiCard: security guarantee ────────────────
 
 
 class TestHaiCardSecurityGuarantee:
@@ -599,7 +595,7 @@ class TestHaiCardDisclaimerValidation:
             ValueError,
             match="disclaimer",
         ):
-            _card(disclaimer="   \t\n  ")
+            _card(disclaimer=" \t\n ")
 
 
 # ── HaiCard: text field validation ───────────────────────
@@ -624,7 +620,7 @@ class TestHaiCardTextValidation:
             ValueError,
             match="brief_title",
         ):
-            _card(brief_title="   ")
+            _card(brief_title=" ")
 
     def test_empty_output_license_rejected(self) -> None:
         with pytest.raises(

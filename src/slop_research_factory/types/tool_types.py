@@ -1,15 +1,15 @@
 # src/slop_research_factory/types/tool_types.py
 
 """
-Tool invocation types — D-2 §11.
+Tool invocation types.
 
 External API interaction types (Crossref, Semantic Scholar, Tavily).
 All frozen dataclasses because they are produced exclusively by
-factory code, never by an LLM (D-2 §2).
+factory code, never by an LLM.
 
-Human rescue types live in ``human_rescue.py`` (D-2 §12).
+Human rescue types live in ``human_rescue.py``.
 
-Sealing contract (D-5 §5.3):
+Sealing contract:
   Every external tool invocation produces a TOOL_CALL seal step
   whose ``content_hash`` covers the serialized query AND result
   together, ensuring the complete interaction is chained.
@@ -30,7 +30,7 @@ __all__ = [
 ]
 
 
-# ── D-2 §11.1  Crossref ─────────────────────────────────────
+# ── Crossref ─────────────────────────────────────────
 
 
 @dataclass(frozen=True)
@@ -59,7 +59,7 @@ class CrossrefResult:
     """Parsed Crossref API response.
 
     ``raw_response`` stores the complete JSON body for audit
-    (D-1 §6, Attack 3 mitigation: seal the verification
+    (, Attack 3 mitigation: seal the verification
     sources so post-hoc auditing is possible).
     """
 
@@ -74,7 +74,7 @@ class CrossrefResult:
     )
 
 
-# ── D-2 §11.2  Semantic Scholar ──────────────────────────────
+# ── Semantic Scholar ───────────────────────────────────
 
 
 @dataclass(frozen=True)
@@ -100,7 +100,7 @@ class SemanticScholarResult:
     """Parsed Semantic Scholar response.
 
     ``abstract`` is used for CV-5 claim-citation relevance
-    checking (D-4 §3.1) when available.  If absent, CV-5 is
+    checking when available. If absent, CV-5 is
     skipped and the result is ``INCONCLUSIVE``.
     """
 
@@ -116,15 +116,14 @@ class SemanticScholarResult:
     )
 
 
-# ── D-2 §11.3  Tavily Search ────────────────────────────────
+# ── Tavily Search ─────────────────────────────────────
 
 
 @dataclass(frozen=True)
 class TavilyQuery:
     """Query for the Tavily Search API.
 
-    Used for NV-2 novelty search and general fact-checking
-    (D-4 §3.4, §6.3).
+    Used for NV-2 novelty search and general fact-checking.
     """
 
     query: str
@@ -149,10 +148,10 @@ class TavilyResult:
         {"title": str, "url": str,
          "content": str, "score": float}
 
-    Security note (D-1 §6, Attack 3): results may contain
-    adversarial content.  All results are sealed as TOOL_CALL
+    Security note: results may contain
+    adversarial content. All results are sealed as TOOL_CALL
     steps and injected inside ``<tool_result>`` XML tags per
-    D-3 §4.2.
+    .2.
     """
 
     query: str

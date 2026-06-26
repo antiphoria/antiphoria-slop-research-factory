@@ -1,15 +1,14 @@
 # src/slop_research_factory/llm/client.py
 
 """
-LLM client Protocol + LiteLLM-backed and canned implementations
-(D-0 §4A, D-0 §13 Step 4).
+LLM client Protocol + LiteLLM-backed and canned implementations.
 
 The :class:`LLMClient` Protocol is the call-site contract used by every
-node (Generator, Verifier, Reviser).  Two concrete implementations
+node (Generator, Verifier, Reviser). Two concrete implementations
 ship with M1:
 
 - :class:`LiteLLMClient` — wraps `litellm.acompletion` for production
-  and live integration runs.  Lazy-imports ``litellm`` so the package
+  and live integration runs. Lazy-imports ``litellm`` so the package
   remains importable in environments where the SDK is not installed.
 - :class:`CannedLLMClient` — replays a scripted list of
   :class:`LLMResponse` objects in order; ideal for unit / integration
@@ -24,17 +23,12 @@ Reasoning-trace handling
 
 DeepSeek-R1 (and other reasoning models) emit reasoning content in a
 provider-specific field (``message.reasoning_content`` in OpenRouter's
-schema).  When :class:`LiteLLMClient` detects that field, it folds the
+schema). When :class:`LiteLLMClient` detects that field, it folds the
 reasoning into the returned ``content`` wrapped in a
 ``<details>...</details>`` block so the existing
 :func:`slop_research_factory.llm.think_parser.parse_think_tokens`
 extracts it without per-provider branching.
 
-Spec references:
-    D-0 §4    Model topology.
-    D-0 §4A   Inference middleware and think-token capture.
-    D-1 §10   Raw-bytes-before-parse sealing requirement.
-    D-5 §6    Raw API response sealing.
 """
 
 from __future__ import annotations
@@ -71,26 +65,26 @@ class LLMResponse:
     Attributes mirror the field set consumed by ``generator_node``:
 
     Attributes:
-        content:           Final assistant message text.  Reasoning
+        content: Final assistant message text. Reasoning
             traces (when present) are wrapped in a ``<details>`` block
             and prepended so that
             :func:`slop_research_factory.llm.think_parser.parse_think_tokens`
             extracts them without per-provider branching.
-        raw_response:      Provider response as a JSON-serialisable
-            dict.  Sealed verbatim under D-1 §10.
-        input_tokens:      Prompt tokens consumed.
-        output_tokens:     Completion tokens (excluding reasoning).
-        think_tokens:      Reasoning tokens, when reported; ``None``
+        raw_response: Provider response as a JSON-serialisable
+            dict. Sealed verbatim before structured parsing.
+        input_tokens: Prompt tokens consumed.
+        output_tokens: Completion tokens (excluding reasoning).
+        think_tokens: Reasoning tokens, when reported; ``None``
             otherwise.
-        model:             Model identifier as returned by the
+        model: Model identifier as returned by the
             provider (may differ from the requested string when
             providers route to a specific revision).
-        api_response_id:   Provider response ID (``response.id``).
-        api_provider:      Lowercase provider slug, e.g.
+        api_response_id: Provider response ID (``response.id``).
+        api_provider: Lowercase provider slug, e.g.
             ``"openrouter"``, ``"google"``, ``"ollama"``.
-        retries:           Retry count consumed before success
+        retries: Retry count consumed before success
             (LiteLLM `num_retries` setting).
-        sampling_params:   Sampling kwargs that were sent to the
+        sampling_params: Sampling kwargs that were sent to the
             provider; sealed alongside the response for full
             reproducibility.
     """
@@ -112,7 +106,7 @@ class LLMResponse:
 
 @runtime_checkable
 class LLMClient(Protocol):
-    """Frozen Protocol used by every node (D-0 §13 Step 4).
+    """Frozen Protocol used by every node.
 
     Implementations MUST be safe to call concurrently from a single
     asyncio event loop; serialisation across runs is the
@@ -263,7 +257,7 @@ class CannedLLMClient:
 def _configure_litellm_runtime(litellm: Any) -> None:
     """Tune LiteLLM for factory CLI runs (less stdout/log spam at INFO)."""
     with contextlib.suppress(Exception):
-        setattr(litellm, "suppress_debug_info", True)
+        litellm.suppress_debug_info = True
     # Duplicate LiteLLM INFO lines (completion banners, provider URLs) bury our
     # node logs when using ``slop-factory -v``; errors stay visible at WARNING+.
     with contextlib.suppress(Exception):

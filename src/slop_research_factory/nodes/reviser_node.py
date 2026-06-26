@@ -1,6 +1,6 @@
 # src/slop_research_factory/nodes/reviser_node.py
 
-"""Reviser node — D-3 §5 / D-5 §5.4.
+"""Reviser node.4.
 
 Mirrors the four-phase Generator protocol with two key differences:
 

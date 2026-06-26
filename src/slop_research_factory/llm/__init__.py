@@ -1,4 +1,4 @@
-"""LLM middleware (D-0 §4A): client Protocol + structured-output helper.
+"""LLM middleware: client Protocol + structured-output helper.
 
 Public API (M1):
 

@@ -1,6 +1,6 @@
 # src/slop_research_factory/citations/__init__.py
 
-"""Citation extraction and check helpers (D-3 §6, D-4 §5)."""
+"""Citation extraction and check helpers."""
 
 from __future__ import annotations
 

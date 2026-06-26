@@ -1,7 +1,7 @@
 # src/slop_research_factory/workspace/manager.py
 
 """
-Workspace directory layout and atomic I/O — D-2 §13, D-9 §3.
+Workspace directory layout and atomic I/O.
 
 Manages the on-disk workspace for a single pipeline run.
 Every public write method guarantees:
@@ -10,7 +10,7 @@ Every public write method guarantees:
 - **UTF-8 encoding** with **Unix newlines** (``\\n``).
 - **Deterministic JSON:** sorted keys, 2-space indent.
 
-Directory tree (D-2 §13).  Under ``steps/``, each directory name is
+Directory tree. Under ``steps/``, each directory name is
 ``{step_index:06d}_{node_name}`` where ``node_name`` is
 :attr:`NodeName.value` (uppercase), e.g. ``000001_GENERATOR``,
 ``000002_VERIFICATION`` — not lowercase slugs.
@@ -39,10 +39,6 @@ Crash recovery depends on ``state.json`` being updated via
 ``os.replace`` from a temp file in the same directory (POSIX:
 atomic; Windows: best-effort — avoid cross-volume targets).
 
-Spec references:
-    D-2 §13  Workspace layout.
-    D-5 §10  Crash recovery (relies on atomic state writes).
-    D-9 §3   Setup and verification scripts.
 """
 
 from __future__ import annotations
@@ -167,7 +163,6 @@ class WorkspaceManager:
     All write methods are atomic (temp + fsync + rename).
     All text files are UTF-8 with Unix newlines.
 
-    Spec: D-2 §13, D-9 §3.
     """
 
     @classmethod
@@ -347,7 +342,7 @@ class WorkspaceManager:
         atomicity.
 
         Args:
-            path:    Target file path.
+            path: Target file path.
             content: Text content (``\\r\\n`` and ``\\r``
                      are normalized to ``\\n``).
         """
@@ -400,7 +395,7 @@ class WorkspaceManager:
         """Atomic JSON write (sorted keys, 2-space indent).
 
         Delegates to :meth:`write_text` for atomicity and
-        newline normalization.  A trailing newline is
+        newline normalization. A trailing newline is
         appended.
         """
         text = json.dumps(
@@ -510,10 +505,10 @@ class WorkspaceManager:
 
         Args:
             step_index: Zero-based step index.
-            node_name:  Pipeline node.
-            filename:   Artifact filename
+            node_name: Pipeline node.
+            filename: Artifact filename
                         (e.g. ``"prompt.txt"``).
-            content:    Text content.
+            content: Text content.
 
         Returns:
             Path to the written file.
@@ -576,7 +571,7 @@ class WorkspaceManager:
         return drafts / filename
 
     def tools_path(self, filename: str) -> Path:
-        """Return path inside the run's tools directory (D-5 §5.3).
+        """Return path inside the run's tools directory.
 
         Creates ``tools/`` if needed.
         """
@@ -585,7 +580,7 @@ class WorkspaceManager:
         return tools / filename
 
     def citations_path(self, filename: str) -> Path:
-        """Return path inside the run's citations directory (D-4 §5).
+        """Return path inside the run's citations directory.
 
         Creates ``citations/`` if needed.
         """
@@ -623,6 +618,6 @@ class WorkspaceManager:
         """Return *path* relative to the run directory.
 
         Used for content_file_paths in seal metadata
-        (D-5 §7).
+        .
         """
         return str(Path(path).relative_to(self.run_dir))

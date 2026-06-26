@@ -1,7 +1,7 @@
 # src/slop_research_factory/prompts/generator_prompt.py
 
 """
-Generator prompt rendering — Step 6 (D-3 §3, D-3 §11).
+Generator prompt rendering — Step 6.
 
 Loads the system prompt from prompts/generator/system_v0.1.txt and
 renders the user message programmatically from ResearchBrief + FactoryConfig.
@@ -29,13 +29,13 @@ GENERATOR_PROMPT_VERSION = "generator_v0.1"
 
 
 def load_generator_system_prompt() -> str:
-    """Load the Generator system prompt (D-3 §3.1)."""
+    """Load the Generator system prompt."""
     return load_prompt("generator", "system")
 
 
 # ---------------------------------------------------------------------------
 
-# User message rendering (D-3 §3.2)
+# User message rendering
 
 # ---------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ def render_generator_user_message(
 ) -> str:
     """Build the Generator user message from a serialized ResearchBrief + config.
 
-    Renders the template from D-3 §3.2 programmatically.  The brief
+    Renders the template from .2 programmatically. The brief
     dict is ``ResearchBrief.model_dump()`` stored in ``FactoryState.brief``.
 
     Args:
@@ -66,7 +66,7 @@ def render_generator_user_message(
     if brief.get("outline"):
         parts.append("\nOutline:")
         for i, section in enumerate(brief["outline"], start=1):
-            parts.append(f"  {i}. {section}")
+            parts.append(f" {i}. {section}")
 
     if brief.get("key_references"):
         parts.append("\nKey references to engage with:")
@@ -116,7 +116,7 @@ def render_generator_prompt(
     system_prompt = load_generator_system_prompt()
     user_message = render_generator_user_message(brief, config)
 
-    # Audit file: human-readable combined prompt (D-5 §5.2 Phase 1).
+    # Audit file: human-readable combined prompt.
     audit_lines = [
         f"# Generator Prompt — {GENERATOR_PROMPT_VERSION}",
         "",

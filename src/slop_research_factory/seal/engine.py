@@ -1,13 +1,13 @@
 # src/slop_research_factory/seal/engine.py
 
 """
-Seal engine Protocol + in-memory reference implementation (D-5 §3).
+Seal engine Protocol + in-memory reference implementation.
 
 M1.1 contract alignment with antiphoria_sdk
 -------------------------------------------
 The :class:`SealEngine` Protocol is intentionally shaped to match the
 public contract of ``antiphoria_sdk.SealEngine`` (see
-``glascannon-ai-draft/how_to.md``). The factory's M4 wire-up will swap
+``). The factory's M4 wire-up will swap
 :class:`InMemorySealEngine` for a thin adapter around the real SDK; nodes
 and helpers see no API change.
 
@@ -47,15 +47,9 @@ The chain is the totally ordered sequence of receipts, sorted by
 Hash construction (collision-resistant)::
 
     payload_digest = sha256(canonical_payload_bytes)
-    parent_part    = parent_hash if parent_hash is not None else "GENESIS"
-    content_hash   = sha256(parent_part || "\\n" || canonical_payload_bytes)
+    parent_part = parent_hash if parent_hash is not None else "GENESIS"
+    content_hash = sha256(parent_part || "\\n" || canonical_payload_bytes)
 
-Spec references:
-    D-0 §5    Provenance engine integration.
-    D-1 §10   Seal classification and sealing of raw bytes.
-    D-2 §7    SealRecord / ProvenanceChain types.
-    D-5 §3    Seal engine interface.
-    D-5 §10   Crash recovery (chain re-verification).
 """
 
 from __future__ import annotations
@@ -95,7 +89,7 @@ logger = logging.getLogger(__name__)
 # ── Constants ────────────────────────────────────────────
 
 PAYLOAD_SCHEMA_VERSION: str = "0.1"
-"""Bumped only via D-2 §15 schema-version contract."""
+"""Bumped only via schema-version contract."""
 
 GENESIS_PARENT_TAG: str = "GENESIS"
 """Sentinel string mixed into ``content_hash`` when ``parent_hash`` is None."""
@@ -116,11 +110,11 @@ _RECORD_FILENAME_RE = re.compile(r"^(?P<step>\d{6})_(?P<type>[A-Z][A-Z0-9_]{0,63
 
 
 class SealError(Exception):
-    """Raised on any seal-engine failure (D-5 §3.2).
+    """Raised on any seal-engine failure.
 
     Wraps lower-level IO / hash / parse errors so callers (notably
     :func:`slop_research_factory.seal.helpers.seal_step`) see a single
-    failure mode that maps to ``RunStatus.FAILED`` per D-5 §13.
+    failure mode that maps to ``RunStatus.FAILED`` per .
     """
 
 
@@ -156,7 +150,7 @@ def step_type_to_node_seal(step_type: StepType) -> tuple[NodeName, SealType]:
 def canonical_json_bytes(obj: Any) -> bytes:
     """Serialize *obj* to canonical UTF-8 JSON bytes.
 
-    Sorted keys, no extraneous whitespace, ``\\n`` line endings —
+    Sorted keys, no extraneous whitespace, ``\\n`` line endings
     the byte string that ``content_hash`` commits to. Stable across
     platforms and Python versions for the JSON-representable subset
     we use (no NaN/Inf, no tuples).
@@ -395,7 +389,7 @@ class InMemorySealEngine:
     :func:`compute_content_hash`.
 
     Thread-safety: not thread-safe. Phase 1 runs are single-threaded
-    per D-0 §7.
+    per .
     """
 
     def __init__(

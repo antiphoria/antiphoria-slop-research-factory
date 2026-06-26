@@ -1,7 +1,7 @@
 # src/slop_research_factory/types/hai_card.py
 
 """
-HAI (Human–AI Interaction) Card types — D-2 §10.
+HAI (Human–AI Interaction) Card types.
 
 Four frozen dataclasses compose bottom-up into the
 top-level :class:`HaiCard`:
@@ -24,19 +24,14 @@ Key invariants enforced at construction:
 - ``human_review_status`` defaults to ``UNREVIEWED``.
 
   ``REVIEWED`` requires both ``human_reviewer`` and
-  ``human_review_timestamp`` (D-7 §7.4).
+  ``human_review_timestamp``.
 - ``security_guarantee`` must be byte-identical to the
 
-  :data:`SECURITY_GUARANTEE` constant (D-1 §9).
+  :data:`SECURITY_GUARANTEE` constant.
 - ``disclaimer`` must be non-empty.
 - All SHA-256 hashes: 64-char lowercase hexadecimal.
 - All timestamps: timezone-aware (UTC expected).
 
-Spec references:
-    D-1 §9    Security guarantee (byte-identical text).
-    D-2 §10   HAI Card schema.
-    D-6 §6    Renderer contract.
-    D-7 §7.4  Human review governance.
 """
 
 from __future__ import annotations
@@ -73,7 +68,7 @@ SECURITY_GUARANTEE: str = (
     "relying on any claims, data, or recommendations "
     "contained herein."
 )
-"""Canonical security guarantee — D-1 §9.
+"""Canonical security guarantee.
 
 Must appear byte-identical in every rendered HAI Card.
 """
@@ -99,12 +94,12 @@ class ModelUsageRecord:
     """Per-model, per-node token and call accounting.
 
     Attributes:
-        model_id:      LLM model identifier
+        model_id: LLM model identifier
                        (e.g. ``"claude-sonnet-4-20250514"``).
-        node_name:     Pipeline node that used this model.
-        input_tokens:  Total input tokens across all calls.
+        node_name: Pipeline node that used this model.
+        input_tokens: Total input tokens across all calls.
         output_tokens: Total output tokens across all calls.
-        call_count:    Number of LLM invocations.
+        call_count: Number of LLM invocations.
     """
 
     model_id: str
@@ -132,10 +127,10 @@ class ProcessSummary:
     """Cycle, rejection, and revision counts.
 
     Attributes:
-        total_cycles:    Total Generate → Verify (→ Revise)
+        total_cycles: Total Generate → Verify (→ Revise)
                          cycles executed.
         rejection_count: WRONG verdicts (full rewrites).
-        revision_count:  FIXABLE verdicts (targeted repairs).
+        revision_count: FIXABLE verdicts (targeted repairs).
     """
 
     total_cycles: int
@@ -158,22 +153,22 @@ class ProcessSummary:
 class VerificationSummary:
     """Final verification outcome.
 
-    ``tier_reached`` follows D-4 §3::
+    ``tier_reached`` follows
 
-        1  T1 — deterministic checks only
-        2  T2 — T1 + LLM verification
-        3  T3 — T2 + citation verification
+        1 T1 — deterministic checks only
+        2 T2 — T1 + LLM verification
+        3 T3 — T2 + citation verification
 
     Attributes:
-        final_verdict:        CORRECT, FIXABLE, or WRONG.
-        verdict_confidence:   Composed confidence [0.0, 1.0].
-        tier_reached:         Highest verification tier
+        final_verdict: CORRECT, FIXABLE, or WRONG.
+        verdict_confidence: Composed confidence [0.0, 1.0].
+        tier_reached: Highest verification tier
                               completed (1–3).
         deterministic_passed: T1 checks that passed.
-        deterministic_total:  T1 checks executed.
-        citations_verified:   Citations confirmed by tool
+        deterministic_total: T1 checks executed.
+        citations_verified: Citations confirmed by tool
                               lookup.
-        citations_total:      Total citations extracted.
+        citations_total: Total citations extracted.
     """
 
     final_verdict: Verdict
@@ -213,51 +208,51 @@ class VerificationSummary:
             )
 
 
-# ── HaiCard (D-2 §10) ───────────────────────────────────
+# ── HaiCard ───────────────────────────────────
 
 
 @dataclass(frozen=True)
 class HaiCard:
     """Complete Human–AI Interaction Card.
 
-    This is the **type layer** only.  Rendering to Markdown
+    This is the **type layer** only. Rendering to Markdown
     is handled by ``output/hai_card_renderer.py`` (Step 11).
 
     Fields are ordered required-first, defaulted-last to
     satisfy ``dataclass`` field ordering rules.
 
     Attributes:
-        run_id:                   Unique run identifier.
-        generated_at:             UTC timestamp of card
+        run_id: Unique run identifier.
+        generated_at: UTC timestamp of card
                                   generation (tz-aware).
-        brief_title:              Human-readable brief title.
-        brief_hash:               SHA-256 of the brief JSON.
-        models_used:              Per-model usage records.
-        process:                  Cycle/revision/rejection
+        brief_title: Human-readable brief title.
+        brief_hash: SHA-256 of the brief JSON.
+        models_used: Per-model usage records.
+        process: Cycle/revision/rejection
                                   summary.
-        verification:             Verification outcome.
-        total_seals:              Seal count in provenance
+        verification: Verification outcome.
+        total_seals: Seal count in provenance
                                   chain.
         chain_integrity_verified: Whether chain hash linkage
                                   passed verification.
-        final_seal_hash:          SHA-256 of the last seal.
-        output_hash:              SHA-256 of ``paper.md``.
-        disclaimer:               Non-empty disclaimer text.
-        total_input_tokens:       Aggregate input tokens.
-        total_output_tokens:      Aggregate output tokens.
+        final_seal_hash: SHA-256 of the last seal.
+        output_hash: SHA-256 of ``paper.md``.
+        disclaimer: Non-empty disclaimer text.
+        total_input_tokens: Aggregate input tokens.
+        total_output_tokens: Aggregate output tokens.
         total_estimated_cost_usd: Aggregate estimated cost.
-        output_license:           Output content license
+        output_license: Output content license
                                   (e.g. ``"CC BY 4.0"``).
-        code_license:             Source code license
+        code_license: Source code license
                                   (e.g. ``"Apache-2.0"``).
-        human_review_status:      Review state; defaults to
+        human_review_status: Review state; defaults to
                                   ``UNREVIEWED``.
-        human_reviewer:           Reviewer identity (required
+        human_reviewer: Reviewer identity (required
                                   when ``REVIEWED``).
-        human_review_timestamp:   Review timestamp (required
+        human_review_timestamp: Review timestamp (required
                                   when ``REVIEWED``).
-        human_review_notes:       Free-text review notes.
-        security_guarantee:       Must be byte-identical to
+        human_review_notes: Free-text review notes.
+        security_guarantee: Must be byte-identical to
                                   :data:`SECURITY_GUARANTEE`.
     """
 

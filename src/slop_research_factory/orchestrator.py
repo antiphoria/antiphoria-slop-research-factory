@@ -30,11 +30,6 @@ Resume semantics (v0.1.0):
     the graph from the appropriate node. This is required for
     crash recovery and human-rescue resume.
 
-Spec references:
-    D-0 §13   Implementation step plan.
-    D-2 §3    Run lifecycle.
-    D-2 §4    Configuration contract.
-    D-5 §3    Orchestrator responsibilities.
 """
 
 from __future__ import annotations
@@ -71,11 +66,11 @@ class FactoryResult:
     """Container for the terminal outcome of a factory run.
 
     Attributes:
-        state:               Final :class:`FactoryState`.
+        state: Final :class:`FactoryState`.
         verification_report: Chain verification result (``None`` if
             verification was skipped due to non-COMPLETED status).
-        workspace_path:      Absolute path to the workspace directory.
-        elapsed_seconds:     Wall-clock time for the entire run.
+        workspace_path: Absolute path to the workspace directory.
+        elapsed_seconds: Wall-clock time for the entire run.
     """
 
     __slots__ = ("elapsed_seconds", "state", "verification_report", "workspace_path")
@@ -244,19 +239,19 @@ async def run_factory(
     This is the **primary public API** for programmatic usage.
 
     Args:
-        brief:              Research brief (dataclass or dict). If a
+        brief: Research brief (dataclass or dict). If a
             dataclass, ``.to_dict()`` or ``dataclasses.asdict()`` is
             called to produce the serialisable form.
-        config:             Factory configuration. Defaults are used
+        config: Factory configuration. Defaults are used
             when ``None``.
-        run_id:             Unique identifier for this run. Auto-
+        run_id: Unique identifier for this run. Auto-
             generated (UUID4) when ``None``.
-        workspace_root:     Parent directory for run workspaces.
+        workspace_root: Parent directory for run workspaces.
             Defaults to ``./workspace``.
-        llm_client:         Pre-built LLM client (test seam). When
+        llm_client: Pre-built LLM client (test seam). When
             ``None``, a :class:`LiteLLMClient` is constructed from
             config.
-        citation_client:    Pre-built citation client (test seam).
+        citation_client: Pre-built citation client (test seam).
             When ``None``, a canned client is used.
         structured_complete: Pre-built structured completion callable
             (test seam). When ``None``, auto-detected.
@@ -268,7 +263,7 @@ async def run_factory(
     Raises:
         RuntimeError: On unrecoverable infrastructure failures (missing
             deps, filesystem errors).
-        ValueError:  On invalid brief or config.
+        ValueError: On invalid brief or config.
     """
     wall_start = time.monotonic()
     config = config or FactoryConfig()
@@ -482,11 +477,11 @@ async def resume_factory(
        corrections and re-enters the graph.
 
     Args:
-        workspace_path:     Path to existing run workspace.
-        llm_client:         Pre-built LLM client (test seam).
-        citation_client:    Pre-built citation client (test seam).
+        workspace_path: Path to existing run workspace.
+        llm_client: Pre-built LLM client (test seam).
+        citation_client: Pre-built citation client (test seam).
         structured_complete: Pre-built structured callable (test seam).
-        human_response:     Human corrections dict (alternative to
+        human_response: Human corrections dict (alternative to
             reading ``rescue/response.json``).
 
     Returns:
@@ -494,8 +489,8 @@ async def resume_factory(
 
     Raises:
         FileNotFoundError: If workspace or state file doesn't exist.
-        ValueError:        If state cannot be loaded.
-        RuntimeError:      If chain integrity check fails on resume.
+        ValueError: If state cannot be loaded.
+        RuntimeError: If chain integrity check fails on resume.
     """
     wall_start = time.monotonic()
     workspace_path = Path(workspace_path).resolve()
@@ -736,7 +731,7 @@ def _log_completion(
     )
     if not report.chain_intact:
         logger.error(
-            "[orchestrator] [%s] ⚠️  CHAIN INTEGRITY FAILURE at step %d",
+            "[orchestrator] [%s] ⚠️ CHAIN INTEGRITY FAILURE at step %d",
             state.run_id[:8],
             report.first_error_index,
         )

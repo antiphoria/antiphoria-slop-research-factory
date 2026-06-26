@@ -1,6 +1,6 @@
 # src/slop_research_factory/prompts/reviser_prompt.py
 
-"""Reviser prompt rendering — D-3 §5.
+"""Reviser prompt rendering.
 
 Two flavours, driven by the upstream Verifier verdict:
 
@@ -10,7 +10,7 @@ Two flavours, driven by the upstream Verifier verdict:
 * **full_rewrite** (``Verdict.WRONG``) — discard the previous draft's
   argument structure, attempt a fundamentally different approach.
 
-Both modes share the same system prompt (D-3 §5.1); the user message
+Both modes share the same system prompt; the user message
 differs in framing only.
 """
 
@@ -55,7 +55,7 @@ def render_reviser_user_message(
     mode: ReviserMode,
     citation_check_results: list[dict[str, Any]] | None = None,
 ) -> str:
-    """Render the Reviser user message (D-3 §5.2)."""
+    """Render the Reviser user message."""
     parts: list[str] = []
 
     parts.append("<research_brief>")
@@ -120,17 +120,17 @@ def render_reviser_user_message(
             parts.append(f'- "{citation_text}": {result}')
             if result == "NOT_FOUND":
                 parts.append(
-                    "  ⚠ This citation could not be verified. Remove "
+                    " ⚠ This citation could not be verified. Remove "
                     "it or replace it with a verified reference.",
                 )
             elif result == "METADATA_MISMATCH":
                 parts.append(
-                    "  ⚠ The citation exists but metadata does not "
+                    " ⚠ The citation exists but metadata does not "
                     "match. Correct the author/year/title.",
                 )
             elif result == "VERIFIED":
                 parts.append(
-                    "  ✓ This citation has been verified. Remove any "
+                    " ✓ This citation has been verified. Remove any "
                     "[UNVERIFIED] tag if it is still present.",
                 )
         parts.append("</citation_verification>")

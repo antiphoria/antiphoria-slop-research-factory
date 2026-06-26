@@ -1,22 +1,22 @@
 # tests/unit/test_routing.py
 
 """
-E1 unit tests for engine/routing.py — D-8 §3.2.
+E1 unit tests for engine/routing.py.2.
 
 No LLM calls, no network, no filesystem side-effects.
 
 Test-to-spec traceability
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-  E1-R01  CORRECT above threshold → finalize_manifest.
-  E1-R02  CORRECT below threshold → demote FIXABLE → reviser.
-  E1-R03  FIXABLE → reviser_node, increment revision_count.
-  E1-R04  WRONG below max → reviser_node, increment rejection_count.
-  E1-R05  WRONG at max_rejections → human_rescue_queue.
-  E1-R06  FIXABLE at max_revisions → human_rescue_queue.
-  E1-R07  cycle_count >= max_total_cycles → rescue (both verdicts).
-  E1-R08  Composite: two FIXABLE at max_revisions=1 → rescue on 2nd.
-  E1-R09  Composite: total cycle cap fires before revision cap.
-  E1-R10  Composite: per-cap ordered before total cycle cap.
+  E1-R01 CORRECT above threshold → finalize_manifest.
+  E1-R02 CORRECT below threshold → demote FIXABLE → reviser.
+  E1-R03 FIXABLE → reviser_node, increment revision_count.
+  E1-R04 WRONG below max → reviser_node, increment rejection_count.
+  E1-R05 WRONG at max_rejections → human_rescue_queue.
+  E1-R06 FIXABLE at max_revisions → human_rescue_queue.
+  E1-R07 cycle_count >= max_total_cycles → rescue (both verdicts).
+  E1-R08 Composite: two FIXABLE at max_revisions=1 → rescue on 2nd.
+  E1-R09 Composite: total cycle cap fires before revision cap.
+  E1-R10 Composite: per-cap ordered before total cycle cap.
 """
 
 from __future__ import annotations
@@ -96,7 +96,7 @@ def _commit_route(
     return decision
 
 
-# ── E1-R01 / E1-R02: Demotion rule (D-0 §8.1) ──────────────────────
+# ── E1-R01 / E1-R02: Demotion rule ──────────────────────
 
 
 class TestComputeEffectiveVerdict:
@@ -142,7 +142,7 @@ class TestComputeEffectiveVerdict:
     def test_wrong_never_promoted(self) -> None:
         """WRONG stays WRONG regardless of confidence.
 
-        D-2 §8.4: no promotion rule for WRONG.
+        .4: no promotion rule for WRONG.
         """
         for conf in (0.0, 0.5, 0.99, 1.0):
             result = compute_effective_verdict(
@@ -425,7 +425,7 @@ class TestCompositeRouting:
         max_total_cycles=100 (per-cap has higher precedence).
 
         State simulates two prior cycles:
-          cycle 1 — WRONG  (rejection_count → 1)
+          cycle 1 — WRONG (rejection_count → 1)
           cycle 2 — FIXABLE (revision_count → 1)
         Now a 3rd FIXABLE hits revision cap first.
         """
@@ -448,8 +448,7 @@ class TestCompositeRouting:
         self,
     ) -> None:
         """Supplementary: when BOTH revision cap AND cycle cap
-        are breached, the per-verdict cap reason is recorded
-        (higher precedence per D-2 §4).
+        are breached, the per-verdict cap reason is recorded.
         """
         state = _make_state(
             revision_count=5,
@@ -469,7 +468,7 @@ class TestCompositeRouting:
 
 
 class TestBudgetCapRouting:
-    """Token and cost budget caps (D-2 §4, precedence 3)."""
+    """Token and cost budget caps."""
 
     def test_token_budget_triggers_rescue_fixable(
         self,

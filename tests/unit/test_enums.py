@@ -1,15 +1,15 @@
 # tests/unit/test_enums.py
 
 """
-E1 unit tests for types/enums.py — D-8 §3.1.
+E1 unit tests for types/enums.py.1.
 
 Test-to-spec traceability
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-  E1-S09  All enums serialise to string values via json.dumps(asdict(x)).
-  E1-S14  ConfidenceTier.from_score canonical mappings.
-  E1-S19  RunStatus illegal transitions raise IllegalTransitionError.
-  E1-S20  ConfidenceTier boundary: confidence == 1.0 -> HIGH.
-  E1-S21  ConfidenceTier boundary: confidence == 0.0 -> VERY_LOW.
+  E1-S09 All enums serialise to string values via json.dumps(asdict(x)).
+  E1-S14 ConfidenceTier.from_score canonical mappings.
+  E1-S19 RunStatus illegal transitions raise IllegalTransitionError.
+  E1-S20 ConfidenceTier boundary: confidence == 1.0 -> HIGH.
+  E1-S21 ConfidenceTier boundary: confidence == 0.0 -> VERY_LOW.
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ from slop_research_factory.types.enums import (
     validate_status_transition,
 )
 
-# ── NodeName (D-2) ───────────────────────────────────────────────────
+# ── NodeName ───────────────────────────────────────────────────
 
 
 class TestNodeName:
@@ -70,7 +70,7 @@ def _make_bag() -> _EnumBag:
     )
 
 
-# ── E1-S09  Enum serialisation ──────────────────────────────────────
+# ── E1-S09 Enum serialisation ──────────────────────────────────────
 
 
 class TestEnumSerialization:
@@ -119,7 +119,7 @@ class TestEnumSerialization:
             assert json.loads(raw) == member.value
 
 
-# ── E1-S14  ConfidenceTier mapping ──────────────────────────────────
+# ── E1-S14 ConfidenceTier mapping ──────────────────────────────────
 
 
 class TestConfidenceTierMapping:
@@ -143,7 +143,7 @@ class TestConfidenceTierMapping:
         assert ConfidenceTier.from_score(score) is expected
 
     # Supplementary boundary checks — exercises the exact
-    # >= thresholds defined in D-2 §3.5.
+    # >= thresholds defined in .5.
 
     @pytest.mark.parametrize(
         ("score", "expected"),
@@ -178,7 +178,7 @@ class TestConfidenceTierMapping:
             ConfidenceTier.from_score(1.1)
 
 
-# ── E1-S19  RunStatus transitions ───────────────────────────────────
+# ── E1-S19 RunStatus transitions ───────────────────────────────────
 
 
 class TestRunStatusTransitions:
@@ -213,7 +213,7 @@ class TestRunStatusTransitions:
         with pytest.raises(IllegalTransitionError):
             validate_status_transition(source, target)
 
-    # ── legal transitions (complete D-2 §3.3 table) ─────────────
+    # ── legal transitions ─────────────
 
     @pytest.mark.parametrize(
         ("source", "target"),
@@ -254,7 +254,7 @@ class TestRunStatusTransitions:
         validate_status_transition(source, target)
 
     def test_self_transition_illegal_for_every_status(self) -> None:
-        """Diagonal of D-2 §3.3 table is all dashes."""
+        """Diagonal of .3 table is all dashes."""
         for status in RunStatus:
             with pytest.raises(IllegalTransitionError):
                 validate_status_transition(status, status)
@@ -286,7 +286,7 @@ class TestRunStatusTransitions:
             )
 
 
-# ── E1-S20  ConfidenceTier upper boundary ────────────────────────────
+# ── E1-S20 ConfidenceTier upper boundary ────────────────────────────
 
 
 class TestConfidenceTierUpperBound:
@@ -296,7 +296,7 @@ class TestConfidenceTierUpperBound:
         assert ConfidenceTier.from_score(1.0) is ConfidenceTier.HIGH
 
 
-# ── E1-S21  ConfidenceTier lower boundary ────────────────────────────
+# ── E1-S21 ConfidenceTier lower boundary ────────────────────────────
 
 
 class TestConfidenceTierLowerBound:

@@ -24,10 +24,6 @@ The ``ANTIPHORIA_METADATA_LENIENT=1`` env var (or
 warnings. Use this only when iterating schemas locally; CI MUST run
 strict.
 
-Spec references:
-    D-2 §15  Schema-version contract.
-    D-5 §5   Per-node metadata schemas.
-    D-5 §7   Payload composition contract.
 """
 
 from __future__ import annotations
@@ -105,8 +101,8 @@ class MetadataSchema:
 
     Attributes:
         required: Keys that MUST be present and non-``None``.
-        allowed:  Keys that MAY be present (in addition to ``required``).
-        types:    Optional per-key type constraint. Keys not listed are
+        allowed: Keys that MAY be present (in addition to ``required``).
+        types: Optional per-key type constraint. Keys not listed are
             unchecked. ``None`` is always permissible for keys not in
             ``required``. The check uses :func:`isinstance`; pass a
             tuple to allow multiple types.
@@ -377,8 +373,8 @@ def validate_metadata(
     """Validate *metadata* against the registered schema for *step_type*.
 
     Args:
-        step_type:  The seal's :class:`StepType`.
-        metadata:   The (already-normalised) metadata dict that
+        step_type: The seal's :class:`StepType`.
+        metadata: The (already-normalised) metadata dict that
             :func:`seal_step` is about to hand to the engine.
         strictness: Override the active strictness mode. ``None``
             consults :func:`current_strictness`.

@@ -7,10 +7,10 @@ Command-line interface for the SLOP Research Factory.
 Entry point: ``slop-factory`` (registered via pyproject.toml console_scripts).
 
 Subcommands:
-    run      Execute a new research pipeline from a brief.
-    resume   Resume a paused or crashed run.
-    verify   Verify a workspace's provenance chain integrity.
-    status   Print current state summary of a workspace.
+    run Execute a new research pipeline from a brief.
+    resume Resume a paused or crashed run.
+    verify Verify a workspace's provenance chain integrity.
+    status Print current state summary of a workspace.
 
 Usage examples:
 
@@ -36,9 +36,6 @@ Environment:
     (``python-dotenv``) so API keys need not be exported manually. Pre-set
     shell variables take precedence over ``.env``.
 
-Spec references:
-    D-0 §13   Implementation step plan — CLI phase.
-    D-2 §3    Run lifecycle.
 """
 
 from __future__ import annotations
@@ -85,11 +82,11 @@ def _build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Examples:\n"
-            "  slop-factory run --brief brief.json\n"
-            "  slop-factory run --brief brief.json --config antiphoria.toml --run-id my-run\n"
-            "  slop-factory resume --workspace ./workspace/abc123\n"
-            "  slop-factory verify --workspace ./workspace/abc123\n"
-            "  slop-factory status --workspace ./workspace/abc123\n"
+            " slop-factory run --brief brief.json\n"
+            " slop-factory run --brief brief.json --config antiphoria.toml --run-id my-run\n"
+            " slop-factory resume --workspace ./workspace/abc123\n"
+            " slop-factory verify --workspace ./workspace/abc123\n"
+            " slop-factory status --workspace ./workspace/abc123\n"
         ),
     )
     parser.add_argument(
@@ -253,12 +250,12 @@ async def _cmd_run(args: argparse.Namespace) -> int:
 
     # Run
     _out("Starting factory run…")
-    _out(f"  Brief: {brief_path}")
+    _out(f" Brief: {brief_path}")
     if config_path:
-        _out(f"  Config: {config_path}")
-    _out(f"  Workspace root: {args.workspace_root}")
+        _out(f" Config: {config_path}")
+    _out(f" Workspace root: {args.workspace_root}")
     if args.run_id:
-        _out(f"  Run ID: {args.run_id}")
+        _out(f" Run ID: {args.run_id}")
     _out("")
 
     try:
@@ -276,18 +273,18 @@ async def _cmd_run(args: argparse.Namespace) -> int:
     # Report outcome
     _out("")
     _out("=" * 60)
-    _out(f"  {result.summary()}")
-    _out(f"  Workspace: {result.workspace_path}")
+    _out(f" {result.summary()}")
+    _out(f" Workspace: {result.workspace_path}")
     _out("=" * 60)
 
     if result.success:
         _out("\n✅ Run completed successfully.")
-        _out(f"   Output: {result.workspace_path / 'output' / 'paper.md'}")
+        _out(f" Output: {result.workspace_path / 'output' / 'paper.md'}")
         return 0
     elif result.state.status.value == "AWAITING_HUMAN":
-        _out("\n⏸️  Run paused — human intervention required.")
-        _out(f"   Inspect: {result.workspace_path / 'rescue' / 'request.json'}")
-        _out(f"   Resume:  slop-factory resume --workspace {result.workspace_path}")
+        _out("\n⏸️ Run paused — human intervention required.")
+        _out(f" Inspect: {result.workspace_path / 'rescue' / 'request.json'}")
+        _out(f" Resume: slop-factory resume --workspace {result.workspace_path}")
         return 2
     else:
         _err(f"\n❌ Run ended with status: {result.state.status.value}")
@@ -335,14 +332,14 @@ async def _cmd_resume(args: argparse.Namespace) -> int:
     # Report outcome
     _out("")
     _out("=" * 60)
-    _out(f"  {result.summary()}")
+    _out(f" {result.summary()}")
     _out("=" * 60)
 
     if result.success:
         _out("\n✅ Run completed successfully.")
         return 0
     elif result.state.status.value == "AWAITING_HUMAN":
-        _out("\n⏸️  Run still paused — further intervention needed.")
+        _out("\n⏸️ Run still paused — further intervention needed.")
         return 2
     else:
         _err(f"\n❌ Run ended with status: {result.state.status.value}")
@@ -368,8 +365,8 @@ async def _cmd_verify(args: argparse.Namespace) -> int:
         return 1
 
     _out(f"Verifying chain for run: {state.run_id}")
-    _out(f"  Status: {state.status.value}")
-    _out(f"  Steps:  {state.step_index + 1}")
+    _out(f" Status: {state.status.value}")
+    _out(f" Steps: {state.step_index + 1}")
     _out("")
 
     # Construct engine in verify-only mode
@@ -448,9 +445,9 @@ def _render_verification_report(report) -> None:
     integrity = "✅ INTACT" if report.chain_intact else "❌ BROKEN"
 
     _out(f"Chain Integrity: {integrity}")
-    _out(f"Total Steps:     {report.total_steps}")
+    _out(f"Total Steps: {report.total_steps}")
     if report.first_error_index is not None:
-        _out(f"First Error:     step {report.first_error_index}")
+        _out(f"First Error: step {report.first_error_index}")
     _out("")
 
     _out(f"{'Step':<6} {'Type':<20} {'Status':<8} {'Errors'}")
@@ -465,48 +462,48 @@ def _render_verification_report(report) -> None:
     if report.chain_intact:
         _out("All steps verified — provenance chain is intact.")
     else:
-        _out("⚠️  Chain integrity failure detected. See errors above.")
+        _out("⚠️ Chain integrity failure detected. See errors above.")
 
 
 def _render_status_human(state, workspace_path: Path) -> None:
     """Print human-readable status summary."""
     _out("┌─────────────────────────────────────────────────────────┐")
-    _out("│           SLOP Research Factory — Run Status            │")
+    _out("│ SLOP Research Factory — Run Status │")
     _out("├─────────────────────────────────────────────────────────┤")
-    _out(f"│  Run ID:      {state.run_id:<41} │")
-    _out(f"│  Status:      {state.status.value:<41} │")
-    _out(f"│  Workspace:   {str(workspace_path):<41} │")
+    _out(f"│ Run ID: {state.run_id:<41} │")
+    _out(f"│ Status: {state.status.value:<41} │")
+    _out(f"│ Workspace: {str(workspace_path):<41} │")
     _out("├─────────────────────────────────────────────────────────┤")
-    _out(f"│  Cycles:      {state.cycle_count:<41} │")
-    _out(f"│  Rejections:  {state.rejection_count:<41} │")
-    _out(f"│  Revisions:   {state.revision_count:<41} │")
-    _out(f"│  Step Index:  {state.step_index:<41} │")
+    _out(f"│ Cycles: {state.cycle_count:<41} │")
+    _out(f"│ Rejections: {state.rejection_count:<41} │")
+    _out(f"│ Revisions: {state.revision_count:<41} │")
+    _out(f"│ Step Index: {state.step_index:<41} │")
     _out("├─────────────────────────────────────────────────────────┤")
 
     cost_str = f"${state.total_estimated_cost_usd:.4f}"
     tokens_str = f"{state.total_input_tokens + state.total_output_tokens:,}"
     time_str = f"{state.total_wall_clock_seconds:.1f}s"
 
-    _out(f"│  Tokens:      {tokens_str:<41} │")
-    _out(f"│  Est. Cost:   {cost_str:<41} │")
-    _out(f"│  Wall Clock:  {time_str:<41} │")
+    _out(f"│ Tokens: {tokens_str:<41} │")
+    _out(f"│ Est. Cost: {cost_str:<41} │")
+    _out(f"│ Wall Clock: {time_str:<41} │")
     _out("├─────────────────────────────────────────────────────────┤")
-    _out(f"│  Created:     {state.created_at:<41} │")
-    _out(f"│  Updated:     {state.updated_at:<41} │")
+    _out(f"│ Created: {state.created_at:<41} │")
+    _out(f"│ Updated: {state.updated_at:<41} │")
 
     hash_display = f"{state.latest_hash[:16]}…" if state.latest_hash else "—"
-    _out(f"│  Latest Hash: {hash_display:<41} │")
+    _out(f"│ Latest Hash: {hash_display:<41} │")
     _out("└─────────────────────────────────────────────────────────┘")
 
     # Brief summary
     brief_title = state.brief.get("title_suggestion") or state.brief.get("thesis", "—")[:60]
-    _out(f"\n  Brief: {brief_title}")
+    _out(f"\n Brief: {brief_title}")
 
     # Verdict (if available)
     critique = state.current_critique or {}
     verdict = critique.get("effective_verdict") or critique.get("verdict")
     if verdict:
-        _out(f"  Last Verdict: {verdict}")
+        _out(f" Last Verdict: {verdict}")
 
 
 def _render_status_json(state) -> None:

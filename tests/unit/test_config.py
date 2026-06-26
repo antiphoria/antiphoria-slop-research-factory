@@ -1,12 +1,12 @@
 # tests/unit/test_config.py
 
 """
-E1 unit tests for config.py — D-2 §4.
+E1 unit tests for config.py.
 
 Test-to-spec traceability
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-  E1-S01  FactoryConfig instantiates with all defaults.
-  E1-S02  FactoryConfig is frozen.
+  E1-S01 FactoryConfig instantiates with all defaults.
+  E1-S02 FactoryConfig is frozen.
 """
 
 from __future__ import annotations
@@ -19,12 +19,12 @@ from slop_research_factory.config import FactoryConfig
 from slop_research_factory.config_loader import ConfigLoadError, load_config
 from slop_research_factory.types.enums import CheckpointBackend
 
-# ── E1-S01 — FactoryConfig all defaults (D-2 §4) ───────────────────
+# ── E1-S01 — FactoryConfig all defaults ───────────────────
 
 
 def test_e1_s01_factory_config_all_defaults() -> None:
     """FactoryConfig() succeeds with no arguments and every field
-    carries its documented default value (D-2 §4)."""
+    carries its documented default value."""
     cfg = FactoryConfig()
 
     # -- Model topology -------------------------------------------
@@ -48,7 +48,7 @@ def test_e1_s01_factory_config_all_defaults() -> None:
     )
     assert cfg.enable_tavily_search is True
 
-    # -- Dimension weights (D-4 §8) — verify sum == 1.0 ----------
+    # -- Dimension weights — verify sum == 1.0 ----------
     assert cfg.weight_logical_soundness == 0.35
     assert cfg.weight_mathematical_rigor == 0.25
     assert cfg.weight_citation_accuracy == 0.20
@@ -76,12 +76,12 @@ def test_e1_s01_factory_config_all_defaults() -> None:
     assert cfg.checkpoint_backend == CheckpointBackend.SQLITE
 
 
-# ── E1-S02 — FactoryConfig frozen (D-2 §4) ─────────────────────────
+# ── E1-S02 — FactoryConfig frozen ─────────────────────────
 
 
 def test_e1_s02_factory_config_frozen() -> None:
     """FactoryConfig is frozen; assignment to any field raises
-    ``FrozenInstanceError`` (D-2 §4)."""
+    ``FrozenInstanceError``."""
     cfg = FactoryConfig()
 
     # str field

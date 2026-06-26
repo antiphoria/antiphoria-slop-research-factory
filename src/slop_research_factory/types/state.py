@@ -1,18 +1,18 @@
 # src/slop_research_factory/types/state.py
 
 """
-FactoryState and AppendOnlyList — D-2 §6.
+FactoryState and AppendOnlyList.
 
 Core orchestration state that flows through every LangGraph node.
 Serialized to ``{workspace}/state.json`` after each node execution.
 
 Mutation contract (enforced by orchestrator, not this module):
-  run_id, config, brief     — immutable after creation
-  step_index                — increment-only
-  latest_hash               — write-after-seal-only
+  run_id, config, brief — immutable after creation
+  step_index — increment-only
+  latest_hash — write-after-seal-only
   messages, citation_checks — append-only (AppendOnlyList)
-  total_*                   — increment-only
-  status                    — forward-only transitions (D-2 §3.3)
+  total_* — increment-only
+  status — forward-only transitions
 """
 
 from __future__ import annotations
@@ -37,8 +37,8 @@ __all__ = ["AppendOnlyList", "FactoryState"]
 class AppendOnlyList(list[Any]):
     """``list`` subclass forbidding overwrite, delete, non-tail insert.
 
-    D-2 §6 requires ``messages`` and ``citation_checks`` to be
-    append-only.  This wrapper enforces that contract at runtime.
+     requires ``messages`` and ``citation_checks`` to be
+    append-only. This wrapper enforces that contract at runtime.
 
     Permitted operations: ``append``, ``extend``, ``insert(len, v)``.
     Forbidden: ``__setitem__``, ``__delitem__``, ``insert(i, v)``
@@ -86,7 +86,7 @@ class AppendOnlyList(list[Any]):
 class FactoryState:
     """Central state object flowing through every LangGraph node.
 
-    D-2 §6.  Dataclass (not Pydantic) because it is produced
+    . Dataclass (not Pydantic) because it is produced
     exclusively by factory code, never by an LLM.
     """
 
@@ -121,12 +121,12 @@ class FactoryState:
     total_wall_clock_seconds: float = 0.0
     total_estimated_cost_usd: float = 0.0
 
-    # --- Message history (append-only, D-2 §6) -------------
+    # --- Message history -------------
     messages: list[dict[str, Any]] = field(
         default_factory=AppendOnlyList,
     )
 
-    # --- Discovered citations (append-only, D-2 §6) --------
+    # --- Discovered citations --------
     citation_checks: list[dict[str, Any]] = field(
         default_factory=AppendOnlyList,
     )
@@ -146,8 +146,8 @@ class FactoryState:
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a JSON-compatible plain ``dict``.
 
-        Enums → ``.value`` (D-2 §3).
-        Tuples → lists (JSON has no tuple type, D-2 §2).
+        Enums → ``.value``.
+        Tuples → lists.
         """
         return _deep_serialize(dataclasses.asdict(self))
 
@@ -155,13 +155,13 @@ class FactoryState:
     def from_dict(cls, raw: dict[str, Any]) -> FactoryState:
         """Reconstruct from a JSON-parsed ``dict``.
 
-        D-2 §6 crash-recovery contract: nested ``FactoryConfig``,
+         crash-recovery contract: nested ``FactoryConfig``,
         ``RunStatus`` enum, and ``AppendOnlyList`` wrappers are
         rebuilt explicitly.
         """
         data: dict[str, Any] = dict(raw)
 
-        # ── Nested FactoryConfig (unknown keys dropped; D-2 §6 recovery) ─
+        # ── Nested FactoryConfig ─
         config = factory_config_from_mapping(
             dict(data.pop("config")),
         )

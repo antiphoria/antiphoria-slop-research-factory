@@ -38,7 +38,7 @@ def test_s2_query_falls_back_to_citation_text_when_no_title() -> None:
 def test_s2_query_none_when_no_usable_text() -> None:
     assert (
         _semantic_scholar_query_from_citation(
-            CitationEntry(citation_text="   ", claimed_title=None),
+            CitationEntry(citation_text=" ", claimed_title=None),
         )
         is None
     )

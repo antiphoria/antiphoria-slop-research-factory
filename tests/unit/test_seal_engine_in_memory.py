@@ -85,7 +85,7 @@ class TestConstruction:
         with pytest.raises(SealError):
             InMemorySealEngine.create(tmp_path, run_id="")
         with pytest.raises(SealError):
-            InMemorySealEngine.create(tmp_path, run_id="   ")
+            InMemorySealEngine.create(tmp_path, run_id=" ")
 
 
 # ── hash_file ────────────────────────────────────────────

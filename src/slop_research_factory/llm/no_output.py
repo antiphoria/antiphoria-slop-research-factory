@@ -1,5 +1,5 @@
 """
-NO_OUTPUT detection (D-3 §7).
+NO_OUTPUT detection.
 
 When the model declares it cannot produce substantive output, the run
 is sealed with a non-empty declaration string and the pipeline moves
@@ -15,7 +15,7 @@ def detect_no_output(text: str) -> tuple[bool, str | None]:
     """Return ``(True, explanation)`` if *text* is a NO_OUTPUT declaration.
 
     A NO_OUTPUT line begins (after stripping) with ``NO_OUTPUT:``; the
-    remainder, if any, is the *explanation*.  The prefix is matched
+    remainder, if any, is the *explanation*. The prefix is matched
     case-insensitively for the head token; the expected form is
     ``NO_OUTPUT: <reason>``.
     """

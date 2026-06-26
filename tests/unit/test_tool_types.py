@@ -1,7 +1,7 @@
 # tests/unit/test_tool_types.py
 
 """
-E1 unit tests for types/tool_types.py — D-8 §3.1.
+E1 unit tests for types/tool_types.py.1.
 
 Covers frozen-ness, JSON serialisation, and default values
 for all external tool types (Crossref, Semantic Scholar, Tavily).
@@ -26,7 +26,7 @@ from slop_research_factory.types.tool_types import (
     TavilyResult,
 )
 
-# ── Crossref types (D-2 §11.1) ──────────────────────────────
+# ── Crossref types ──────────────────────────────
 
 
 class TestCrossrefTypes:
@@ -69,7 +69,7 @@ class TestCrossrefTypes:
         assert r.raw_response == {}
 
 
-# ── Semantic Scholar types (D-2 §11.2) ───────────────────────
+# ── Semantic Scholar types ───────────────────────
 
 
 class TestSemanticScholarTypes:
@@ -110,7 +110,7 @@ class TestSemanticScholarTypes:
         assert loaded["abstract"] is None
 
 
-# ── Tavily types (D-2 §11.3) ─────────────────────────────────
+# ── Tavily types ─────────────────────────────────
 
 
 class TestTavilyTypes:

@@ -3,7 +3,7 @@
 """
 Unit tests for :class:`CannedLLMClient` and :class:`LLMResponse`.
 
-The canned client is the lightest possible test seam for nodes —
+The canned client is the lightest possible test seam for nodes
 nothing imports ``litellm`` here, so this module also doubles as a
 sanity check that ``llm/client.py`` is importable in slim
 environments.

@@ -1,6 +1,6 @@
 # tests/unit/test_canned_tool_client.py
 
-"""Unit tests for :class:`CannedCitationCheckClient` (D-2 §11)."""
+"""Unit tests for :class:`CannedCitationCheckClient`."""
 
 from __future__ import annotations
 

@@ -19,9 +19,6 @@ Covers:
   - Output file read/write.
   - WorkspaceNotInitializedError guard.
 
-Spec references:
-    D-2 §13  Workspace layout.
-    D-5 §10  Crash recovery (atomic state writes).
 """
 
 from __future__ import annotations
@@ -132,7 +129,7 @@ class TestWorkspaceManagerConstruction:
         tmp_path: Path,
     ) -> None:
         with pytest.raises(ValueError, match="run_id"):
-            WorkspaceManager(tmp_path, "   ")
+            WorkspaceManager(tmp_path, " ")
 
     def test_dot_run_id_rejected(
         self,
@@ -496,7 +493,7 @@ class TestWorkspaceManagerJson:
         ws.write_json(path, {"key": "value"})
         text = ws.read_text(path)
         assert "\n" in text
-        assert '  "key"' in text
+        assert ' "key"' in text
 
     def test_trailing_newline(
         self,

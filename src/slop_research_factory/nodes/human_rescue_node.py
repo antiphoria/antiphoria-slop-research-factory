@@ -22,11 +22,6 @@ v0.1.0 scope: The rescue node writes the request and halts.
 Actual human input is manual file editing + CLI ``resume``.
 Full queue UI is post-v0.1.
 
-Spec references:
-    D-0 §4C   Escalation to human rescue.
-    D-2 §4    Loop limits triggering rescue.
-    D-2 §8.4  Routing → HUMAN_RESCUE_NODE.
-    D-5 §5.5  Human rescue node contract.
 """
 
 from __future__ import annotations
@@ -113,9 +108,9 @@ async def human_rescue_node(
     """Persist a human rescue request and seal the HUMAN_GATE step.
 
     Args:
-        state:       Current ``FactoryState`` — mutated in place.
+        state: Current ``FactoryState`` — mutated in place.
         seal_engine: Engine instance scoped to the run.
-        workspace:   Workspace I/O helper.
+        workspace: Workspace I/O helper.
 
     Returns:
         The updated ``FactoryState`` with ``status == AWAITING_HUMAN``.

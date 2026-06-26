@@ -1,6 +1,6 @@
 # src/slop_research_factory/nodes/verifier_node.py
 
-"""Verifier node — D-3 §4 / D-4 §5 / D-5 §5.3.
+"""Verifier node.3.
 
 Executes the seven-phase Verifier protocol:
 
@@ -22,10 +22,6 @@ Test seams:
       :func:`complete_structured`'s signature. When ``None``, the
       production Instructor client is used.
 
-Spec references:
-    D-3 §4   Verifier prompt and Instructor integration.
-    D-4 §5   Verifier execution sequence.
-    D-5 §5.3 TOOL_CALL + PRE/POST_VERIFIER seal contracts.
 """
 
 from __future__ import annotations
@@ -145,7 +141,7 @@ def _aggregate_citation_check(
 
     Lightweight rules for M2:
 
-    * **VERIFIED**  — at least one source returned ``found=True``.
+    * **VERIFIED** — at least one source returned ``found=True``.
     * **NOT_FOUND** — every probed source replied with ``found=False``.
     * **INCONCLUSIVE** — every probed source raised :class:`ToolError`.
 
@@ -229,13 +225,13 @@ def _compose_verifier_output(
     *,
     citation_checks: list[CitationCheckEntry],
 ) -> VerifierOutput:
-    """Apply confidence composition rules (D-4 §3.1–3.4).
+    """Apply confidence composition rules.
 
     M2 implementation:
 
     * If any tool-grounded check is :data:`CitationCheckResult.NOT_FOUND`,
       cap ``confidence_citation_accuracy`` at ``0.4``.
-    * ``confidence_novelty_plausibility`` is capped at ``0.5`` (D-4 §3.4).
+    * ``confidence_novelty_plausibility`` is capped at ``0.5``.
 
     Returns a fresh :class:`VerifierOutput`; the input model is not
     mutated (``BaseModel.model_copy(update=...)``).
@@ -474,7 +470,7 @@ async def verifier_node(  # noqa: PLR0915 - phased protocol is intentionally exp
     ts_end = _now_iso()
     duration_s = wall_end - wall_start
 
-    # ── Raw response (sealed pre-parse, D-1 §10) ─────────────────
+    # ── Raw response ─────────────────
     raw_bytes = json.dumps(
         llm_response.raw_response,
         sort_keys=True,

@@ -11,7 +11,7 @@ side stays mocked via :class:`StubLLMClient`. The engine fixture has
 
   ``000000_GENESIS.* → 000001_PRE_GENERATOR.* → 000002_POST_GENERATOR.*``
 
-Covers: E2-NE01 … E2-NE07, E2-NE14 (D-8 §4.4) plus a chain-integrity
+Covers: E2-NE01 … E2-NE07, E2-NE14 plus a chain-integrity
 smoke test asserting the resulting workspace verifies via
 :meth:`SealEngine.verify_chain`.
 """

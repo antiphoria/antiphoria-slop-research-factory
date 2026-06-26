@@ -3,7 +3,7 @@
 """
 FactoryConfig — frozen configuration for a single factory run.
 
-Spec reference: D-2 §4 (Configuration Schema).
+Spec reference: (Configuration Schema).
 Once a run begins, the configuration is sealed into the genesis
 step and cannot be modified.
 """
@@ -22,9 +22,9 @@ from typing import Any
 
 
 class CheckpointBackend(StrEnum):
-    """Checkpoint persistence backend (D-2 §4).
+    """Checkpoint persistence backend.
 
-    SQLITE   — JSON + local files (Phase 1 default).
+    SQLITE — JSON + local files (Phase 1 default).
     POSTGRES — Database-backed (Phase 2).
     """
 
@@ -33,22 +33,22 @@ class CheckpointBackend(StrEnum):
 
 
 # -------------------------------------------------------------------
-# FactoryConfig (D-2 §4)
+# FactoryConfig
 # -------------------------------------------------------------------
 @dataclass(frozen=True)
 class FactoryConfig:
     """Frozen run configuration sealed into the genesis step.
 
     Every field carries a default so that ``FactoryConfig()`` succeeds
-    with no arguments (E1-S01).  The class is frozen so that
+    with no arguments (E1-S01). The class is frozen so that
     post-creation assignment raises ``FrozenInstanceError`` (E1-S02).
 
     The finalization node computes *configuration_overrides* by
     comparing the run config against ``FactoryConfig()``; only
     fields whose effective value differs from the default are
-    recorded (D-2 §4, D-6 §4.6).
+    recorded.
 
-    **Loop-limit precedence** (D-2 §4) is evaluated *per verdict*:
+    **Loop-limit precedence** is evaluated *per verdict*:
 
     * On **WRONG**: ``max_rejections`` first, then shared budgets
       (``max_total_tokens``, ``max_total_cost_usd``), then
@@ -59,11 +59,11 @@ class FactoryConfig:
       to orchestration-level checks outside this dataclass).
     """
 
-    # -- Model topology (D-0 §4) ----------------------------------------
+    # -- Model topology ----------------------------------------
     generator_model: str = "deepseek/deepseek-r1"
     verifier_model: str = "google/gemini-2.5-flash"
     reviser_model: str = "deepseek/deepseek-r1"
-    # reviser defaults to generator model (D-0 §4.2).
+    # reviser defaults to generator model.
 
     # -- Loop limits -----------------------------------------------------
     max_rejections: int = 3  # WRONG verdicts before human rescue
@@ -72,21 +72,21 @@ class FactoryConfig:
     max_total_tokens: int | None = None  # Optional hard token cap
     max_total_cost_usd: float | None = None  # Optional cost budget
 
-    # -- Verifier behaviour (D-4 §8) ------------------------------------
-    # Citation extractor prompts (D-3 §6) use ``verifier_model``; there is no
+    # -- Verifier behaviour ------------------------------------
+    # Citation extractor prompts use ``verifier_model``; there is no
     # separate ``citation_extractor_model`` in v0.1.
     verifier_confidence_threshold: float = 0.8
-    # Below this, a CORRECT verdict is demoted to FIXABLE (D-0 §8.1).
+    # Below this, a CORRECT verdict is demoted to FIXABLE.
 
     enable_citation_checking: bool = True
     citation_check_sources: tuple[str, ...] = (
         "crossref",
         "semantic_scholar",
     )
-    # Per D-1 §10 / Attack 3: multi-source is mandatory.
+    # Per / Attack 3: multi-source is mandatory.
     enable_tavily_search: bool = True
 
-    # Confidence dimension weights — MUST sum to 1.0 (D-4 §8).
+    # Confidence dimension weights — MUST sum to 1.0.
     weight_logical_soundness: float = 0.35
     weight_mathematical_rigor: float = 0.25
     weight_citation_accuracy: float = 0.20
@@ -96,12 +96,12 @@ class FactoryConfig:
     # -- Output control --------------------------------------------------
     target_length_words: int = 5000
     capture_think_tokens: bool = True
-    # Whether to capture and seal <think> traces (D-0 §4A).
+    # Whether to capture and seal <think> traces.
 
-    # -- Provenance (D-5 §11) -------------------------------------------
+    # -- Provenance -------------------------------------------
     enable_provenance: bool = True
     # Disabling requires BOTH this flag AND env var
-    # ANTIPHORIA_I_UNDERSTAND_NO_PROVENANCE=true (D-1 §10).
+    # ANTIPHORIA_I_UNDERSTAND_NO_PROVENANCE=true.
     hash_algorithm: str = "sha256"
 
     # -- Infrastructure --------------------------------------------------
@@ -114,7 +114,7 @@ def factory_config_from_mapping(data: dict[str, Any]) -> FactoryConfig:
 
     Keys not in :class:`FactoryConfig` are **silently dropped** so older
     ``state.json`` or config files with experimental fields still load
-    (forward compatibility, matching workspace I/O).  Tuple and enum
+    (forward compatibility, matching workspace I/O). Tuple and enum
     fields are coerced the same way as :func:`load_config` output.
     """
     known = {f.name for f in dc_fields(FactoryConfig)}

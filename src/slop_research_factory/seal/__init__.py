@@ -5,10 +5,10 @@
 Provenance seal layer — engine protocol, helpers, registry, and SDK bridge.
 
 Modules:
-    engine        Protocol definition + InMemorySealEngine.
-    helpers       ``seal_step()`` convenience wrapper.
-    registry      Metadata schema validation per step type.
-    sdk_adapter   Bridge to ``antiphoria_sdk`` (optional dependency).
+    engine Protocol definition + InMemorySealEngine.
+    helpers ``seal_step()`` convenience wrapper.
+    registry Metadata schema validation per step type.
+    sdk_adapter Bridge to ``antiphoria_sdk`` (optional dependency).
 
 Engine selection:
     Use :func:`sdk_adapter.create_seal_engine` as the single entry point.

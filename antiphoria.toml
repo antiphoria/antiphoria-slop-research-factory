@@ -1,6 +1,6 @@
 [models]
 generator = "inclusionai/ring-2.6-1t:free"
-verifier  = "google/gemma-4-31b-it:free"
+verifier  = "inclusionai/ring-2.6-1t:free"
 reviser   = "inclusionai/ring-2.6-1t:free"
 
 [limits]

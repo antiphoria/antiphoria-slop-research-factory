@@ -2,7 +2,7 @@
 Extract optional &quot;reasoning / chain-of-thought&quot; blocks from model text.
 
 Handles common OpenWebUI / DeepSeek style ``<details>…</details>`` wrappers
-and ``<think>`` blocks (D-0 §4A).  Everything else is left in
+and ``<think>`` blocks. Everything else is left in
 *final_output* with surrounding whitespace normalised.
 """
 
@@ -29,7 +29,7 @@ def parse_think_tokens(content: str) -> tuple[str | None, str]:
     """Split *content* into (think_trace, final_output).
 
     If a structured think block is found, the trace is the inner text
-    (tags stripped) and the remainder is the draft.  If multiple blocks
+    (tags stripped) and the remainder is the draft. If multiple blocks
     exist, the first is treated as the think trace; remaining content
     after removal is the draft.
     """

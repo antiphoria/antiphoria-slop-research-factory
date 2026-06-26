@@ -1,14 +1,14 @@
 # src/slop_research_factory/prompts/verifier_prompt.py
 
-"""Verifier prompt rendering — D-3 §4.
+"""Verifier prompt rendering.
 
 Loads the system prompt from ``prompts/verifier/system_v0.1.txt`` and
 builds the user message in Python. The ``user_template_v0.1.txt`` file
-is kept on disk as the human-readable specification anchor (D-3 §4.2)
+is kept on disk as the human-readable specification anchor
 and is never re-evaluated at runtime — rendering is programmatic so we
 get type checking and clean control flow.
 
-Citation check results (D-3 §4.6, Option B) are merged into the
+Citation check results are merged into the
 ``<evaluation_context>`` block when present.
 """
 
@@ -125,11 +125,11 @@ def render_verifier_user_message(
             citation = check.get("citation", {})
             citation_text = citation.get("citation_text", "(unknown)")
             parts.append(f'- Citation: "{citation_text}"')
-            parts.append(f"  Result: {check.get('result', 'INCONCLUSIVE')}")
-            parts.append(f"  Confidence: {check.get('confidence', 0.0)}")
+            parts.append(f" Result: {check.get('result', 'INCONCLUSIVE')}")
+            parts.append(f" Confidence: {check.get('confidence', 0.0)}")
             notes = check.get("notes")
             if notes:
-                parts.append(f"  Note: {notes}")
+                parts.append(f" Note: {notes}")
         parts.append(
             "Use these results to inform your "
             "confidence_citation_accuracy score. These checks are "
@@ -176,8 +176,7 @@ def render_verifier_prompt(
 
     Returns:
         ``(system_prompt, user_message, audit_text)`` — the audit
-        text is the file written to ``drafts/cycle_{C}_verifier_prompt.md``
-        (D-5 §5.3 Phase 4).
+        text is the file written to ``drafts/cycle_{C}_verifier_prompt.md``.
     """
     system_prompt = load_verifier_system_prompt()
     user_message = render_verifier_user_message(

@@ -1,9 +1,9 @@
 # src/slop_research_factory/citations/extractor.py
 
-"""Lightweight citation extraction — D-3 §6 / D-4 §5 Phase 2.
+"""Lightweight citation extraction.
 
 The Verifier node needs a canonical list of citations BEFORE running
-its tool checks. The full design (D-3 §6) prescribes a small LLM call
+its tool checks. The full design prescribes a small LLM call
 for robustness; for M2 we ship a regex + heuristic extractor that
 covers the dominant patterns:
 
@@ -20,7 +20,7 @@ Design note
 -----------
 
 Empirical comparison between regex extraction and an LLM-based
-extractor is on the D-3 §13 open-questions list. M2 defers the LLM
+extractor is on the open-questions list. M2 defers the LLM
 path; the function signature accepts a future ``mode`` argument that
 will switch to LLM extraction without breaking callers.
 """

@@ -9,7 +9,7 @@ a stub Instructor-shaped client (``client.chat.completions
 
 1. Returns ``(pydantic_model, LLMResponse)``.
 2. Surfaces the raw provider completion verbatim in
-   :attr:`LLMResponse.raw_response` (D-1 §10 / D-5 §6).
+   :attr:`LLMResponse.raw_response`.
 3. Forwards ``max_retries`` through to Instructor unchanged.
 4. Raises :class:`InstructorNotInstalledError` cleanly when no
    client is supplied and the SDK is unavailable.

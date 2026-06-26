@@ -162,7 +162,7 @@ class TestWeightValidation:
 
 
 class TestProvenanceGate:
-    """D-1 §10: Disabling provenance requires explicit env var."""
+    """Disabling provenance requires explicit env var."""
 
     def test_provenance_disabled_without_env_var_raises(self, tmp_path: Path) -> None:
         """enable_provenance=false without env var → error."""

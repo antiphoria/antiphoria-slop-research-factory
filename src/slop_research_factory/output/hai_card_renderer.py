@@ -2,20 +2,15 @@
 # src/slop_research_factory/output/hai_card_renderer.py
 
 """
-HAI Card Markdown renderer — D-6 §6.
+HAI Card Markdown renderer.
 
 Converts a :class:`~slop_research_factory.types.hai_card.HaiCard`
 into a self-contained Markdown document suitable for publication
 alongside the generated paper.
 
-The security guarantee (D-1 §9) is rendered verbatim in a blockquote.
+The security guarantee is rendered verbatim in a blockquote.
 All numeric fields are formatted for human readability.
 
-Spec references:
-    D-1 §9    Security guarantee byte-identical text.
-    D-2 §10   HAI Card schema.
-    D-6 §6    Renderer contract.
-    D-7 §7.4  Human review governance display.
 """
 
 from __future__ import annotations
@@ -57,7 +52,7 @@ def render_hai_card(card: HaiCard) -> str:
 def _render_header(card: HaiCard) -> str:
     return (
         "# Human–AI Interaction (HAI) Card\n\n"
-        f"**Run ID:** `{card.run_id}`  \n"
+        f"**Run ID:** `{card.run_id}` \n"
         f"**Generated:** {card.generated_at.strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
     )
 

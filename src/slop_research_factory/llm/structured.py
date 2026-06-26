@@ -1,9 +1,9 @@
 # src/slop_research_factory/llm/structured.py
 
 """
-Instructor / Pydantic structured-output wrapper (D-0 §13 Step 5).
+Instructor / Pydantic structured-output wrapper.
 
-The Verifier (D-3 §4) requires a strictly-typed Pydantic response
+The Verifier requires a strictly-typed Pydantic response
 model — :class:`~slop_research_factory.types.verifier_output.VerifierOutput`.
 Instructor patches LiteLLM to coerce raw model output into a Pydantic
 instance, retrying when the parser fails validation. Models routed via
@@ -22,11 +22,11 @@ This module exposes a single async helper:
 
 The returned ``raw_response`` is the same :class:`LLMResponse` shape
 the rest of the system uses, so the caller can seal raw API bytes
-**before parse** per D-1 §10 / D-5 §6 — Instructor's transformation
+**before parse** per / — Instructor's transformation
 is purely a downstream parsing step.
 
 Optional dependencies:
-    ``instructor`` and ``litellm``.  Both are imported lazily so this
+    ``instructor`` and ``litellm``. Both are imported lazily so this
     module is importable in environments without the LLM stack.
 """
 
@@ -93,16 +93,16 @@ async def complete_structured(
     """Run a single completion that returns a typed Pydantic model.
 
     Args:
-        model:              Provider model identifier (LiteLLM string).
-        messages:           OpenAI-format chat messages.
-        response_model:     Pydantic model class the LLM output is
-            coerced into.  Validation failures trigger Instructor's
+        model: Provider model identifier (LiteLLM string).
+        messages: OpenAI-format chat messages.
+        response_model: Pydantic model class the LLM output is
+            coerced into. Validation failures trigger Instructor's
             built-in retry (up to ``max_retries`` extra attempts).
-        sampling_params:    Optional sampling kwargs forwarded to
+        sampling_params: Optional sampling kwargs forwarded to
             LiteLLM (temperature, top_p, etc.).
-        max_retries:        Validation retry budget; ``2`` matches
+        max_retries: Validation retry budget; ``2`` matches
             Instructor's documented default.
-        instructor_client:  Pre-built Instructor client (test seam).
+        instructor_client: Pre-built Instructor client (test seam).
             When ``None``, a fresh client is created via
             ``instructor.from_litellm``.
 
@@ -110,7 +110,7 @@ async def complete_structured(
         ``(parsed, raw)`` where *parsed* is a validated instance of
         *response_model* and *raw* is the :class:`LLMResponse` derived
         from Instructor's underlying provider response — sealed
-        verbatim under D-1 §10 / D-5 §6.
+        verbatim under / .
 
     Raises:
         InstructorNotInstalledError: If ``instructor_client`` is
@@ -148,8 +148,7 @@ async def complete_structured(
             ):
                 routed = f"openrouter/{model}"
                 logger.info(
-                    "LiteLLM could not infer provider for structured model=%r; "
-                    "retrying as %r",
+                    "LiteLLM could not infer provider for structured model=%r; retrying as %r",
                     model,
                     routed,
                 )
@@ -224,10 +223,10 @@ def _extract_assistant_text(raw: dict[str, Any]) -> str:
 
     Instructor still surfaces the raw provider completion alongside
     the parsed Pydantic instance, so the standard ``choices[0]``
-    accessor works.  Reasoning content (if any) is returned verbatim
+    accessor works. Reasoning content (if any) is returned verbatim
     so the caller can seal it; structured-output flows do not
     automatically wrap reasoning in ``<details>`` because the
-    Verifier's closed-book discipline (D-0 §6.3) keeps think traces
+    Verifier's closed-book discipline keeps think traces
     out of its critique payload.
     """
     choices = raw.get("choices") or []

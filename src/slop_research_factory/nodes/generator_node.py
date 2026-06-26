@@ -1,20 +1,19 @@
 # src/slop_research_factory/nodes/generator_node.py
 
 """
-Generator node — Implementation Step 6 (D-0 §13).
+Generator node — Implementation Step 6.
 
-Executes the four-phase node protocol (D-5 §4) for the Generator:
+Executes the four-phase node protocol for the Generator:
 
-  Phase 1  PRE-SEAL    Render & seal the prompt intent.
-  Phase 2  INFERENCE   Call the Generator LLM; capture raw bytes first.
-  Phase 3  POST-SEAL   Write artefacts; seal the outcome.
-  Phase 4  STATE UPDATE Mutate FactoryState; persist checkpoint.
+  Phase 1 PRE-SEAL Render & seal the prompt intent.
+  Phase 2 INFERENCE Call the Generator LLM; capture raw bytes first.
+  Phase 3 POST-SEAL Write artefacts; seal the outcome.
+  Phase 4 STATE UPDATE Mutate FactoryState; persist checkpoint.
 
 Primary specification references:
-  D-3 §3   — Generator system prompt and user-message template.
-  D-5 §5.2 — Generator seal sequence and metadata schemas.
-  D-5 §6   — Raw API response sealing (bytes before parse).
-  D-3 §7   — NO_OUTPUT detection.
+  .2 — Generator seal sequence and metadata schemas.
+   — Raw API response sealing (bytes before parse).
+   — NO_OUTPUT detection.
 """
 
 from __future__ import annotations
@@ -53,17 +52,17 @@ logger = logging.getLogger(__name__)
 
 
 def _now_iso() -> str:
-    """UTC timestamp in ISO-8601 with milliseconds (D-2 §13)."""
+    """UTC timestamp in ISO-8601 with milliseconds."""
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
 
 def _cycle_prefix(cycle: int) -> str:
-    """``cycle_01``, ``cycle_02``, … (D-2 §13 naming contract)."""
+    """``cycle_01``, ``cycle_02``, …."""
     return f"cycle_{cycle:02d}"
 
 
 def _serialize_with_version(obj: dict, version: str = "0.1") -> dict:
-    """Add ``_schema_version`` key per D-2 §15."""
+    """Add ``_schema_version`` key per ."""
     return {"_schema_version": version, **obj}
 
 
@@ -84,19 +83,19 @@ async def generator_node(
     """Run the Generator node with full provenance sealing.
 
     Args:
-        state:       Current ``FactoryState`` — mutated in place.
-        seal_engine: Async wrapper around ``slop-cli`` (D-5 §3).
-        llm_client:  LiteLLM async wrapper (Step 4).
-        workspace:   Workspace I/O helper (Step 2).
+        state: Current ``FactoryState`` — mutated in place.
+        seal_engine: Async wrapper around ``slop-cli``.
+        llm_client: LiteLLM async wrapper (Step 4).
+        workspace: Workspace I/O helper (Step 2).
 
     Returns:
-        The updated ``FactoryState``.  If NO_OUTPUT was detected the
+        The updated ``FactoryState``. If NO_OUTPUT was detected the
         ``status`` field is set to ``RunStatus.NO_OUTPUT`` and the
         orchestrator MUST NOT route to the Verifier.
 
     Raises:
         SealError: On any seal-engine failure (results in FAILED status
-                   at the orchestrator level per D-5 §13).
+                   at the orchestrator level per ).
     """
     from slop_research_factory.seal.helpers import seal_step  # Step 3
 
@@ -174,7 +173,7 @@ async def generator_node(
         duration_s,
     )
 
-    # ── Raw response sealing (D-5 §6) ─────────────────────────────────
+    # ── Raw response sealing ─────────────────────────────────
     # Write raw bytes BEFORE any parsing.
     raw_bytes = json.dumps(
         response.raw_response,
@@ -202,7 +201,7 @@ async def generator_node(
         think_path = workspace.drafts_path(f"{prefix}_generator_think.md")
         workspace.write_text(think_path, think_trace)
 
-    # ── NO_OUTPUT detection (D-3 §7) ──────────────────────────────────
+    # ── NO_OUTPUT detection ──────────────────────────────────
     is_no_output, no_output_explanation = detect_no_output(final_output)
     if is_no_output:
         logger.info(
@@ -218,7 +217,7 @@ async def generator_node(
     if think_path is not None:
         think_hash = await seal_engine.hash_file(str(think_path))
 
-    # Build InferenceRecord (D-2 §9).
+    # Build InferenceRecord.
     inference_record = InferenceRecord(
         run_id=state.run_id,
         step_index=state.step_index + 1,  # will match POST step
@@ -247,7 +246,7 @@ async def generator_node(
         _serialize_with_version(asdict(inference_record)),
     )
 
-    # Collect content files covered by this seal (D-5 §7, D-5 §16 #18).
+    # Collect content files covered by this seal.
     post_content_files = [
         workspace.relative(output_path),
         workspace.relative(response_path),
@@ -296,7 +295,7 @@ async def generator_node(
     if response.think_tokens is not None:
         state.total_think_tokens += response.think_tokens
     state.total_wall_clock_seconds += duration_s
-    # Cost estimate (rough; exact pricing lives in D-9 §12).
+    # Cost estimate.
     state.total_estimated_cost_usd += _estimate_cost(
         config.generator_model,
         response.input_tokens,
@@ -326,7 +325,7 @@ async def generator_node(
 
     state.updated_at = _now_iso()
 
-    # Atomic checkpoint (D-2 §6 serialization contract).
+    # Atomic checkpoint.
     workspace.write_state(state)
 
     logger.info(
@@ -341,12 +340,12 @@ async def generator_node(
 
 # ---------------------------------------------------------------------------
 
-# Rough cost estimation (D-9 §12.1 pricing table, April 2026)
+# Rough cost estimation
 
 # ---------------------------------------------------------------------------
 
 # Exact model id (LiteLLM string) → ($/M input, $/M output).
-# D-9 §12.1 — April 2026 reference pricing; update when list changes.
+# .1 — April 2026 reference pricing; update when list changes.
 _EXACT_MODEL_COST: dict[str, tuple[float, float]] = {
     "deepseek/deepseek-r1": (0.55, 2.19),
     "google/gemini-2.5-flash": (0.15, 0.60),
@@ -360,7 +359,7 @@ _SUBSTRING_MODEL_COST: tuple[tuple[str, tuple[float, float]], ...] = (
 
 
 def _estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
-    """Return a rough USD cost estimate.  Unknown models → ``0.0``."""
+    """Return a rough USD cost estimate. Unknown models → ``0.0``."""
     if model in _EXACT_MODEL_COST:
         inp_rate, out_rate = _EXACT_MODEL_COST[model]
     else:

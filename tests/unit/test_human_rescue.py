@@ -11,9 +11,6 @@ Covers:
 
     immutability, action-specific invariants.
 
-Spec references:
-    D-2 §12    Human rescue schema.
-    D-5 §5.5   Human gate node contract.
 """
 
 from __future__ import annotations
@@ -204,7 +201,7 @@ class TestHumanRescueRequestValidation:
             ValueError,
             match="brief_title",
         ):
-            _request(brief_title="   \t\n  ")
+            _request(brief_title=" \t\n ")
 
     def test_empty_summary_rejected(self) -> None:
         with pytest.raises(ValueError, match="summary"):
@@ -212,7 +209,7 @@ class TestHumanRescueRequestValidation:
 
     def test_whitespace_summary_rejected(self) -> None:
         with pytest.raises(ValueError, match="summary"):
-            _request(summary="   ")
+            _request(summary=" ")
 
     def test_naive_timestamp_rejected(self) -> None:
         with pytest.raises(
@@ -532,7 +529,7 @@ class TestHumanRescueResolutionActionInvariants:
         ):
             _resolution(
                 action=HumanRescueAction.PROVIDE_GUIDANCE,
-                guidance="   \t\n  ",
+                guidance=" \t\n ",
             )
 
     def test_provide_guidance_with_text_accepted(

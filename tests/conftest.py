@@ -47,7 +47,7 @@ from slop_research_factory.types.enums import RunStatus
 
 
 class _AppendOnlyList(list):
-    """Mirror of D-2 §6 AppendOnlyList; suffices for stub state."""
+    """Mirror of AppendOnlyList; suffices for stub state."""
 
     def __setitem__(self, key: Any, value: Any) -> None:  # noqa: D401
         raise TypeError("AppendOnlyList does not support item reassignment")
@@ -95,7 +95,7 @@ class StubState:
     """Lean clone of :class:`FactoryState` for stub-driven node tests.
 
     ``latest_hash`` defaults to the empty string so ``seal_step`` treats
-    the first seal as genesis-anchored (parent_hash=None).  Real runs
+    the first seal as genesis-anchored (parent_hash=None). Real runs
     will overwrite this in M2's ``begin_chain``.
     """
 
@@ -199,7 +199,7 @@ class StubWorkspace:
 
     Exposes the minimum surface ``generator_node`` (and other nodes)
     consume: ``drafts_path``, ``chain_dir``, ``relative``, plus atomic
-    file write helpers.  No fsync — speed matters more in tests.
+    file write helpers. No fsync — speed matters more in tests.
     """
 
     def __init__(self, root: Path) -> None:

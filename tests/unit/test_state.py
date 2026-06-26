@@ -1,13 +1,13 @@
 # tests/unit/test_state.py
 
 """
-E1 unit tests for types/state.py — D-2 §6.
+E1 unit tests for types/state.py.
 
 Test-to-spec traceability
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-  E1-S03  FactoryState JSON round-trip.
-  E1-S22  Nested FactoryConfig reconstruction.
-  (plus)  AppendOnlyList enforcement (D-2 §6, §16 invariant 12).
+  E1-S03 FactoryState JSON round-trip.
+  E1-S22 Nested FactoryConfig reconstruction.
+  (plus) AppendOnlyList enforcement.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ from slop_research_factory.types.state import (
     FactoryState,
 )
 
-# ── AppendOnlyList enforcement (D-2 §6, §16 invariant 12) ────
+# ── AppendOnlyList enforcement ────
 
 
 class TestAppendOnlyList:
@@ -101,7 +101,7 @@ class TestAppendOnlyList:
             ao *= 2  # type: ignore[operator, assignment]
 
 
-# ── E1-S03: FactoryState JSON round-trip (D-2 §6) ────────────
+# ── E1-S03: FactoryState JSON round-trip ────────────
 
 
 class TestFactoryStateRoundTrip:
@@ -217,7 +217,7 @@ class TestFactoryStateRoundTrip:
         )
 
 
-# ── E1-S22: Nested FactoryConfig reconstruction (D-2 §2, §6) ─
+# ── E1-S22: Nested FactoryConfig reconstruction ─
 
 
 class TestNestedConfigReconstruction:

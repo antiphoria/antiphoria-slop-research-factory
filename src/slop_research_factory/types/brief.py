@@ -3,7 +3,7 @@
 """
 ResearchBrief — the sole human input that initiates a factory run.
 
-Spec reference: D-2 §5.  Validation rules: D-2 §5, D-2 §16 invariant #5.
+Spec reference: . Validation rules: , invariant #5.
 """
 
 from __future__ import annotations
@@ -15,10 +15,9 @@ class ResearchBrief(BaseModel):
     """The human-authored research brief that initiates a factory run.
 
     This is the ONLY human intellectual contribution to the generation
-    process.  Everything downstream is autonomous.  The brief is sealed
+    process. Everything downstream is autonomous. The brief is sealed
     as the first post-genesis artifact in the provenance chain.
 
-    Spec: D-2 §5.
     """
 
     # ── Required ─────────────────────────────────────────────────
@@ -43,7 +42,7 @@ class ResearchBrief(BaseModel):
 
     key_references: list[str] | None = None
     """DOIs, arXiv IDs, or full citation strings the human considers
-    relevant.  Each entry must be a non-empty string.
+    relevant. Each entry must be a non-empty string.
     """
 
     constraints: str | None = None
@@ -62,10 +61,7 @@ class ResearchBrief(BaseModel):
     @field_validator("thesis")
     @classmethod
     def thesis_must_be_non_empty_and_bounded(cls, v: str) -> str:
-        """Strip whitespace; reject empty or > 10 000 chars.
-
-        Spec: D-2 §5, D-2 §16 invariant #5.
-        """
+        """Strip whitespace; reject empty or > 10 000 chars."""
         v = v.strip()
         if not v:
             raise ValueError("thesis must be non-empty")
@@ -87,10 +83,7 @@ class ResearchBrief(BaseModel):
         cls,
         v: list[str] | None,
     ) -> list[str] | None:
-        """Reject empty or whitespace-only reference entries.
-
-        Spec: D-2 §5 — "each be non-empty strings".
-        """
+        """Reject empty or whitespace-only reference entries."""
         if v is not None:
             for idx, ref in enumerate(v):
                 if not ref.strip():

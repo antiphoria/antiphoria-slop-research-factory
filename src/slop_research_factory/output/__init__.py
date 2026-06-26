@@ -5,7 +5,7 @@
 Output rendering — converts typed data into final Markdown/JSON artifacts.
 
 Modules:
-    hai_card_renderer   Render :class:`HaiCard` → ``hai_card.md``.
+    hai_card_renderer Render :class:`HaiCard` → ``hai_card.md``.
 
 The finalize node (``nodes/finalize_node.py``) is the sole consumer.
 """

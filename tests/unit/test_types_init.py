@@ -371,7 +371,7 @@ class TestSubmodulesImportable(unittest.TestCase):
 
 
 class TestConfigSeparation(unittest.TestCase):
-    """``FactoryConfig`` lives in ``config``, not ``types`` (D-2 §4)."""
+    """``FactoryConfig`` lives in ``config``, not ``types``."""
 
     def test_factory_config_not_in_types_namespace(self) -> None:
         mod = importlib.import_module(_TYPES_PKG)

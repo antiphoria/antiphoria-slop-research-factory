@@ -1,6 +1,6 @@
 # tests/integration/test_reviser_node.py
 
-"""Integration tests for :func:`reviser_node` (D-3 §5 / D-5 §5.4)."""
+"""Integration tests for :func:`reviser_node`."""
 
 from __future__ import annotations
 

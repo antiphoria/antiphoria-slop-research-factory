@@ -12,10 +12,6 @@ Covers:
 
     sequence interface, verify_integrity.
 
-Spec references:
-    D-2 §7.1   SealRecord schema.
-    D-2 §7.2   ProvenanceChain schema.
-    D-2 §7.3   ProvenanceMetadata schema.
 """
 
 from __future__ import annotations
